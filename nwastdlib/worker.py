@@ -80,7 +80,7 @@ class Worker(object):
         print("Worker Report: %d processed; %d erroneous; %d fatal" %
               (self.processed_messages_count, self.erroneous_messages_count, self.fatal_messages_count))
 
-    def main(self, handler):
+    def run(self, handler):
         def parsejob(message):
             try:
                 data = yaml.load(message)
