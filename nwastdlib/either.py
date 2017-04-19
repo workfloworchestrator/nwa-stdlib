@@ -55,6 +55,16 @@ class Either(Generic[α, β]):
         else:
             return f(b)
 
+    def either(self, f, g):
+        """
+        Either α β -> (α -> γ) -> (β -> γ) -> γ
+        """
+        (a, b) = self.value
+        if a is not None:
+            return f(a)
+        else:
+            return g(b)
+
     def __eq__(self, other):
         """Test two instances for value equality, such that:
 
