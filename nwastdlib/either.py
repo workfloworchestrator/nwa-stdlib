@@ -8,7 +8,8 @@ from typing import Generic, List, TypeVar
 class Either(Generic[α, β]):
     """The Either data type.
 
-    ``Either α β`` represents a value two possibilities: ``Left α`` or ``Right β``"""
+    ``Either α β`` represents a value two possibilities: ``Left α`` or ``Right β``
+    """
 
     @classmethod
     def Left(cls, a: α):
@@ -68,7 +69,6 @@ class Either(Generic[α, β]):
 
         >>> Either.Right(1) == 1
         False
-
         """
         if isinstance(other, Either):
             return self.value == other.value
