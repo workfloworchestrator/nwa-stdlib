@@ -8,7 +8,7 @@ setup(
     description='Network Automation Standard Library',
     long_description=open('README.rst').read(),
     author='SURFnet NOC',
-    author_email='noc@surfnet.nl',
+    author_email='automation-nw@surfnet.nl',
     url='https://gitlab.surfnet.nl/SURFnetNOC/nwa-stdlib',
     classifiers=[
         'Programming Language :: Python :: 3',
