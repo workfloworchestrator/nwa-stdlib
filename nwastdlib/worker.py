@@ -109,6 +109,8 @@ class Worker(object):
         signal.signal(signal.SIGHUP, self.__sighub)
         signal.signal(signal.SIGUSR1, self.__sigusr1)
 
+        print("Worker is now connected to %s and listening on '%s'" % (self.broker, self.inbound_queue))
+
         while True:
             (message, headers) = self.mailbox.receive()
 
