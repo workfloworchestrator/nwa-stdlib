@@ -5,6 +5,7 @@ import yaml
 from queue import Queue
 from stomp import Connection, ConnectionListener
 
+from . import Either
 
 class Mailbox(ConnectionListener):
     """Mailbox that contains messages from a STOMP connection.
@@ -85,24 +86,17 @@ class Worker(object):
             try:
                 data = yaml.load(message)
             except:
-                return ("invalid data format", None)
+                return Either.Left("invalid data format")
             if data.get("job_id") is None:
-                return ("job_id is not specified", None)
+                return Either.Left("job_id is not specified")
             else:
-                return (None, data)
+                return Either.Right(data)
 
         try:
             self.__connect()
         except Exception as e:
             print("Cannot connect to broker %s\n%s" % (self.broker, e), file=sys.stderr)
             sys.exit(2)
-
-        def process(message):
-            (err, job) = parsejob(message)
-            if err is not None:
-                return (err, None)
-            else:
-                return handler(job)
 
         signal.signal(signal.SIGTERM, self.__sigterm)
         signal.signal(signal.SIGINT, self.__sigterm)
@@ -114,13 +108,17 @@ class Worker(object):
         while True:
             (message, headers) = self.mailbox.receive()
 
+            def handle_success(ignore):
+                self.processed_messages_count += 1
+
+            def handle_error(err):
+                print("Error while processing message: %s\nMessage: %s" % (err, message), file=sys.stderr)
+                self.erroneous_messages_count += 1
+
             try:
-                (err, _) = process(message)
-                if err is None:
-                    self.processed_messages_count += 1
-                else:
-                    print("Error while processing message: %s\nMessage: %s" % (err, message), file=sys.stderr)
-                    self.erroneous_messages_count += 1
+                parsejob(message) \
+                  .flatmap(handler) \
+                  .either(handle_error, handle_success)
             except Exception as e:
                 print("%s: %s (message: %s)" % (e.__class__.__name__, e, message), file=sys.stderr)
                 self.fatal_messages_count += 1
