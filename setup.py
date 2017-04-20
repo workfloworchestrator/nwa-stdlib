@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 
-from setuptools import setup
+import setuptools
 
-setup(
+setup_params = dict(
     name='nwa-stdlib',
     version='0.1',
     packages=['nwastdlib'],
     install_requires=['pytz>=2016.6', 'pyyaml>=3.12', 'stomp.py>=4.1'],
+    setup_requires=['pytest-runner'],
+    tests_require=['pytest'],
     description='Network Automation Standard Library',
     long_description=open('README.rst').read(),
     author='SURFnet NOC',
@@ -17,3 +19,6 @@ setup(
         'Operating System :: OS Independent'
     ]
 )
+
+if __name__ == "__main__":
+    setuptools.setup(**setup_params)

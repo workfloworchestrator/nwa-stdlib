@@ -1,3 +1,5 @@
-__pycache__
+.cache/
+.eggs/
+__pycache__/
 MANIFEST
 dist/
