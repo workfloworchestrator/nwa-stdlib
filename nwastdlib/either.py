@@ -5,6 +5,7 @@ from typing import Generic, List, TypeVar
 α = TypeVar('a')
 β = TypeVar('b')
 
+
 class Either(Generic[α, β]):
     """The Either data type.
 

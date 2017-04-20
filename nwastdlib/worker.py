@@ -7,6 +7,7 @@ from stomp import Connection, ConnectionListener
 
 from . import Either
 
+
 class Mailbox(ConnectionListener):
     """Mailbox that contains messages from a STOMP connection.
 
@@ -117,8 +118,8 @@ class Worker(object):
 
             try:
                 parsejob(message) \
-                  .flatmap(handler) \
-                  .either(handle_error, handle_success)
+                    .flatmap(handler) \
+                    .either(handle_error, handle_success)
             except Exception as e:
                 print("%s: %s (message: %s)" % (e.__class__.__name__, e, message), file=sys.stderr)
                 self.fatal_messages_count += 1
