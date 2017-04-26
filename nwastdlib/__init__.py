@@ -1,5 +1,3 @@
+from .config import Config, get_config
 from .either import Either, sequence
-
-
-def identity(x):
-    return x
+from .f import identity
