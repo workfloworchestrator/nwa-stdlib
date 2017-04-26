@@ -1,4 +1,5 @@
 from functools import reduce
+from .f import identity
 
 from typing import Generic, List, TypeVar
 
@@ -65,6 +66,35 @@ class Either(Generic[α, β]):
             return f(a)
         else:
             return g(b)
+
+    def bimap(self, f, g):
+        """
+        Map over both Left and Right at the same time
+
+        >>> Either.Right(1).bimap(lambda _: 2, lambda _: 3)
+        Right 3
+
+        >>> Either.Left(1).bimap(lambda _: 2, lambda _: 3)
+        Left 2
+        """
+        return self.either(
+            lambda c: Either.Left(f(c)),
+            lambda d: Either.Right(g(d))
+        )
+
+    def first(self, f):
+        """
+        Map over the first argument
+
+        >>> Either.Left(1).first(lambda _: 2)
+        Left 2
+
+        >>> Either.Right(1).first(lambda _: 3)
+        Right 1
+        """
+        return self.bimap(f, identity)
+
+    second = map
 
     def __eq__(self, other):
         """Test two instances for value equality, such that:
