@@ -12,6 +12,27 @@ def compose(f, g):
     return lambda x: f(g(x))
 
 
+def unkwargs(f):
+    '''
+    Convert a function `f` on keyword arguments to a function on a single
+    argument.
+
+    >>> def f(a, b, c):
+    ...     return (a,b,c)
+
+    >>> arg = dict(a=1,b=2,c=3)
+
+    >>> f(arg)
+    Traceback (most recent call last):
+        ...
+    TypeError: f() missing 2 required positional arguments: 'b' and 'c'
+
+    >>> unkwargs(f)(arg)
+    (1, 2, 3)
+    '''
+    return lambda x: f(**x)
+
+
 def fst(xs):
     '''
     Get the first element from an indexed iterable data structure (e.g. tuple,
