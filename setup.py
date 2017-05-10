@@ -8,7 +8,8 @@ setup_params = dict(
     packages=['nwastdlib'],
     install_requires=['pytz>=2016.6', 'pyyaml>=3.12'],
     extras_require={
-        "mq": ['stomp.py>=4.1']
+        "mq": ['stomp.py>=4.1'],
+        "api": ['connexion>=1.1']
     },
     setup_requires=['pytest-runner'],
     tests_require=['pytest'],
