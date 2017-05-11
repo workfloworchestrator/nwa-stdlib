@@ -5,10 +5,13 @@ from .f import identity
 
 def get_config(var, default=None, parse=identity):
     mx = os.environ.get(var)
-    x = parse(mx) if mx is not None else default
-    if x is None:
-        return Either.Left("Missing config for %s" % var)
-    return Either.Right(x)
+    try:
+        x = parse(mx) if mx is not None else default
+        if x is None:
+            return Either.Left("Missing config for %s" % var)
+        return Either.Right(x)
+    except:
+        return Either.Left("Invalid value for %s: %s" % (var, mx))
 
 
 class Config(object):
