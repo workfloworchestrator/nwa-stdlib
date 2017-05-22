@@ -1,5 +1,5 @@
 from functools import reduce
-from .f import identity
+from .f import const, identity
 
 from typing import Generic, List, TypeVar
 
@@ -12,21 +12,6 @@ class Either(Generic[α, β]):
 
     ``Either α β`` represents a value two possibilities: ``Left α`` or ``Right β``
     """
-
-    @classmethod
-    def Left(cls, a: α):
-        """Left data constructor"""
-        return cls(a, None)
-
-    @classmethod
-    def Right(cls, b: β):
-        """Right data constructor"""
-        return cls(None, b)
-
-    unit = Right
-
-    def __init__(self, a: α, b: β):
-        self.value = (a, b)
 
     def map(self, f):
         """Either α β -> (β -> γ) -> Either α γ
@@ -51,21 +36,20 @@ class Either(Generic[α, β]):
         >>> Either.Left(1).flatmap(lambda x: Either.Right(x + 1))
         Left 1
         """
-        (a, b) = self.value
-        if a is not None:
-            return self
-        else:
-            return f(b)
+        raise NotImplementedError("Abstract function `flatmap` must be implemented by the type constructor")
 
     def either(self, f, g):
         """
         Either α β -> (α -> γ) -> (β -> γ) -> γ
+
+        >>> always = lambda x: lambda y: x
+        >>> Either.Left(None).either(always('left'), always('right'))
+        'left'
+
+        >>> Either.Right(None).either(always('left'), always('right'))
+        'right'
         """
-        (a, b) = self.value
-        if a is not None:
-            return f(a)
-        else:
-            return g(b)
+        raise NotImplementedError("Abstract function `either` must be implemented by the type constructor")
 
     def bimap(self, f, g):
         """
@@ -108,11 +92,17 @@ class Either(Generic[α, β]):
         >>> Either.Left(1) == Either.Right(1)
         False
 
+        >>> Either.Right(1) == Either.Right(2)
+        False
+
         >>> Either.Right(1) == 1
         False
         """
         if isinstance(other, Either):
-            return self.value == other.value
+            return self.either(
+                lambda x: other.either(x.__eq__, const(False)),
+                lambda x: other.either(const(False), x.__eq__)
+            )
         else:
             return False
 
@@ -130,6 +120,57 @@ class Either(Generic[α, β]):
             return "Left %s" % repr(a)
         else:
             return "Right %s" % repr(b)
+
+
+class __Left(Either):
+    def __init__(self, a: α):
+        """
+        Left data constructor
+
+        >>> Either.Left(1)
+        Left 1
+
+        >>> Either.Left(None)
+        Left None
+        """
+        self.value = a
+
+    def flatmap(self, f):
+        return self
+
+    def either(self, f, g):
+        return f(self.value)
+
+    def __repr__(self):
+        return "Left %s" % repr(self.value)
+
+
+class __Right(Either):
+    def __init__(self, b: β):
+        """
+        Right data constructor
+
+        >>> Either.Right(1)
+        Right 1
+
+        >>> Either.Right(None)
+        Right None
+        """
+        self.value = b
+
+    def flatmap(self, f):
+        return f(self.value)
+
+    def either(self, f, g):
+        return g(self.value)
+
+    def __repr__(self):
+        return "Right %s" % repr(self.value)
+
+
+Either.Left = __Left
+Either.Right = __Right
+Either.unit = __Right
 
 
 def sequence(eithers: List[Either[α, β]]) -> Either[α, List[β]]:

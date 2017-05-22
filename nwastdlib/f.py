@@ -2,6 +2,16 @@ def identity(x):
     return x
 
 
+def const(x):
+    '''
+    Convert a value `x` to a function that always results in `x`
+
+    >>> const(1)(2)
+    1
+    '''
+    return lambda *_: x
+
+
 def compose(f, g):
     '''
     Get the composition f of g
