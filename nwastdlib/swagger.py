@@ -30,7 +30,7 @@ class SwaggerFile(object):
                 source = f.read()
 
             def sub(s, kv):
-                re.compile('%s: "[^"]*"' % kv[0]).sub('%s: "%s"' % kv, s)
+                return re.compile('%s: "[^"]*"' % kv[0]).sub('%s: "%s"' % kv, s)
             output = reduce(sub, self.substititions.items(), source)
 
             with target:
