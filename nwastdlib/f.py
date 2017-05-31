@@ -76,3 +76,19 @@ def snd(xs):
     2
     '''
     return xs[1]
+
+
+def elem(x, xs):
+    '''
+    Get whether `x` is in `xs`.
+
+    >>> elem(1, range(1,100))
+    True
+
+    >>> elem(100, range(1,100))
+    False
+    '''
+    try:
+        return xs.index(x) >= 0
+    except ValueError:
+        return False
