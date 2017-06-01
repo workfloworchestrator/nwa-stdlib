@@ -115,11 +115,10 @@ class Either(Generic[α, β]):
         >>> repr(Either.Right(1))
         'Right 1'
         """
-        (a, b) = self.value
-        if a is not None:
-            return "Left %s" % repr(a)
-        else:
-            return "Right %s" % repr(b)
+        return self.either(
+            lambda a: "Left %s" % repr(a),
+            lambda b: "Right %s" % repr(b)
+        )
 
 
 class __Left(Either):
@@ -141,9 +140,6 @@ class __Left(Either):
     def either(self, f, g):
         return f(self.value)
 
-    def __repr__(self):
-        return "Left %s" % repr(self.value)
-
 
 class __Right(Either):
     def __init__(self, b: β):
@@ -163,9 +159,6 @@ class __Right(Either):
 
     def either(self, f, g):
         return g(self.value)
-
-    def __repr__(self):
-        return "Right %s" % repr(self.value)
 
 
 Either.Left = __Left
