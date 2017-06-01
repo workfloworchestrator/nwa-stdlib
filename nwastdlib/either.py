@@ -35,6 +35,11 @@ class Either(Generic[α, β]):
 
         >>> Either.Left(1).flatmap(lambda x: Either.Right(x + 1))
         Left 1
+
+        >>> Either.Right(1).flatmap(const('invalid type'))
+        Traceback (most recent call last):
+            ...
+        TypeError: f must return an Either type
         """
         raise NotImplementedError("Abstract function `flatmap` must be implemented by the type constructor")
 
@@ -52,7 +57,7 @@ class Either(Generic[α, β]):
         raise NotImplementedError("Abstract function `either` must be implemented by the type constructor")
 
     def bimap(self, f, g):
-        """
+        """nn
         Map over both Left and Right at the same time
 
         >>> Either.Right(1).bimap(lambda _: 2, lambda _: 3)
@@ -155,7 +160,10 @@ class __Right(Either):
         self.value = b
 
     def flatmap(self, f):
-        return f(self.value)
+        x = f(self.value)
+        if not isinstance(x, Either):
+            raise TypeError("f must return an Either type")
+        return x
 
     def either(self, f, g):
         return g(self.value)

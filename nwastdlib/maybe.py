@@ -33,6 +33,11 @@ class Maybe(Generic[α]):
 
         >>> Maybe.Nothing().flatmap(lambda _: Maybe.Some(1))
         Nothing
+
+        >>> Maybe.Some(1).flatmap(const('invalid type'))
+        Traceback (most recent call last):
+            ...
+        TypeError: f must return a Maybe type
         """
         raise NotImplementedError("Abstract function `flatmap` must be implemented by the type constructor")
 
@@ -151,7 +156,10 @@ class __Some(Maybe):
         self.value = a
 
     def flatmap(self, f):
-        return f(self.value)
+        x = f(self.value)
+        if not isinstance(x, Maybe):
+            raise TypeError("f must return a Maybe type")
+        return x
 
     def maybe(self, b, f):
         return f(self.value)
