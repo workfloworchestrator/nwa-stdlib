@@ -1,4 +1,4 @@
-from typing import Any, Callable, Generic, TypeVar
+from typing import Any, Callable, Generic, Optional, TypeVar
 from .f import const, identity
 
 α = TypeVar('a')
@@ -10,6 +10,22 @@ class Maybe(Generic[α]):
     """
     The Maybe data type to represent an optional value.
     """
+
+    @staticmethod
+    def of(optional: Optional[α]) -> 'Maybe[α]':
+        """
+        Maybe type constructor from Optional value.
+
+        >>> Maybe.of(1)
+        Some 1
+
+        >>> Maybe.of(None)
+        Nothing
+        """
+        if optional is None:
+            return Maybe.Nothing()
+        else:
+            return Maybe.Some(optional)
 
     def map(self: Self, f: Callable[[α], β]) -> 'Maybe[β]':
         """
