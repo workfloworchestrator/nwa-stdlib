@@ -1,8 +1,15 @@
-def identity(x):
+from typing import Any, Callable, TypeVar
+
+α = TypeVar('a')
+β = TypeVar('b')
+γ = TypeVar('c')
+
+
+def identity(x: α) -> α:
     return x
 
 
-def const(x):
+def const(x: α) -> Callable[[Any], α]:
     '''
     Convert a value `x` to a function that always results in `x`
 
@@ -12,7 +19,7 @@ def const(x):
     return lambda *_: x
 
 
-def compose(f, g):
+def compose(f: Callable[[β], γ], g: Callable[[α], β]) -> Callable[[α], γ]:
     '''
     Get the composition f of g
 
@@ -20,6 +27,32 @@ def compose(f, g):
     2
     '''
     return lambda x: f(g(x))
+
+
+def curry(f: Callable[[α, β], γ]) -> Callable[[α], Callable[[β], γ]]:
+    '''
+    Convert a function `f` on two arguments into two functions.
+
+    >>> def f(a, b):
+    ...     return (a,b)
+
+    >>> curry(f)('a')('b')
+    ('a', 'b')
+    '''
+    return lambda a: lambda b: f(a, b)
+
+
+def flip(f: Callable[[α, β], γ]) -> Callable[[β, α], γ]:
+    '''
+    Convert a function `f` on two arguments to takes its arguments in reverse order.
+
+    >>> def f(a, b):
+    ...     return (a,b)
+
+    >>> flip(f)('a', 'b')
+    ('b', 'a')
+    '''
+    return lambda b, a: f(a, b)
 
 
 def unkwargs(f):
