@@ -181,5 +181,5 @@ class __Some(Maybe):
         return f(self.value)
 
 
-Maybe.Nothing = __Nothing
+Maybe.Nothing = const(__Nothing())
 Maybe.Some = __Some
