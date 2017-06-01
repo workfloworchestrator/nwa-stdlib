@@ -27,6 +27,22 @@ class Maybe(Generic[α]):
         else:
             return Maybe.Some(optional)
 
+    def __init__(self):
+        """
+        Enforce using specific data type constructors.
+
+        >>> Maybe()
+        Traceback (most recent call last):
+            ...
+        AssertionError: Maybe is an abstract type; use a specific type constructor
+
+        >>> Maybe('value')
+        Traceback (most recent call last):
+            ...
+        TypeError: __init__() takes 1 positional argument but 2 were given
+        """
+        raise AssertionError("Maybe is an abstract type; use a specific type constructor")
+
     def map(self: Self, f: Callable[[α], β]) -> 'Maybe[β]':
         """
         >>> inc = lambda n: n + 1
