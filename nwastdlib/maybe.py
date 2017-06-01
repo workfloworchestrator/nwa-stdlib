@@ -179,12 +179,15 @@ class __Some(Maybe):
         >>> Maybe.Some('value')
         Some 'value'
 
+        >>> Maybe.Some(False)
+        Some False
+
         >>> Maybe.Some(None)
         Traceback (most recent call last):
             ...
         AssertionError: Some must contain a value
         """
-        assert a, "Some must contain a value"
+        assert a is not None, "Some must contain a value"
         self.value = a
 
     def flatmap(self, f):
