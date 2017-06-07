@@ -19,6 +19,16 @@ def const(x: α) -> Callable[[Any], α]:
     return lambda *_: x
 
 
+def lazyconst(f: Callable[[], α]) -> Callable[[Any], α]:
+    '''
+    Convert a function `() -> α` to a function that always results in `α`.
+
+    >>> lazyconst(lambda: 42)(1)
+    42
+    '''
+    return lambda *_: f()
+
+
 def compose(f: Callable[[β], γ], g: Callable[[α], β]) -> Callable[[α], γ]:
     '''
     Get the composition f of g
