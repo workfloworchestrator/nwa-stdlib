@@ -1,8 +1,8 @@
 from typing import Any, Callable, TypeVar
 
-α = TypeVar('a')
-β = TypeVar('b')
-γ = TypeVar('c')
+α = TypeVar('α')
+β = TypeVar('β')
+γ = TypeVar('γ')
 
 
 def identity(x: α) -> α:

@@ -1,9 +1,8 @@
 from typing import Any, Callable, Generic, Optional, TypeVar
 from .f import const, identity
 
-α = TypeVar('a')
-β = TypeVar('b')
-Self = 'Maybe[α]'
+α = TypeVar('α')
+β = TypeVar('β')
 
 
 class Maybe(Generic[α]):
@@ -43,7 +42,7 @@ class Maybe(Generic[α]):
         """
         raise AssertionError("Maybe is an abstract type; use a specific type constructor")
 
-    def map(self: Self, f: Callable[[α], β]) -> 'Maybe[β]':
+    def map(self, f: Callable[[α], β]) -> 'Maybe[β]':
         """
         >>> inc = lambda n: n + 1
 
@@ -55,7 +54,7 @@ class Maybe(Generic[α]):
         """
         return self.flatmap(lambda a: Maybe.Some(f(a)))
 
-    def flatmap(self: Self, f: Callable[[α], 'Maybe[β]']) -> 'Maybe[β]':
+    def flatmap(self, f: Callable[[α], 'Maybe[β]']) -> 'Maybe[β]':
         """
         >>> Maybe.Some(1).flatmap(lambda _: Maybe.Some(2))
         Some 2
@@ -73,7 +72,7 @@ class Maybe(Generic[α]):
         """
         raise NotImplementedError("Abstract function `flatmap` must be implemented by the type constructor")
 
-    def maybe(self: Self, b: β, f: Callable[[α], β]) -> β:
+    def maybe(self, b: β, f: Callable[[α], β]) -> β:
         """
         >>> Maybe.Some(1).maybe(0, identity)
         1
@@ -83,7 +82,7 @@ class Maybe(Generic[α]):
         """
         raise NotImplementedError("Abstract function `maybe` must be implemented by the type constructor")
 
-    def isNothing(self: Self) -> bool:
+    def isNothing(self) -> bool:
         """
         Return True iff self is Nothing.
 
@@ -98,7 +97,7 @@ class Maybe(Generic[α]):
             const(False)
         )
 
-    def isSome(self: Self) -> bool:
+    def isSome(self) -> bool:
         """
         Return True iff self is Some.
 
@@ -114,7 +113,7 @@ class Maybe(Generic[α]):
             const(True)
         )
 
-    def __eq__(self: Self, other: Any) -> bool:
+    def __eq__(self, other: Any) -> bool:
         """
         Test two instances for value equality.
 
@@ -138,7 +137,7 @@ class Maybe(Generic[α]):
         else:
             return False
 
-    def __repr__(self: Self) -> str:
+    def __repr__(self) -> str:
         """
         Show the instance.
 
@@ -198,7 +197,6 @@ class __Some(Maybe):
 
     def maybe(self, b, f):
         return f(self.value)
-
 
 Maybe.Nothing = const(__Nothing())
 Maybe.Some = __Some

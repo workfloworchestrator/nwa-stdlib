@@ -19,7 +19,7 @@ class Either(Generic[α, β]):
         >>> Either.Right(1).map(lambda x: x + 1)
         Right 2
 
-        >>> Either.Left(1)
+        >>> Either.Left(1).map(lambda x: x + 1)
         Left 1
         """
         return self.flatmap(lambda b: Either.Right(f(b)))
