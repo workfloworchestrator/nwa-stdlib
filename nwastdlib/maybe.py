@@ -198,5 +198,6 @@ class __Some(Maybe):
     def maybe(self, b, f):
         return f(self.value)
 
+
 Maybe.Nothing = const(__Nothing())
 Maybe.Some = __Some
