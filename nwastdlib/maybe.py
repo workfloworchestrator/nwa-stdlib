@@ -115,6 +115,18 @@ class Maybe(Generic[α]):
             const(True)
         )
 
+    def filter(self, p: Callable[[α], bool]) -> 'Maybe[β]':
+        '''
+        Filter to a Maybe of the element that satisfies the predicate.
+
+        >>> Maybe.Some(1).filter(lambda x: x == 1)
+        Some 1
+
+        >>> Maybe.Some(1).filter(lambda x: x > 1)
+        Nothing
+        '''
+        return self.flatmap(lambda x: Maybe.Some(x) if p(x) else Maybe.Nothing())
+
     def __eq__(self, other: Any) -> bool:
         """
         Test two instances for value equality.
