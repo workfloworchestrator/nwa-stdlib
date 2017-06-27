@@ -1,7 +1,7 @@
 from functools import reduce
 from .f import const, identity
 
-from typing import Generic, List, TypeVar
+from typing import Generic, Iterable, TypeVar
 
 α = TypeVar('a')
 β = TypeVar('b')
@@ -174,7 +174,7 @@ Either.Right = __Right
 Either.unit = __Right
 
 
-def sequence(eithers: List[Either[α, β]]) -> Either[α, List[β]]:
+def sequence(eithers: Iterable[Either[α, β]]) -> Either[α, Iterable[β]]:
     """Fold an iterable of Either to an Either of iterable.
 
     The iterable's class must have constructor that returns an empty instance
@@ -193,3 +193,6 @@ def sequence(eithers: List[Either[α, β]]) -> Either[α, List[β]]:
         return acc.flatmap(lambda rs: e.map(lambda x: rs + unit((x,))))
 
     return reduce(iter, eithers, Either.Right(empty))
+
+
+Either.sequence = sequence
