@@ -180,11 +180,14 @@ def sequence(eithers: Iterable[Either[α, β]]) -> Either[α, Iterable[β]]:
     The iterable's class must have constructor that returns an empty instance
     given no arguments, and a non-empty instance given a singleton tuple.
 
-    >>> sequence([Either.Right(1), Either.Right(2)])
+    >>> Either.sequence([Either.Right(1), Either.Right(2)])
     Right [1, 2]
 
-    >>> sequence((Either.Right(2), Either.Right(3)))
+    >>> Either.sequence((Either.Right(2), Either.Right(3)))
     Right (2, 3)
+
+    >>> Either.sequence((Either.Right(3), Either.Left('x')))
+    Left 'x'
     """
     unit = eithers.__class__
     empty = unit()

@@ -212,13 +212,13 @@ def sequence(xs: Iterable[Maybe[α]]) -> Maybe[Iterable[α]]:
     The iterable's class must have constructor that returns an empty instance
     given no arguments, and a non-empty instance given a singleton tuple.
 
-    >>> sequence([Maybe.Some(1), Maybe.Some(2)])
+    >>> Maybe.sequence([Maybe.Some(1), Maybe.Some(2)])
     Some [1, 2]
 
-    >>> sequence((Maybe.Some(2), Maybe.Some(3)))
+    >>> Maybe.sequence((Maybe.Some(2), Maybe.Some(3)))
     Some (2, 3)
 
-    >>> sequence((Maybe.Some(3), Maybe.Nothing()))
+    >>> Maybe.sequence((Maybe.Some(3), Maybe.Nothing()))
     Nothing
     """
     unit = xs.__class__
