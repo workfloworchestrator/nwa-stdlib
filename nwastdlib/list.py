@@ -90,14 +90,14 @@ def empty(xs: List[α]) -> bool:
     return len(xs) == 0
 
 
-def nonEmpty(xs: List[α]) -> bool:
+def nonempty(xs: List[α]) -> bool:
     '''
     Complement of `empty`.
 
-    >>> nonEmpty([])
+    >>> nonempty([])
     False
 
-    >>> nonEmpty([1])
+    >>> nonempty([1])
     True
     '''
     return complement(empty)(xs)
