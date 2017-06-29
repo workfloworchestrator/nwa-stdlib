@@ -3,6 +3,7 @@ Module containing utility functions for lists.
 '''
 from typing import Callable, List, TypeVar
 
+from .f import complement
 from .maybe import Maybe
 
 α = TypeVar('a')
@@ -74,3 +75,29 @@ def find(p: Callable[[α], bool], xs: List[α]) -> Maybe[α]:
         return Maybe.Some(next(g))
     except StopIteration:
         return Maybe.Nothing()
+
+
+def empty(xs: List[α]) -> bool:
+    '''
+    Test whether a list is empty.
+
+    >>> empty([])
+    True
+
+    >>> empty([1])
+    False
+    '''
+    return len(xs) == 0
+
+
+def nonEmpty(xs: List[α]) -> bool:
+    '''
+    Complement of `empty`.
+
+    >>> nonEmpty([])
+    False
+
+    >>> nonEmpty([1])
+    True
+    '''
+    return complement(empty)(xs)

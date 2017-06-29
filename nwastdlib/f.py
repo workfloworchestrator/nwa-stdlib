@@ -85,3 +85,16 @@ def unkwargs(f):
     (1, 2, 3)
     '''
     return lambda x: f(**x)
+
+
+def complement(f: Callable[[α], bool]) -> Callable[[α], bool]:
+    '''
+    Get the complement of function f.
+
+    >>> complement(const(True))()
+    False
+
+    >>> complement(const(False))()
+    True
+    '''
+    return lambda *a: not f(*a)
