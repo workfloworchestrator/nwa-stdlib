@@ -4,12 +4,13 @@ import setuptools
 
 setup_params = dict(
     name='nwa-stdlib',
-    version='0.1',
+    version='0.2',
     packages=['nwastdlib'],
-    install_requires=['pytz>=2016.6', 'pyyaml>=3.12'],
+    install_requires=['pytz>=2016.6', 'pyyaml>=3.12', 'redis>=2.10.5', 'hiredis>=0.2.0'],
     extras_require={
         "mq": ['stomp.py>=4.1'],
-        "api": ['connexion>=1.1']
+        "api": ['connexion>=1.1'],
+        "redis": ['redis>=2.10.5', 'hiredis>=0.2.0']
     },
     setup_requires=['pytest-runner'],
     tests_require=['pytest'],
