@@ -2,7 +2,6 @@
 Module containing Basic logic to use the redis cache
 """
 from . import Either, Maybe
-from .f import identity
 from .ex import format_ex
 
 from collections import namedtuple
