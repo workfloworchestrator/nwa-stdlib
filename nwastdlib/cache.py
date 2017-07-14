@@ -49,7 +49,7 @@ def handle_setter(pool, payload):
                 return Either.Left("Nothing to set")
         except Exception as e:
             return Either.Left("Not able to to set the payload due to: %s" % e)
-    return set_val(pool)
+    return set_val(pool, payload)
 
 
 def flush_all(pool):
