@@ -2,7 +2,6 @@
 Module containing Basic logic to use the redis cache
 """
 from . import Either, Maybe
-from .f import identity
 from .ex import format_ex
 
 from collections import namedtuple
@@ -35,11 +34,7 @@ def handle_query(pool):
                 lambda x: Either.Right(json.loads(x))
         )
 
-    return pool.flatmap(resp_parser)\
-        .either(
-            identity,
-            identity
-    )
+    return resp_parser(pool)
 
 
 def handle_setter(pool, payload):
@@ -54,11 +49,7 @@ def handle_setter(pool, payload):
                 return Either.Left("Nothing to set")
         except Exception as e:
             return Either.Left("Not able to to set the payload due to: %s" % e)
-    return pool.flatmap(lambda po: set_val(po, payload))\
-        .either(
-            identity,
-            identity
-    )
+    return set_val(pool)
 
 
 def flush_all(pool):
