@@ -9,7 +9,6 @@ from collections import namedtuple
 import redis
 import connexion
 import json
-import sys
 
 Error = namedtuple("Error", ["status", "key", "message"])
 
@@ -29,7 +28,6 @@ def handle_query(pool):
     key = connexion.request.full_path
 
     def resp_parser(pool):
-        print(connexion.headers, file=sys.stderr)
         if connexion.headers.get('nwa-stdlib-no-cache'):
             return Either.Left(None)
         return Maybe.of(pool.get(key))\
