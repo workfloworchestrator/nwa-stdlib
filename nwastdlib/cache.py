@@ -9,6 +9,7 @@ from collections import namedtuple
 import redis
 import connexion
 import json
+import socket
 
 Error = namedtuple("Error", ["status", "key", "message"])
 
@@ -28,6 +29,8 @@ def handle_query(pool):
     key = connexion.request.full_path
 
     def resp_parser(pool):
+        if socket.gethostname(connexion.request.remote_addr) == 'cachemgr':
+            return Either.Left(None)
         return Maybe.of(pool.get(key))\
             .maybe(
                 Either.Left(None),
@@ -43,7 +46,7 @@ def handle_setter(pool, payload):
     def set_val(po, payload):
         try:
             payload = json.dumps(payload)
-            if po.set(key, payload):
+            if po.set(key, payload, 7200):
                 return Either.Right("Payload Set")
             else:
                 return Either.Left("Nothing to set")
