@@ -28,7 +28,7 @@ def handle_query(pool):
     key = connexion.request.full_path
 
     def resp_parser(pool):
-        if connexion.headers.get('nwa-stdlib-no-cache'):
+        if connexion.request.headers.get('nwa-stdlib-no-cache'):
             return Either.Left(None)
         return Maybe.of(pool.get(key))\
             .maybe(
