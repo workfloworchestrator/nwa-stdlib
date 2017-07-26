@@ -9,7 +9,6 @@ from collections import namedtuple
 import redis
 import connexion
 import json
-import socket
 
 Error = namedtuple("Error", ["status", "key", "message"])
 
@@ -29,7 +28,7 @@ def handle_query(pool):
     key = connexion.request.full_path
 
     def resp_parser(pool):
-        if socket.gethostbyaddr(connexion.request.remote_addr)[0] == 'cachemgr':
+        if connexion.headers.get('nwa-stdlib-no-cache'):
             return Either.Left(None)
         return Maybe.of(pool.get(key))\
             .maybe(
