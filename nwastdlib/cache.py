@@ -29,7 +29,7 @@ def handle_query(pool):
     key = connexion.request.full_path
 
     def resp_parser(pool):
-        if socket.gethostname(connexion.request.remote_addr) == 'cachemgr':
+        if socket.gethostbyaddr(connexion.request.remote_addr)[0] == 'cachemgr':
             return Either.Left(None)
         return Maybe.of(pool.get(key))\
             .maybe(
