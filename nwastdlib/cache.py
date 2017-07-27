@@ -28,6 +28,8 @@ def handle_query(pool):
     key = connexion.request.full_path
 
     def resp_parser(pool):
+        if connexion.request.headers.get('nwa-stdlib-no-cache'):
+            return Either.Left(None)
         return Maybe.of(pool.get(key))\
             .maybe(
                 Either.Left(None),
@@ -43,7 +45,7 @@ def handle_setter(pool, payload):
     def set_val(po, payload):
         try:
             payload = json.dumps(payload)
-            if po.set(key, payload):
+            if po.set(key, payload, 7200):
                 return Either.Right("Payload Set")
             else:
                 return Either.Left("Nothing to set")
