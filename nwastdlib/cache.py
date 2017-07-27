@@ -9,6 +9,7 @@ from collections import namedtuple
 import redis
 import connexion
 import json
+import sys
 
 Error = namedtuple("Error", ["status", "key", "message"])
 
@@ -50,6 +51,7 @@ def handle_setter(pool, payload):
             else:
                 return Either.Left("Nothing to set")
         except Exception as e:
+            print("Not able to to set the payload due to: %s" % e, file=sys.stderr)
             return Either.Left("Not able to to set the payload due to: %s" % e)
     return set_val(pool, payload)
 
