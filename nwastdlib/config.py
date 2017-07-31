@@ -1,5 +1,5 @@
 import os
-from .either import Either, sequence
+from .either import Either
 from .f import identity
 
 
@@ -24,7 +24,7 @@ class Config(object):
         def invalid_config(err):
             raise InvalidConfigException(err)
 
-        return sequence(self.values).either(
+        return Either.sequence(self.values).either(
             invalid_config,
             identity
         )
