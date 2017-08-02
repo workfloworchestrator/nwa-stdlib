@@ -1,11 +1,11 @@
 import signal
 import sys
-import yaml
+import json
 
 from queue import Queue
 from stomp import Connection, ConnectionListener
 
-from . import Either
+from . import Either, unargs
 
 
 class Mailbox(ConnectionListener):
@@ -83,15 +83,29 @@ class Worker(object):
               (self.processed_messages_count, self.erroneous_messages_count, self.fatal_messages_count))
 
     def run(self, handler):
-        def parsejob(message):
+        '''
+        Start the worker and run incoming messages through `handler` - a function
+        that is called with metadata and payload and returns None.
+        '''
+        def parse_message(message):
+            def getValue(k, data):
+                v = data.get(k)
+                if v is None:
+                    return Either.Left("%s is not specified" % k)
+                else:
+                    return Either.Right(v)
+
             try:
-                data = yaml.load(message)
+                data = json.loads(message)
             except:
                 return Either.Left("invalid data format")
-            if data.get("job_id") is None:
-                return Either.Left("job_id is not specified")
-            else:
-                return Either.Right(data)
+
+            Either.sequence((
+                getValue("subscription_id", data),
+                getValue("job_id", data),
+                getValue("step_id", data),
+                getValue("payload", data)
+            ))
 
         try:
             self.__connect()
@@ -117,8 +131,9 @@ class Worker(object):
                 self.erroneous_messages_count += 1
 
             try:
-                parsejob(message) \
-                    .flatmap(handler) \
+                parse_message(message) \
+                    .map(lambda args: (dict(subscription_id=args[0], job_id=args[1], step_id=args[2]), args[3])) \
+                    .flatmap(unargs(handler)) \
                     .either(handle_error, handle_success)
             except Exception as e:
                 print("%s: %s (message: %s)" % (e.__class__.__name__, e, message), file=sys.stderr)

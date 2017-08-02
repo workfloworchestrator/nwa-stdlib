@@ -66,6 +66,26 @@ def flip(f: Callable[[α, β], γ]) -> Callable[[β, α], γ]:
     return lambda b, a: f(a, b)
 
 
+def unargs(f):
+    '''
+    Convert a function `f` on many arguments to a function on a single argument.
+
+    >>> def f(a, b, c):
+    ...     return (a,b,c)
+
+    >>> arg = (1,2,3)
+
+    >>> f(arg)
+    Traceback (most recent call last):
+        ...
+    TypeError: f() missing 2 required positional arguments: 'b' and 'c'
+
+    >>> unargs(f)(arg)
+    (1, 2, 3)
+    '''
+    return lambda x: f(*x)
+
+
 def unkwargs(f):
     '''
     Convert a function `f` on keyword arguments to a function on a single
