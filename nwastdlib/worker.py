@@ -6,6 +6,8 @@ from queue import Queue
 from stomp import Connection, ConnectionListener
 
 from . import Either, unargs
+from . import dict as Dict
+from .ex import show_ex
 
 
 class Mailbox(ConnectionListener):
@@ -58,9 +60,9 @@ class Broker(object):
 
 
 class Worker(object):
-    def __init__(self, broker_host, broker_port, subid, inbound_queue):
+    def __init__(self, broker, subid, inbound_queue):
         self.mailbox = Mailbox()
-        self.broker = Broker(broker_host, broker_port)
+        self.broker = broker
         self.subid = subid
         self.inbound_queue = inbound_queue
         self.processed_messages_count = 0
@@ -93,25 +95,25 @@ class Worker(object):
         Start the worker and run incoming messages through `handler` - a function
         that is called with metadata and payload and returns None.
         '''
-        def parse_message(message):
-            def getValue(k, data):
-                v = data.get(k)
-                if v is None:
-                    return Either.Left("%s is not specified" % k)
-                else:
-                    return Either.Right(v)
 
+        def parse_dict(s):
             try:
-                data = json.loads(message)
+                data = json.loads(s)
+                if type(data) == dict:
+                    return Either.Right(data)
+                else:
+                    return Either.Left("not a json dict: %s" % s)
             except:
-                return Either.Left("invalid data format")
+                return Either.Left("invalid json data: %s" % s)
 
-            Either.sequence((
-                getValue("subscription_id", data),
-                getValue("job_id", data),
-                getValue("step_id", data),
-                getValue("payload", data)
-            ))
+        def parse_message(message):
+            def extract_metadata_and_payload(data):
+                metadata = Dict.getByKeys({"subscription_id", "task_id", "reply_to"}, data).first(lambda k: "missing key: %s" % k)
+                payload = Dict.lookup("payload", data).maybe(Either.Left("missing key: payload"), parse_dict)
+                return Either.sequence((metadata, payload))
+
+            return parse_dict(message) \
+                .flatmap(extract_metadata_and_payload)
 
         try:
             self.__connect()
@@ -138,9 +140,17 @@ class Worker(object):
 
             try:
                 parse_message(message) \
-                    .map(lambda args: (dict(subscription_id=args[0], job_id=args[1], step_id=args[2]), args[3])) \
                     .flatmap(unargs(handler)) \
                     .either(handle_error, handle_success)
             except Exception as e:
-                print("%s: %s (message: %s)" % (e.__class__.__name__, e, message), file=sys.stderr)
                 self.fatal_messages_count += 1
+                print("Failed to handle message: %s\n%s" % (message, show_ex(e)), file=sys.stderr)
+
+    def reply(self, metadata, data):
+        def send(destination):
+            payload = Dict.delete("reply_to", metadata)
+            self.broker.send(destination, json.dumps({"status": "complete", **payload, **data}))
+
+        Dict.lookup("reply_to", metadata).maybe(Either.Left("reply_to not in metadata"), Either.Right) \
+            .map(send) \
+            .first(lambda msg: print("Failed to send reply: %s" % msg))
