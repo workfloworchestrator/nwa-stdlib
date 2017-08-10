@@ -39,10 +39,16 @@ class Broker(object):
         self.__subscriptions = []
 
     def subscribe(self, subid, queue):
+        assert self.__conn, "Not connected"
         self.__conn.subscribe(destination=queue, id=subid, ack="auto")  # TODO manually ack processed messages
         self.__subscriptions.append(subid)
 
+    def send(self, destination, message):
+        assert self.__conn, "Not connected"
+        self.__conn.send(body=message, destination=destination)
+
     def disconnect(self):
+        assert self.__conn, "Not connected"
         [self.__conn.unsubscribe(x) for x in self.__subscriptions]
         self.__conn.disconnect(wait=True)
         self.__conn.stop()
