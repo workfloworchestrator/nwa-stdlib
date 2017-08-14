@@ -33,10 +33,10 @@ class Broker(object):
     def __init__(self, hostname, port):
         self.__host_and_port = (hostname, port)
 
-    def connect(self, mailbox, **connect_args):
-        self.__conn = Connection(host_and_ports=[self.__host_and_port])
+    def connect(self, username, password, mailbox, **connect_args):
+        self.__conn = Connection(host_and_ports=[self.__host_and_port], **connect_args)
         self.__conn.start()
-        self.__conn.connect(**connect_args, wait=True)
+        self.__conn.connect(username, password, wait=True)
         self.__conn.set_listener('mailbox', mailbox)
         self.__subscriptions = []
 
