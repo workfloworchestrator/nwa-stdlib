@@ -81,6 +81,8 @@ def empty(xs: List[α]) -> bool:
     '''
     Test whether a list is empty.
 
+    More specifically, it tests whether the `len' of a list equals 0 (zero).
+
     >>> empty([])
     True
 
