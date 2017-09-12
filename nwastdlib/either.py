@@ -57,7 +57,7 @@ class Either(Generic[α, β]):
         raise NotImplementedError("Abstract function `either` must be implemented by the type constructor")
 
     def bimap(self, f, g):
-        """nn
+        """
         Map over both Left and Right at the same time
 
         >>> Either.Right(1).bimap(lambda _: 2, lambda _: 3)
