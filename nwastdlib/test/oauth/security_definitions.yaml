@@ -1,0 +1,13 @@
+securityDefinitions:
+  auth_server:
+    description: "standard oauth2 automation authorization server"
+    type: "oauth2"
+    authorizationUrl: "https://auth.staging.automation.surf.net/oauth/authorize"
+    tokenUrl: "https://auth.staging.automation.surf.net/oauth/token"
+    flow: "accessCode"
+    scopes:
+      write: "require write scope for delete, post and put"
+      read: "require read scope for get, head, options"
+    x-scopes-operation-ids:
+      admin:
+      - "hello"
