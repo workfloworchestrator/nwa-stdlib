@@ -12,7 +12,7 @@ def create_test_app():
         return "hello"
 
     @app.errorhandler(401)
-    def forbidden(e):
+    def unauthorized(e):
         return flask.jsonify(error=401, detail=str(e)), 401
 
     @app.errorhandler(403)
