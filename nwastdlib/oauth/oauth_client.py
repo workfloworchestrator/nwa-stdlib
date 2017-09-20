@@ -67,7 +67,7 @@ def callback():
                                 auth=auth,
                                 timeout=5)
     if not response.ok:
-        raise Unauthorized(description=f"Response for obtaining access_token {response.json()} with {auth}")
+        raise Unauthorized(description=f"Response for obtaining access_token {response.json()}")
 
     json = response.json()
     session['auth_tokens'] = (json['access_token'], json['refresh_token'])
