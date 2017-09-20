@@ -18,7 +18,6 @@ def obtain_client_credentials_token(app, oauth2_token_url, oauth2_client_id, oau
     )
     response = req_session.post(url=oauth2_token_url,
                                 data={'grant_type': 'client_credentials'},
-                                headers={'Content-Type': 'application/x-www-form-urlencoded'},
                                 auth=(oauth2_client_id, oauth2_secret),
                                 timeout=5)
     if not response.ok:
