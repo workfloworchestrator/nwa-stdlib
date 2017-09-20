@@ -33,7 +33,7 @@ def add_oauth_remote(app, client_base_url, oauth2_base_url, oauth2_client_id, oa
         intended_url = f"{client_base_url}{request.path}"
         redirect_url = config['callback_url']
         if not session.get('user') and intended_url != redirect_url:
-            state = parse.quote(request.base_url)
+            state = parse.quote(intended_url)
             session[REDIRECT_STATE] = state
             full_authorization_url = f"{config['authorize_url']}?" \
                                      f"response_type=code&" \
