@@ -1,11 +1,10 @@
 from urllib import parse
 
 import requests
-from flask import Blueprint
-from flask import request, redirect, session, current_app
-from flask import url_for
-from nwastdlib.api_client import ApiClientProxy
+from flask import Blueprint, request, redirect, session, current_app
 from werkzeug.exceptions import Unauthorized
+
+from nwastdlib.api_client import ApiClientProxy
 
 REDIRECT_STATE = 'redirect_state'
 AUTH_SERVER = 'oauth2_server'
@@ -26,7 +25,6 @@ def add_oauth_remote(app, client_base_url, oauth2_base_url, oauth2_client_id, oa
         authorize_url=oauth2_base_url + '/oauth/authorize',
         callback_url=oauth2_callback_url
     )
-    req_session.auth = (oauth2_client_id, oauth2_secret)
 
     def force_authorize():
         config = current_app.config[AUTH_SERVER]
@@ -58,19 +56,29 @@ def callback():
     config = current_app.config[AUTH_SERVER]
 
     data = {'code': request.args.get('code'),
-            'redirect_uri': url_for('oauth2.callback', _external=True),
+            'redirect_uri': config['callback_url'],
             'grant_type': 'authorization_code'}
 
-    response = req_session.post(url=config['access_token_url'], data=data,
-                                headers={'Content-Type': 'application/x-www-form-urlencoded'}, timeout=5)
+    auth = (config['oauth2_client_id'], config['oauth2_secret'])
+    response = req_session.post(url=config['access_token_url'],
+                                data=data,
+                                headers={'Content-Type': 'application/x-www-form-urlencoded'},
+                                auth=auth,
+                                timeout=5)
     if not response.ok:
-        raise Unauthorized(description=f"Response for access_token valid {response}")
+        raise Unauthorized(description=f"Response for obtaining access_token {response.json()} with {auth}")
 
     json = response.json()
     session['auth_tokens'] = (json['access_token'], json['refresh_token'])
 
-    token_request = req_session.get(url=config['check_token_url'], params={'token': json['access_token']}, timeout=5)
-    session['user'] = token_request.json()
+    response = req_session.get(url=config['check_token_url'],
+                               params={'token': json['access_token']},
+                               auth=auth,
+                               timeout=5)
+    if not response.ok:
+        raise Unauthorized(description=f"Response for obtaining user info {response.json()}")
+
+    session['user'] = response.json()
 
     return redirect(callback_state)
 
