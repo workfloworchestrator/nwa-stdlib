@@ -5,7 +5,7 @@ Network Automation projects.
 
 ## Getting started
 
-If you want to use an virtual environment first create the environment:
+If you want to use a virtual environment first create the environment:
 
 ```
 python3 -m venv .venv
@@ -33,7 +33,7 @@ core-db and core-admin projects:
 
 * [Enable ResourceServer acces-token checks](https://gitlab.surfnet.nl/SURFnetNOC/coredb/blob/master/coredb/__main__.py)
 * [Enable Client access-token retrieval](https://gitlab.surfnet.nl/SURFnetNOC/core-admin/blob/master/web/__init__.py)
-* [Enable Server-to-Server access-token]()
+* [Enable Server-to-Server access-token](https://gitlab.surfnet.nl/SURFnetNOC/nwa-stdlib/blob/master/nwastdlib/oauth/oauth_credentials.py)
 * [Add access-token to API requests](https://gitlab.surfnet.nl/SURFnetNOC/core-admin/blob/master/web/utils.py)
 
 The following applications are involved in authorization:
