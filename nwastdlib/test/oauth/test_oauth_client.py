@@ -14,7 +14,7 @@ OAUTH2_BASE_URL = 'http://authz-server'
 class TestOAuthClient(TestCase):
     def create_app(self):
         app = create_test_app()
-        add_oauth_remote(app, OAUTH2_BASE_URL, 'core-admin', 'secret')
+        add_oauth_remote(app, OAUTH2_BASE_URL, 'core-admin', 'secret', 'http://localhost/oauth2/callback')
         return app
 
     def tearDown(self):
