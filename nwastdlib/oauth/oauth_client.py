@@ -16,8 +16,9 @@ oauth2 = Blueprint("oauth2", __name__, url_prefix="/oauth2")
 req_session = requests.Session()
 
 
-def add_oauth_remote(app, oauth2_base_url, oauth2_client_id, oauth2_secret, oauth2_callback_url):
+def add_oauth_remote(app, client_base_url, oauth2_base_url, oauth2_client_id, oauth2_secret, oauth2_callback_url):
     app.config[AUTH_SERVER] = dict(
+        client_base_url=client_base_url,
         oauth2_client_id=oauth2_client_id,
         oauth2_secret=oauth2_secret,
         check_token_url=oauth2_base_url + '/oauth/check_token',
@@ -28,8 +29,8 @@ def add_oauth_remote(app, oauth2_base_url, oauth2_client_id, oauth2_secret, oaut
     req_session.auth = (oauth2_client_id, oauth2_secret)
 
     def force_authorize():
-        intended_url = request.base_url
         config = current_app.config[AUTH_SERVER]
+        intended_url = f"{client_base_url}{request.path}"
         redirect_url = config['callback_url']
         if not session.get('user') and intended_url != redirect_url:
             state = parse.quote(request.base_url)
