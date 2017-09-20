@@ -3,7 +3,7 @@ import requests_mock
 from flask import session
 from flask_testing import TestCase
 
-from nwastdlib.oauth.oauth_client import add_oauth_remote, add_access_token_header
+from nwastdlib.oauth.oauth_client import add_oauth_remote, add_access_token_header, reload_authentication
 from nwastdlib.test.utils import create_test_app
 
 ENVIRON_BASE = {'HTTP_AUTHORIZATION': 'bearer test'}
@@ -14,7 +14,8 @@ OAUTH2_BASE_URL = 'http://authz-server'
 class TestOAuthClient(TestCase):
     def create_app(self):
         app = create_test_app()
-        add_oauth_remote(app, 'http://localhost', OAUTH2_BASE_URL, 'core-admin', 'secret', 'http://localhost/oauth2/callback')
+        add_oauth_remote(app, 'http://localhost', OAUTH2_BASE_URL, 'core-admin', 'secret',
+                         'http://localhost/oauth2/callback')
         return app
 
     def tearDown(self):
@@ -40,3 +41,10 @@ class TestOAuthClient(TestCase):
         session['auth_tokens'] = ('access_token', 'refresh_token')
         client = add_access_token_header({})
         self.assertEqual('bearer access_token', client.request_headers['Authorization'])
+
+    def test_reload_authentication(self):
+        session['some'] = 'thing'
+        response = reload_authentication()
+        self.assertEqual(302, response.status_code)
+        self.assertEqual('http://localhost', response.headers['Location'])
+        self.assertEqual(0, len(session.items()))

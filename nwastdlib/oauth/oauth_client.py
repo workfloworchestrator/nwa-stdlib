@@ -3,6 +3,7 @@ from urllib import parse
 import requests
 from flask import Blueprint, request, redirect, session, current_app
 from werkzeug.exceptions import Unauthorized
+from werkzeug.wrappers import Response
 
 from nwastdlib.api_client import ApiClientProxy
 
@@ -89,6 +90,14 @@ def add_access_token_header(client):
         access_token = auth_tokens[0]
         return ApiClientProxy(client, {'Authorization': f"bearer {access_token}"})
     return client
+
+
+def reload_authentication():
+    session.clear()
+    response = Response('<!DOCTYPE html>', 302, mimetype='text/html')
+    location = current_app.config[AUTH_SERVER]['client_base_url']
+    response.headers['Location'] = location
+    return response
 
 
 def get_user():
