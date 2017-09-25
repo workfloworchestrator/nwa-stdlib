@@ -1,4 +1,4 @@
-from typing import Any, Callable, TypeVar
+from typing import Any, Callable, Tuple, TypeVar
 
 α = TypeVar('α')
 β = TypeVar('β')
@@ -118,3 +118,13 @@ def complement(f: Callable[[α], bool]) -> Callable[[α], bool]:
     True
     '''
     return lambda *a: not f(*a)
+
+
+def pair(a: α) -> Callable[[β], Tuple[α, β]]:
+    '''
+    Get a pair of two (curried) arguments.
+
+    >>> pair(1)(2)
+    (1, 2)
+    '''
+    return lambda b: (a, b)
