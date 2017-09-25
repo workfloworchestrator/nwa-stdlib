@@ -2,12 +2,13 @@
 Module containing functions to share basic API client logic.
 """
 
+import sys
 
 from collections import namedtuple
 from urllib3.exceptions import MaxRetryError
 
 from .either import Either
-from .ex import log_error
+from .ex import format_ex
 from .list import elem
 
 
@@ -48,6 +49,11 @@ def run_api_call(name, get_client):
 
     Given the generic nature, errors are presented with the `Error` struct.
     '''
+    def log_error(ex):
+        (key, err) = format_ex(ex)
+        print(err, file=sys.stderr)
+        return key
+
     def handle_api_ex(key, e):
         if e.status == 404:
             return Either.Left(Error(404, key, "Not found"))
