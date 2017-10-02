@@ -11,6 +11,10 @@ def create_test_app():
     def hello():
         return "hello"
 
+    @app.route("/config")
+    def config():
+        return "config"
+
     @app.errorhandler(401)
     def unauthorized(e):
         return flask.jsonify(error=401, detail=str(e)), 401

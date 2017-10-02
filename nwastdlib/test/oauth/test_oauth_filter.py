@@ -18,7 +18,8 @@ class TestOAuthFilter(TestCase):
         with open('./nwastdlib/test/oauth/security_definitions.yaml') as file:
             security_definitions = yaml.load(file)
             app.before_request(
-                OAuthFilter(security_definitions['securityDefinitions'], TOKEN_CHECK_URL, 'coredb', 'secret').filter)
+                OAuthFilter(security_definitions['securityDefinitions'], TOKEN_CHECK_URL, 'coredb', 'secret',
+                            ['config']).filter)
             return app
 
     def tearDown(self):
@@ -57,6 +58,11 @@ class TestOAuthFilter(TestCase):
                     json=self._json(['admin']),
                     response_status_code=403,
                     response_detail='403 Forbidden: Provided token does not have the required scope(s): {\'read\'}')
+
+    def test_whitelisted_endpoints(self, m):
+        m.get(TOKEN_CHECK_URL, status_code=500)
+        response = self.client.get("/config")
+        self.assertEqual(200, response.status_code)
 
     def test_missing_write_scope_for_write_endpoints(self, m):
         m.get(TOKEN_CHECK_URL, json=self._json(['read']))

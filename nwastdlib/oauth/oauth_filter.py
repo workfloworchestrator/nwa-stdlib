@@ -17,14 +17,22 @@ session = requests.Session()
 
 
 class OAuthFilter(object):
-    def __init__(self, security_definitions, token_check_url, resource_server_id, resource_server_secret):
+    def __init__(self, security_definitions, token_check_url, resource_server_id, resource_server_secret,
+                 white_listed_urls=[]):
         self.scope_config = Scopes(list(security_definitions.values()))
         self.token_check_url = token_check_url
         self.resource_server_id = resource_server_id
+        self.white_listed_urls = white_listed_urls
         session.auth = (resource_server_id, resource_server_secret)
 
     def filter(self):
         current_request = flask.request
+        endpoint = current_request.endpoint if current_request.endpoint else current_request.base_url
+
+        is_white_listed = next(filter(lambda url: endpoint.endswith(url), self.white_listed_urls), None)
+        if is_white_listed:
+            return
+
         authorization = current_request.headers.get('Authorization')
         if not authorization:
             raise Unauthorized(description='No Authorization token provided')
@@ -43,7 +51,7 @@ class OAuthFilter(object):
                     token_info.get('aud', []), self.resource_server_id))
 
             user_scopes = set(token_info.get('scope', []))
-            endpoint = current_request.endpoint if current_request.endpoint else current_request.base_url
+
 
             self.scope_config.is_allowed(user_scopes, current_request.method, endpoint)
 
