@@ -14,7 +14,7 @@ class Scopes(object):
         self.requires_write = 'write' in unique_scopes
 
         scopes_and_operations_list = list(
-            map(lambda definition: definition.get('x-scopes-operation-ids', []), security_definitions))
+            map(lambda definition: definition.get('x-scopes-operation-ids', [{}]), security_definitions))
 
         def map_all_endpoints(accumulator, scope_and_operation):
             scope = next(iter(scope_and_operation.keys()))
