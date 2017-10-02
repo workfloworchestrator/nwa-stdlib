@@ -52,7 +52,6 @@ class OAuthFilter(object):
 
             user_scopes = set(token_info.get('scope', []))
 
-
             self.scope_config.is_allowed(user_scopes, current_request.method, endpoint)
 
             flask.g.current_user = token_info
