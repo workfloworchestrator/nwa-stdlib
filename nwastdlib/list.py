@@ -103,3 +103,19 @@ def nonempty(xs: List[α]) -> bool:
     True
     '''
     return complement(empty)(xs)
+
+
+def flatten(xs: List[List[α]]) -> List[α]:
+    '''
+    Flatten a List of Lists.
+
+    >>> flatten([[1],[2],[3],[4]])
+    [1, 2, 3, 4]
+
+    >>> flatten([])
+    []
+
+    >>> flatten([[]])
+    []
+    '''
+    return [item for sublist in xs for item in sublist]
