@@ -76,6 +76,8 @@ class Maybe(Generic[α]):
 
     def maybe(self, b: β, f: Callable[[α], β]) -> β:
         """
+        Extract some value through `f` or get the default value `a`.
+
         >>> Maybe.Some(1).maybe(0, identity)
         1
 
@@ -127,8 +129,7 @@ class Maybe(Generic[α]):
 
         >>> Maybe.Nothing().orElse(None)
         """
-
-        return self.value if self.isSome() else a
+        return self.maybe(a, identity)
 
     def filter(self, p: Callable[[α], bool]) -> 'Maybe[β]':
         '''
