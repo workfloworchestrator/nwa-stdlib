@@ -115,6 +115,18 @@ class Maybe(Generic[α]):
             const(True)
         )
 
+    def orElse(self, a: α) -> α:
+        """
+        Return a if self is Some.
+
+        >>> Maybe.Some(1).orElse(2)
+        1
+
+        >>> Maybe.Nothing().orElse(None)
+        """
+
+        return self.value if self.isSome() else a
+
     def filter(self, p: Callable[[α], bool]) -> 'Maybe[β]':
         '''
         Filter to a Maybe of the element that satisfies the predicate.
