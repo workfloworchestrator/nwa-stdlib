@@ -6,7 +6,7 @@ setup_params = dict(
     name='nwa-stdlib',
     version='0.2',
     packages=setuptools.find_packages(exclude=["*.test", "*.test.*"]),
-    install_requires=['pytz==2017.2', 'pyyaml==3.12', 'redis==2.10.5', 'hiredis==0.2.0', 'Flask==0.12.2',
+    install_requires=['pytz==2017.2', 'pyyaml==3.12', 'redis==2.10.6', 'hiredis==0.2.0', 'Flask==0.12.2',
                       'Flask-Testing==0.6.2', 'requests-mock==1.3.0'],
     extras_require={
         "mq": ['stomp.py==4.1'],
