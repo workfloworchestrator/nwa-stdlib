@@ -122,6 +122,9 @@ class Maybe(Generic[α]):
         >>> Maybe.Some(1).orElse(2)
         1
 
+        >>> Maybe.Nothing().orElse(1)
+        1
+
         >>> Maybe.Nothing().orElse(None)
         """
 
