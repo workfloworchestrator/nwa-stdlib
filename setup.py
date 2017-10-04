@@ -9,7 +9,6 @@ setup_params = dict(
     install_requires=['pytz==2017.2', 'pyyaml==3.12', 'redis==2.10.6', 'hiredis==0.2.0', 'Flask==0.12.2', 'requests==2.18.4'],
     extras_require={
         "mq": ['stomp.py==4.1'],
-        "api": ['connexion==1.1'],
         "redis": ['redis==2.10.5', 'hiredis==0.2.0']
     },
     setup_requires=['pytest-runner'],
