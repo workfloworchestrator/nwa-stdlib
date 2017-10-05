@@ -63,7 +63,7 @@ def run_api_call(name, get_client):
                                          name, e.status, e.body)))
         if elem(e.status, range(500, 600)):
             return Either.Left(Error(e.status, key, "Received server error (%d) from %s." % (e.status, name)))
-        return Either.Left(Error(500, key, "Error while accessing %s" % name))
+        return Either.Left(Error(e.status, key, "Error while accessing %s" % name))
 
     def iter(f):
         try:
