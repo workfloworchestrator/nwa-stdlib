@@ -62,7 +62,7 @@ def run_api_call(name, get_client):
                                      "Error communicating to %s. Response status code was %d with payload:\n%s" % (
                                          name, e.status, e.body)))
         if elem(e.status, range(500, 600)):
-            return Either.Left(Error(500, key, "Received server error (%d) from %s." % (e.status, name)))
+            return Either.Left(Error(e.status, key, "Received server error (%d) from %s." % (e.status, name)))
         return Either.Left(Error(500, key, "Error while accessing %s" % name))
 
     def iter(f):
