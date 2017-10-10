@@ -8,7 +8,7 @@ from collections import namedtuple
 
 import redis
 import connexion
-import json
+import pickle
 import sys
 
 Error = namedtuple("Error", ["status", "key", "message"])
@@ -34,7 +34,7 @@ def handle_query(pool):
         return Maybe.of(pool.get(key))\
             .maybe(
                 Either.Left(None),
-                lambda x: Either.Right(json.loads(x))
+                lambda x: Either.Right(pickle.loads(x))
         )
 
     return resp_parser(pool)
@@ -45,7 +45,7 @@ def handle_setter(pool, payload):
 
     def set_val(po, payload):
         try:
-            payload = json.dumps(payload)
+            payload = pickle.dumps(payload)
             if po.set(key, payload, 7200):
                 return Either.Right("Payload Set")
             else:
