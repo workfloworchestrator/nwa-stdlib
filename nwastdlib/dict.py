@@ -82,3 +82,18 @@ def delete(key: k, d: Dict[k, α]) -> Dict[k, α]:
     {'a': 1, 'b': 2}
     '''
     return {k: v for k, v in d.items() if k != key}
+
+
+def insert(key: k, value: α, d: Dict[k, α]) -> Dict[k, α]:
+    '''
+    Insert a key/value pair into a dict.
+
+    >>> d = dict(a=1)
+
+    >>> insert('b', 2, d)
+    {'a': 1, 'b': 2}
+
+    >>> insert('a', 2, d)
+    {'a': 2}
+    '''
+    return {**d, key: value}
