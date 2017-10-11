@@ -97,3 +97,19 @@ def insert(key: k, value: α, d: Dict[k, α]) -> Dict[k, α]:
     {'a': 2}
     '''
     return {**d, key: value}
+
+
+def merge(d1: Dict[k, α]) -> Callable[[Dict[k, α]], Dict[k, α]]:
+    '''
+    Curried merge for two dicts.
+
+    >>> d = dict(a=1)
+    >>> md = merge(d)
+
+    >>> md({'b': 2})
+    {'a': 1, 'b': 2}
+
+    >>> md({'a': 2})
+    {'a': 2}
+    '''
+    return lambda d2: {**d1, **d2}
