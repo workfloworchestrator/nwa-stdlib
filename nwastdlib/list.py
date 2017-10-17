@@ -1,7 +1,9 @@
 '''
 Module containing utility functions for lists.
 '''
-from typing import Callable, List, TypeVar
+from typing import Callable, List, Tuple, TypeVar
+
+from functools import reduce
 
 from .f import complement
 from .maybe import Maybe
@@ -119,3 +121,18 @@ def flatten(xs: List[List[α]]) -> List[α]:
     []
     '''
     return [item for sublist in xs for item in sublist]
+
+
+def partition(p: Callable[[α], bool], xs: List[α]) -> Tuple[List[α], List[α]]:
+    """
+    Returns a pair of lists of elements that /do/ match and element that /don't/
+    match the predicate.
+
+    >>> partition(lambda x: x < 3, [1,2,3,4,5])
+    ([1, 2], [3, 4, 5])
+    """
+    def it(acc, e):
+        a, b = acc
+        return ([*a, e], b) if p(e) else (a, [*b, e])
+
+    return reduce(it, xs, ([], []))
