@@ -85,6 +85,30 @@ class Either(Generic[α, β]):
 
     second = map
 
+    def isleft(self):
+        """
+        Return True iff self is Left.
+
+        >>> Either.Left(1).isleft()
+        True
+
+        >>> Either.Right(1).isleft()
+        False
+        """
+        return self.either(const(True), const(False))
+
+    def isright(self):
+        """
+        Return True iff self is Right.
+
+        >>> Either.Left(1).isright()
+        False
+
+        >>> Either.Right(1).isright()
+        True
+        """
+        return self.either(const(False), const(True))
+
     def __eq__(self, other):
         """Test two instances for value equality, such that:
 
