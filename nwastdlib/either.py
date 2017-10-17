@@ -1,10 +1,12 @@
 from functools import reduce
 from .f import const, identity
 
-from typing import Generic, Iterable, TypeVar
+from typing import Callable, Generic, Iterable, TypeVar
 
 α = TypeVar('a')
 β = TypeVar('b')
+γ = TypeVar('c')
+δ = TypeVar('d')
 
 
 class Either(Generic[α, β]):
@@ -13,9 +15,8 @@ class Either(Generic[α, β]):
     ``Either α β`` represents a value two possibilities: ``Left α`` or ``Right β``
     """
 
-    def map(self, f):
-        """Either α β -> (β -> γ) -> Either α γ
-
+    def map(self, f: Callable[[β], γ]) -> 'Either[α, γ]':
+        """
         >>> Either.Right(1).map(lambda x: x + 1)
         Right 2
 
@@ -24,9 +25,8 @@ class Either(Generic[α, β]):
         """
         return self.flatmap(lambda b: Either.Right(f(b)))
 
-    def flatmap(self, f):
-        """Either α β -> (β -> Either γ) -> Either α γ
-
+    def flatmap(self, f: Callable[[β], 'Either[α, γ]']) -> 'Either[α, γ]':
+        """
         >>> Either.Right(1).flatmap(lambda x: Either.Right(x + 1))
         Right 2
 
@@ -43,20 +43,17 @@ class Either(Generic[α, β]):
         """
         raise NotImplementedError("Abstract function `flatmap` must be implemented by the type constructor")
 
-    def either(self, f, g):
+    def either(self, f: Callable[[α], γ], g: Callable[[β], γ]) -> γ:
         """
-        Either α β -> (α -> γ) -> (β -> γ) -> γ
-
-        >>> always = lambda x: lambda y: x
-        >>> Either.Left(None).either(always('left'), always('right'))
+        >>> Either.Left(None).either(const('left'), const('right'))
         'left'
 
-        >>> Either.Right(None).either(always('left'), always('right'))
+        >>> Either.Right(None).either(const('left'), const('right'))
         'right'
         """
         raise NotImplementedError("Abstract function `either` must be implemented by the type constructor")
 
-    def bimap(self, f, g):
+    def bimap(self, f: Callable[[α], γ], g: Callable[[β], δ]) -> 'Either[γ, δ]':
         """
         Map over both Left and Right at the same time
 
@@ -71,9 +68,9 @@ class Either(Generic[α, β]):
             lambda d: Either.Right(g(d))
         )
 
-    def first(self, f):
+    def first(self, f: Callable[[α], γ]) -> 'Either[γ, β]':
         """
-        Map over the first argument
+        Map over the first argument.
 
         >>> Either.Left(1).first(lambda _: 2)
         Left 2
@@ -85,7 +82,7 @@ class Either(Generic[α, β]):
 
     second = map
 
-    def isleft(self):
+    def isleft(self) -> bool:
         """
         Return True iff self is Left.
 
@@ -97,7 +94,7 @@ class Either(Generic[α, β]):
         """
         return self.either(const(True), const(False))
 
-    def isright(self):
+    def isright(self) -> bool:
         """
         Return True iff self is Right.
 
@@ -109,7 +106,7 @@ class Either(Generic[α, β]):
         """
         return self.either(const(False), const(True))
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         """Test two instances for value equality, such that:
 
         >>> Either.Right(1) == Either.Right(1)
@@ -135,7 +132,7 @@ class Either(Generic[α, β]):
         else:
             return False
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Show
 
         >>> repr(Either.Left('error'))
