@@ -23,10 +23,7 @@ class Maybe(Generic[α]):
         >>> Maybe.of(None)
         Nothing
         """
-        if optional is None:
-            return Maybe.Nothing()
-        else:
-            return Maybe.Some(optional)
+        return Maybe.Nothing() if optional is None else Maybe.Some(optional)
 
     def __init__(self):
         """
