@@ -228,6 +228,7 @@ class __Some(Maybe):
 
 Maybe.Nothing = const(__Nothing())
 Maybe.Some = __Some
+Maybe.unit = __Some
 
 
 def sequence(xs: Iterable[Maybe[α]]) -> Maybe[Iterable[α]]:
