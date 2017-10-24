@@ -5,7 +5,7 @@ import string
 import traceback
 
 
-def format_ex(ex, stacklimit=5):
+def format_ex(ex, stacklimit=None):
     '''
     Format an exception with a pseudo-random key and the shown exception.
 
@@ -16,7 +16,7 @@ def format_ex(ex, stacklimit=5):
     return (key, "[%s] %s" % (key, s))
 
 
-def show_ex(ex, stacklimit=5):
+def show_ex(ex, stacklimit=None):
     '''
     Show an exception, including its class name, message and (limited) stack
     trace.
