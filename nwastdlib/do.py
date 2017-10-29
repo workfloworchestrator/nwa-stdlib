@@ -15,6 +15,8 @@ Some 'Hello, World!'
 >>> mconcat(Maybe.Nothing(), Maybe.Some("World"))
 Nothing
 """
+
+
 def do(M):
     def wrapper(f):
         def run(*args, **kwargs):
@@ -31,6 +33,7 @@ def do(M):
             return send(None)
 
         return run
+
     return wrapper
 
 
