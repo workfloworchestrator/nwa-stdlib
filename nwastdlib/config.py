@@ -10,7 +10,7 @@ def get_config(var, default=None, parse=identity):
         if x is None:
             return Either.Left("Missing config for %s" % var)
         return Either.Right(x)
-    except:
+    except ValueError:
         return Either.Left("Invalid value for %s: %s" % (var, mx))
 
 
