@@ -140,6 +140,18 @@ class Maybe(Generic[α]):
         '''
         return self.flatmap(lambda x: Maybe.Some(x) if p(x) else Maybe.Nothing())
 
+    def __iter__(self):
+        '''
+        Get an iterator over this Maybe
+
+        >>> [x for x in Maybe.Some(1)]
+        [1]
+
+        >>> [x for x in Maybe.Nothing()]
+        []
+        '''
+        raise NotImplementedError("Abstract function `__iter__` must be implemented by the type constructor")
+
     def __eq__(self, other: Any) -> bool:
         """
         Test two instances for value equality.
@@ -196,6 +208,9 @@ class __Nothing(Maybe):
     def maybe(self, b, f):
         return b
 
+    def __iter__(self):
+        return tuple().__iter__()
+
 
 class __Some(Maybe):
     def __init__(self, a: α):
@@ -224,6 +239,9 @@ class __Some(Maybe):
 
     def maybe(self, b, f):
         return f(self.value)
+
+    def __iter__(self):
+        return (self.value,).__iter__()
 
 
 Maybe.Nothing = const(__Nothing())
