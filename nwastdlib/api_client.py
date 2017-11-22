@@ -58,11 +58,9 @@ def run_api_call(name, get_client):
         if e.status == 404:
             return Either.Left(Error(404, key, "Not found"))
         if elem(e.status, range(400, 500)):
-            return Either.Left(Error(500, key,
-                                     "Error communicating to %s. Response status code was %d with payload:\n%s" % (
-                                         name, e.status, e.body)))
+            return Either.Left(Error(500, key, f"Error communicating to {name}. Response status code was {e.status} with payload: {e.body}"))
         if elem(e.status, range(500, 600)):
-            return Either.Left(Error(e.status, key, "Received server error (%d) from %s." % (e.status, name)))
+            return Either.Left(Error(e.status, key, f"Received server error {e.status} from {name} with payload: {e.body}" % (e.status, name)))
         return Either.Left(Error(e.status, key, "Error while accessing %s" % name))
 
     def iter(f):
