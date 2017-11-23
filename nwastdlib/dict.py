@@ -101,7 +101,7 @@ def insert(key: k, value: α, d: Dict[k, α]) -> Dict[k, α]:
 
 def merge(d1: Dict[k, α]) -> Callable[[Dict[k, α]], Dict[k, α]]:
     '''
-    Curried merge for two dicts.
+    Curried (one-level) merge for two dicts.
 
     >>> d = dict(a=1)
     >>> md = merge(d)
@@ -113,3 +113,28 @@ def merge(d1: Dict[k, α]) -> Callable[[Dict[k, α]], Dict[k, α]]:
     {'a': 2}
     '''
     return lambda d2: {**d1, **d2}
+
+
+def append(d1: Dict[k, α], d2: Dict[k, α]) -> Dict[k, α]:
+    '''
+    A rather limited version of append that only appends dicts. Even values that
+    are easily appendable (eg int, str, etc) are /not/ appended by design.
+
+    Conflict resolution:
+    Any conflicting keys whose values cannot be appended (ie is not a dict) are
+    overwritten with the value of the second dict.
+
+    >>> append({}, {'a': 1})
+    {'a': 1}
+
+    >>> append({'a': 1}, {'a': 2})
+    {'a': 2}
+
+    >>> append({'a': 1}, {'b': 2})
+    {'a': 1, 'b': 2}
+
+    >>> append({'a': {'x': 1}}, {'a': {'y': 2}})
+    {'a': {'x': 1, 'y': 2}}
+    '''
+    d3 = dict((k, append(v, d2[k])) for (k, v) in d1.items() if k in d2 and isinstance(v, dict))
+    return {**d1, **d2, **d3}
