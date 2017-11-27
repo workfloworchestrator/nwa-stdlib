@@ -157,6 +157,9 @@ def unflatten(d: Dict[str, α], sep=".") -> UnflatDict:
 
     >>> unflatten({"a.b": 1, "a.c": 2, "x": 3})
     {'a': {'b': 1, 'c': 2}, 'x': 3}
+
+    >>> unflatten({})
+    {}
     '''
     def unflatten1(parts, value):
         h, *t = parts
@@ -167,5 +170,6 @@ def unflatten(d: Dict[str, α], sep=".") -> UnflatDict:
 
     return reduce(
         append,
-        (unflatten1(k.split(sep), v) for (k, v) in d.items())
+        (unflatten1(k.split(sep), v) for (k, v) in d.items()),
+        {}
     )
