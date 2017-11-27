@@ -1,7 +1,9 @@
 '''
 Module containing utility functions for lists.
 '''
-from typing import Callable, Dict, Set, TypeVar
+from typing import Callable, Dict, Set, TypeVar, Union
+from functools import reduce
+
 from .either import Either
 from .maybe import Maybe
 
@@ -138,3 +140,32 @@ def append(d1: Dict[k, α], d2: Dict[k, α]) -> Dict[k, α]:
     '''
     d3 = dict((k, append(v, d2[k])) for (k, v) in d1.items() if k in d2 and isinstance(v, dict))
     return {**d1, **d2, **d3}
+
+
+UnflatDict = Dict[str, Union[α, 'UnflatDict']]
+
+
+def unflatten(d: Dict[str, α], sep=".") -> UnflatDict:
+    '''
+    Unflatten a dict who'se keys include `sep`.
+
+    >>> unflatten({"a": 1, "b": 2})
+    {'a': 1, 'b': 2}
+
+    >>> unflatten({"a.b": 1})
+    {'a': {'b': 1}}
+
+    >>> unflatten({"a.b": 1, "a.c": 2, "x": 3})
+    {'a': {'b': 1, 'c': 2}, 'x': 3}
+    '''
+    def unflatten1(parts, value):
+        h, *t = parts
+        if len(t) == 0:
+            return {h: value}
+        else:
+            return {h: unflatten1(t, value)}
+
+    return reduce(
+        append,
+        (unflatten1(k.split(sep), v) for (k, v) in d.items())
+    )
