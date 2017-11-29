@@ -128,6 +128,20 @@ class Maybe(Generic[α]):
         """
         return self.maybe(a, identity)
 
+    def toSome(self) -> α:
+        '''
+        Extracts the element of a Some and throws a ValueError if Nothing.
+
+        >>> Maybe.Some(1).toSome()
+        1
+
+        >>> Maybe.Nothing().toSome()
+        Traceback (most recent call last):
+            ...
+        ValueError: Cannot extract Some value from Nothing
+        '''
+        raise NotImplementedError("Abstract function `toSome` must be implemented by the type constructor")
+
     def filter(self, p: Callable[[α], bool]) -> 'Maybe[β]':
         '''
         Filter to a Maybe of the element that satisfies the predicate.
@@ -208,6 +222,9 @@ class __Nothing(Maybe):
     def maybe(self, b, f):
         return b
 
+    def toSome(self) -> α:
+        raise ValueError("Cannot extract Some value from Nothing")
+
     def __iter__(self):
         return tuple().__iter__()
 
@@ -239,6 +256,9 @@ class __Some(Maybe):
 
     def maybe(self, b, f):
         return f(self.value)
+
+    def toSome(self) -> α:
+        return self.value
 
     def __iter__(self):
         return (self.value,).__iter__()
