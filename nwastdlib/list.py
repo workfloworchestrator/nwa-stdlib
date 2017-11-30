@@ -136,3 +136,16 @@ def partition(p: Callable[[α], bool], xs: List[α]) -> Tuple[List[α], List[α]
         return ([*a, e], b) if p(e) else (a, [*b, e])
 
     return reduce(it, xs, ([], []))
+
+
+def join(x: List[List[α]]) -> List[α]:
+    """
+    Remove one level of list.
+
+    >>> join([])
+    []
+
+    >>> join([[1], [2]])
+    [1, 2]
+    """
+    return reduce(lambda xs, ys: xs + ys, x, [])
