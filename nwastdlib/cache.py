@@ -1,15 +1,15 @@
 """
 Module containing Basic logic to use the redis cache
 """
-from . import Either, Maybe
-from .ex import format_ex
-
+import pickle
+import sys
 from collections import namedtuple
 
 import redis
-import connexion
-import pickle
-import sys
+from flask import request
+
+from . import Either, Maybe
+from .ex import format_ex
 
 Error = namedtuple("Error", ["status", "key", "message"])
 
@@ -26,10 +26,10 @@ def create_pool(host, port=6379, db=0):
 
 
 def handle_query(pool):
-    key = connexion.request.full_path
+    key = request.full_path
 
     def resp_parser(pool):
-        if connexion.request.headers.get('nwa-stdlib-no-cache'):
+        if request.headers.get('nwa-stdlib-no-cache'):
             return Either.Left(None)
         return Maybe.of(pool.get(key))\
             .maybe(
@@ -41,7 +41,7 @@ def handle_query(pool):
 
 
 def handle_setter(pool, payload):
-    key = connexion.request.full_path
+    key = request.full_path
 
     def set_val(po, payload):
         try:
