@@ -62,6 +62,19 @@ def elem(x: α, xs: List[α]) -> bool:
         return False
 
 
+def mhead(xs: List[α]) -> Maybe[α]:
+    '''
+    Maybe get the head of the list.
+
+    >>> mhead([])
+    Nothing
+
+    >>> mhead([1])
+    Some 1
+    '''
+    return Maybe.Some(xs[0]) if len(xs) > 0 else Maybe.Nothing()
+
+
 def find(p: Callable[[α], bool], xs: List[α]) -> Maybe[α]:
     '''
     Find the first element in `xs` that matches the predicate `p`.
