@@ -1,7 +1,7 @@
 from functools import reduce
 from .f import const, identity
 
-from typing import Callable, Generic, Iterable, TypeVar
+from typing import Callable, Generic, Iterable, List, TypeVar
 
 α = TypeVar('a')
 β = TypeVar('b')
@@ -14,6 +14,29 @@ class Either(Generic[α, β]):
 
     ``Either α β`` represents a value two possibilities: ``Left α`` or ``Right β``
     """
+
+    @staticmethod
+    def partition(xs: List['Either[α, β]']) -> List[β]:
+        """
+        >>> Either.partition([])
+        ([], [])
+
+        >>> Either.partition([Either.Left(1)])
+        ([1], [])
+
+        >>> Either.partition([Either.Right(1)])
+        ([], [1])
+
+        >>> Either.partition([Either.Left("foo"), Either.Right(7)])
+        (['foo'], [7])
+        """
+        def fold(acc, e):
+            return e.either(
+                lambda x: (acc[0] + [x], acc[1]),
+                lambda x: (acc[0], acc[1] + [x])
+            )
+
+        return reduce(fold, xs, ([], []))
 
     def map(self, f: Callable[[β], γ]) -> 'Either[α, γ]':
         """
