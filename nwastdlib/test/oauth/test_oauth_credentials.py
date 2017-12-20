@@ -25,11 +25,11 @@ class TestOAuthCredentials(TestCase):
         obtain_client_credentials_token(self.app, OAUTH2_TOKEN_URL, 'client_id', 'secret')
         self.assertEqual(self.app.config[AUTH_RESOURCE_SERVER]['access_token'], 'token')
 
-        client = add_client_credentials_token_header({})
+        client = add_client_credentials_token_header({}, self.app)
         self.assertEqual('bearer token', client.request_headers['Authorization'])
 
         json['access_token'] = 'new_token'
         m.post(OAUTH2_TOKEN_URL, json=json)
 
-        refresh_client_credentials_token()
+        refresh_client_credentials_token(self.app)
         self.assertEqual(self.app.config[AUTH_RESOURCE_SERVER]['access_token'], 'new_token')
