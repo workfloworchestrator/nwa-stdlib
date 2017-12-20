@@ -30,9 +30,8 @@ def obtain_client_credentials_token(app, oauth2_token_url, oauth2_client_id, oau
 
 
 def add_client_credentials_token_header(client, app):
-    config = app.config[AUTH_RESOURCE_SERVER]
-    if "access_token" in config:
-        access_token = config["access_token"]
+    if AUTH_RESOURCE_SERVER in app.config and "access_token" in app.config[AUTH_RESOURCE_SERVER]:
+        access_token = app.config[AUTH_RESOURCE_SERVER]["access_token"]
         return ApiClientProxy(client, {"Authorization": f"bearer {access_token}"})
     return client
 
