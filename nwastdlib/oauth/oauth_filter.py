@@ -33,24 +33,24 @@ class OAuthFilter(object):
         if is_white_listed:
             return
 
-        authorization = current_request.headers.get('Authorization')
+        authorization = current_request.headers.get("Authorization")
         if not authorization:
-            raise Unauthorized(description='No Authorization token provided')
+            raise Unauthorized(description="No Authorization token provided")
         else:
             try:
                 _, token = authorization.split()
             except ValueError:
                 raise Unauthorized(description="Invalid authorization header: {}".format(authorization))
-            token_request = session.get(self.token_check_url, params={'token': token}, timeout=5)
+            token_request = session.get(self.token_check_url, params={"token": token}, timeout=5)
             if not token_request.ok:
                 raise Unauthorized(description="Provided oauth token {} is not valid".format(token))
             token_info = token_request.json()
 
-            if 'aud' not in token_info or self.resource_server_id not in token_info['aud']:
+            if "aud" not in token_info or self.resource_server_id not in token_info["aud"]:
                 raise Forbidden(description="Provided token has access to {}, but not {}".format(
-                    token_info.get('aud', []), self.resource_server_id))
+                    token_info.get("aud", []), self.resource_server_id))
 
-            user_scopes = set(token_info.get('scope', []))
+            user_scopes = set(token_info.get("scope", []))
 
             self.scope_config.is_allowed(user_scopes, current_request.method, endpoint)
 
@@ -58,4 +58,4 @@ class OAuthFilter(object):
 
     @classmethod
     def current_user(cls):
-        return flask.g.get('current_user', None)
+        return flask.g.get("current_user", None)
