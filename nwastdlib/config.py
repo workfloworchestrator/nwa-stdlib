@@ -3,15 +3,25 @@ from .either import Either
 from .f import identity
 
 
-def get_config(var, default=None, parse=identity):
-    mx = os.environ.get(var)
-    try:
-        x = parse(mx) if mx is not None else default
-        if x is None:
-            return Either.Left("Missing config for %s" % var)
-        return Either.Right(x)
-    except ValueError:
-        return Either.Left("Invalid value for %s: %s" % (var, mx))
+def get_config(var, default=None, parse=identity, secret=None):
+    if secret is None:
+        mx = os.environ.get(var)
+        try:
+            x = parse(mx) if mx is not None else default
+            if x is None:
+                return Either.Left("Missing config for %s" % var)
+            return Either.Right(x)
+        except ValueError:
+            return Either.Left("Invalid value for %s: %s" % (var, mx))
+    else:
+        try:
+            with open("/run/secret.txt") as f:
+                x = parse(f.read())
+                if x is None:
+                    Either.Left("Missing config for %s" % var)
+                return Either.Right(x)
+        except ValueError:
+            return Either.Left("Invalid value for %s: %s" % (var, x))
 
 
 class Config(object):
