@@ -15,13 +15,15 @@ def get_config(var, default=None, parse=identity, secret=None):
             return Either.Left("Invalid value for %s: %s" % (var, mx))
     else:
         try:
-            with open("/run/secrets/secret") as f:
+            with open("/run/secrets/%s" % secret) as f:
                 x = parse(f.read())
                 if x is None:
                     Either.Left("Missing config for %s" % var)
                 return Either.Right(x)
         except ValueError:
             return Either.Left("Invalid value for %s: %s" % (var, x))
+        except Exception as e:
+            return Either.Left("Unexpected Error while reading file %s: %s" % (f, e))
 
 
 class Config(object):
