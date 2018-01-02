@@ -15,7 +15,7 @@ def get_config(var, default=None, parse=identity, secret=None):
             return Either.Left("Invalid value for %s: %s" % (var, mx))
     else:
         try:
-            with open("/run/secret.txt") as f:
+            with open("/run/secrets/secret") as f:
                 x = parse(f.read())
                 if x is None:
                     Either.Left("Missing config for %s" % var)
