@@ -16,13 +16,15 @@ def get_config(var, default=None, parse=identity, secret=None):
     else:
         try:
             with open("/run/secrets/%s" % secret) as f:
-                x = parse(f.read())
+                x = parse(f.read()) if len(f.read()) > 0 else default
                 if x is None:
                     Either.Left("Missing config for %s" % var)
                 return Either.Right(x)
         except ValueError:
             return Either.Left("Invalid value for %s: %s" % (var, x))
         except Exception as e:
+            if default is not None:
+                return Either.Right(default)
             return Either.Left("Unexpected Error while reading file %s: %s" % (f, e))
 
 
