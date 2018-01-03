@@ -16,8 +16,8 @@ def get_config(var, default=None, parse=identity, secret=None):
     else:
         try:
             with open("/run/secrets/%s" % secret) as f:
-                x = parse(f.read()) if len(f.read()) > 0 else default
-                if x is None:
+                x = parse(f.read())
+                if len(x) == 0:
                     Either.Left("Missing config for %s" % var)
                 return Either.Right(x)
         except ValueError:
