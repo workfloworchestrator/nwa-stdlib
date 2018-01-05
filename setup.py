@@ -15,9 +15,9 @@ setup_params = dict(
     tests_require=['pytest', 'Flask-Testing==0.6.2', 'requests-mock==1.3.0'],
     description='Network Automation Standard Library',
     long_description='Network Automation Standard Library',
-    author='SURFnet NOC',
+    author='SURNet Automation',
     author_email='automation-nw@surfnet.nl',
-    url='https://gitlab.surfnet.nl/SURFnetNOC/nwa-stdlib',
+    url='https://gitlab.surfnet.nl/automation/nwa-stdlib',
     classifiers=[
         'Programming Language :: Python :: 3',
         'Operating System :: OS Independent'

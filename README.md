@@ -31,10 +31,10 @@ flake8 nwastdlib
 The package oauth contains OAuth2 supporting functionality. For the usage see the integration tests or the 
 core-db and core-admin projects:
 
-* [Enable ResourceServer acces-token checks](https://gitlab.surfnet.nl/SURFnetNOC/coredb/blob/master/coredb/__main__.py)
-* [Enable Client access-token retrieval](https://gitlab.surfnet.nl/SURFnetNOC/core-admin/blob/master/web/__init__.py)
-* [Enable Server-to-Server access-token](https://gitlab.surfnet.nl/SURFnetNOC/nwa-stdlib/blob/master/nwastdlib/oauth/oauth_credentials.py)
-* [Add access-token to API requests](https://gitlab.surfnet.nl/SURFnetNOC/core-admin/blob/master/web/utils.py)
+* [Enable ResourceServer acces-token checks](https://gitlab.surfnet.nl/automation/coredb/blob/master/coredb/__main__.py)
+* [Enable Client access-token retrieval](https://gitlab.surfnet.nl/automation/core-admin/blob/master/web/__init__.py)
+* [Enable Server-to-Server access-token](https://gitlab.surfnet.nl/automation/nwa-stdlib/blob/master/nwastdlib/oauth/oauth_credentials.py)
+* [Add access-token to API requests](https://gitlab.surfnet.nl/automation/core-admin/blob/master/web/utils.py)
 
 The following applications are involved in authorization:
 
