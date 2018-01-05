@@ -9,9 +9,10 @@ examples. The check_token payload is saved in the thread-local flask.g for subse
 """
 import flask
 import requests
-from werkzeug.exceptions import Unauthorized, Forbidden
+from werkzeug.exceptions import Unauthorized, Forbidden, RequestTimeout
 
 from .scopes import Scopes
+from ..ex import show_ex
 
 session = requests.Session()
 
@@ -41,7 +42,13 @@ class OAuthFilter(object):
                 _, token = authorization.split()
             except ValueError:
                 raise Unauthorized(description="Invalid authorization header: {}".format(authorization))
-            token_request = session.get(self.token_check_url, params={"token": token}, timeout=5)
+
+            try:
+                token_request = session.get(self.token_check_url, params={"token": token}, timeout=5)
+            except requests.exceptions.Timeout as e:
+                print(show_ex(e))
+                raise RequestTimeout(description='RequestTimeou timeout from authorization server')
+
             if not token_request.ok:
                 raise Unauthorized(description="Provided oauth token {} is not valid".format(token))
             token_info = token_request.json()
