@@ -20,5 +20,5 @@ class TestConfig(unittest.TestCase):
             new_file.write("test_value")
             new_file.close()
 
-        config = get_config("test", secret="secret",  secret_base_location="/tmp")
+        config = get_config("test", secret="secret", secret_base_location="/tmp")
         self.assertEqual(config, Either.Right("test_value"))
