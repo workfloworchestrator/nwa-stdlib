@@ -1,32 +1,41 @@
 import os
+import os.path
+
 from .either import Either
 from .f import identity
 
 
-def get_config(var, default=None, parse=identity, secret=None):
-    if secret is None:
+def get_config(var, default=None, parse=identity, secret=None, secret_base_location="/run/secrets"):
+    def from_environ():
         mx = os.environ.get(var)
         try:
             x = parse(mx) if mx is not None else default
             if x is None:
-                return Either.Left("Missing config for %s" % var)
+                return Either.Left(f"Missing config for {var}")
             return Either.Right(x)
         except ValueError:
-            return Either.Left("Invalid value for %s: %s" % (var, mx))
-    else:
-        filename = "/run/secrets/%s" % secret
+            return Either.Left("Invalid value for {var}: {mx}")
+
+    def from_file(filename):
+        if not os.path.isfile(filename):
+            return Either.Left(f"File {filename} does not exist. Can not resolve var {var}")
         try:
             with open(filename) as f:
                 x = parse(f.read())
                 if len(x) == 0:
-                    Either.Left("Missing config for %s" % var)
+                    return Either.Left(f"Missing config for {var} in {filename}")
                 return Either.Right(x)
         except ValueError:
-            return Either.Left("Invalid value for %s: %s" % (var, x))
+            return Either.Left(f"Invalid value for {var}: {x}")
         except Exception as e:
             if default is not None:
                 return Either.Right(default)
-            return Either.Left("Unexpected Error while reading file %s: %s" % (filename, e))
+            return Either.Left(f"Unexpected Error while reading file {filename}: {e}")
+
+    filename = (f"{secret_base_location}/{secret}")
+    if not secret or not os.path.isfile(filename):
+        return from_environ()
+    return from_file(filename)
 
 
 class Config(object):
