@@ -22,7 +22,8 @@ def obtain_client_credentials_token(app, oauth2_token_url, oauth2_client_id, oau
                                 auth=(oauth2_client_id, oauth2_secret),
                                 timeout=5)
     if not response.ok:
-        raise Unauthorized(description=f"Response for obtaining access_token {response.json()}")
+        description = f"Response for obtaining access_token {response.json()}"
+        raise Unauthorized(description=description)
 
     json = response.json()
     # Spec dictates that client credentials should not be allowed to get a refresh token

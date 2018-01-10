@@ -67,7 +67,7 @@ def callback():
                                 auth=auth,
                                 timeout=5)
     if not response.ok:
-        raise Unauthorized(description=f"Response for obtaining access_token {response.json()}")
+        raise_unauthorized(response, "obtaining access_token")
 
     json = response.json()
     session["auth_tokens"] = (json["access_token"], json["refresh_token"])
@@ -77,11 +77,16 @@ def callback():
                                auth=auth,
                                timeout=5)
     if not response.ok:
-        raise Unauthorized(description=f"Response for obtaining user info {response.json()}")
+        raise_unauthorized(response, "token validation")
 
     session["user"] = response.json()
 
     return redirect(callback_state)
+
+
+def raise_unauthorized(response, action):
+    description = f"Response for {action} {response.json()}"
+    raise Unauthorized(description=description)
 
 
 def add_access_token_header(client):
