@@ -65,4 +65,4 @@ class OAuthFilter(object):
 
     @classmethod
     def current_user(cls):
-        return flask.g.get("current_user", None)
+        return flask.g.get("current_user", None) if flask.has_app_context() else None
