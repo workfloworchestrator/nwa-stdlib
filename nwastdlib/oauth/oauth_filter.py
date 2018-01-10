@@ -14,8 +14,6 @@ from werkzeug.exceptions import Unauthorized, Forbidden, RequestTimeout
 from .scopes import Scopes
 from ..ex import show_ex
 
-session = requests.Session()
-
 
 class OAuthFilter(object):
     def __init__(self, security_definitions, token_check_url, resource_server_id, resource_server_secret,
@@ -24,7 +22,7 @@ class OAuthFilter(object):
         self.token_check_url = token_check_url
         self.resource_server_id = resource_server_id
         self.white_listed_urls = white_listed_urls
-        session.auth = (resource_server_id, resource_server_secret)
+        self.auth = (resource_server_id, resource_server_secret)
 
     def filter(self):
         current_request = flask.request
@@ -44,10 +42,12 @@ class OAuthFilter(object):
                 raise Unauthorized(description="Invalid authorization header: {}".format(authorization))
 
             try:
-                token_request = session.get(self.token_check_url, params={"token": token}, timeout=5)
+                with requests.Session() as s:
+                    s.auth = self.auth
+                    token_request = s.get(self.token_check_url, params={"token": token}, timeout=5)
             except requests.exceptions.Timeout as e:
                 print(show_ex(e))
-                raise RequestTimeout(description='RequestTimeou timeout from authorization server')
+                raise RequestTimeout(description='RequestTimeout from authorization server')
 
             if not token_request.ok:
                 raise Unauthorized(description="Provided oauth token {} is not valid".format(token))
