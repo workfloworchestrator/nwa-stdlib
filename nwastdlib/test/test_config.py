@@ -26,7 +26,7 @@ class TestConfig(unittest.TestCase):
         loc = "/tmp/secret"
         if not os.path.isfile(loc):
             new_file = open(loc, "w")
-            new_file.write("test_value")
+            new_file.write("test_value\n")
             new_file.close()
 
         config = get_config("test", secret="secret", secret_base_location="/tmp")

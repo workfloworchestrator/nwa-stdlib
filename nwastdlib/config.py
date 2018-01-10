@@ -21,9 +21,10 @@ def get_config(var, default=None, parse=identity, secret=None, secret_base_locat
             return Either.Left(f"File {filename} does not exist. Can not resolve var {var}")
         try:
             with open(filename) as f:
-                x = parse(f.read())
-                if len(x) == 0:
+                content = f.read()
+                if len(content) == 0:
                     return Either.Left(f"Missing config for {var} in {filename}")
+                x = parse(content.replace("\n", ""))
                 return Either.Right(x)
         except ValueError:
             return Either.Left(f"Invalid value for {var}: {x}")
