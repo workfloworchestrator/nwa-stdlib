@@ -26,6 +26,10 @@ class OAuthFilter(object):
 
     def filter(self):
         current_request = flask.request
+        # Allow Cross-Origin Resource Sharing calls
+        if current_request.method == "OPTIONS":
+            return
+
         endpoint = current_request.endpoint if current_request.endpoint else current_request.base_url
 
         is_white_listed = next(filter(lambda url: endpoint.endswith(url), self.white_listed_urls), None)

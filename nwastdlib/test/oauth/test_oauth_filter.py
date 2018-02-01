@@ -78,6 +78,10 @@ class TestOAuthFilter(TestCase):
         self.assertEqual('403 Forbidden: Provided token does not have the required scope(s): {\'admin\'}',
                          response.json['detail'])
 
+    def test_allow_cors_calls(self, m):
+        response = self.client.options("/hello")
+        self.assertEqual(200, response.status_code)
+
     def _check(self, m, json=None, status_code=200, environ_base=ENVIRON_BASE,
                response_status_code=200, response_detail=None):
         m.get(TOKEN_CHECK_URL, json=json, status_code=status_code)
