@@ -20,7 +20,6 @@ class OAuthFilter(object):
                  white_listed_urls=[]):
         self.scope_config = Scopes(list(security_definitions.values()))
         self.token_check_url = token_check_url
-        self.resource_server_id = resource_server_id
         self.white_listed_urls = white_listed_urls
         self.auth = (resource_server_id, resource_server_secret)
 
@@ -56,10 +55,6 @@ class OAuthFilter(object):
             if not token_request.ok:
                 raise Unauthorized(description="Provided oauth token {} is not valid".format(token))
             token_info = token_request.json()
-
-            if "aud" not in token_info or self.resource_server_id not in token_info["aud"]:
-                raise Forbidden(description="Provided token has access to {}, but not {}".format(
-                    token_info.get("aud", []), self.resource_server_id))
 
             user_scopes = set(token_info.get("scope", []))
 

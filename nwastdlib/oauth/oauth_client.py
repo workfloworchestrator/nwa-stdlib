@@ -21,9 +21,9 @@ def add_oauth_remote(app, client_base_url, oauth2_base_url, oauth2_client_id, oa
         client_base_url=client_base_url,
         oauth2_client_id=oauth2_client_id,
         oauth2_secret=oauth2_secret,
-        check_token_url=oauth2_base_url + "/oauth/check_token",
-        access_token_url=oauth2_base_url + "/oauth/token",
-        authorize_url=oauth2_base_url + "/oauth/authorize",
+        check_token_url=oauth2_base_url + "/introspect",
+        access_token_url=oauth2_base_url + "/token",
+        authorize_url=oauth2_base_url + "/authorize",
         callback_url=oauth2_callback_url
     )
 

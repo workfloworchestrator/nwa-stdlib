@@ -27,12 +27,12 @@ class TestOAuthClient(TestCase):
         response = self.client.post("/hello", environ_base=ENVIRON_BASE)
         self.assertEqual(302, response.status_code)
         self.assertEqual(response.headers.get('Location'),
-                         'http://authz-server/oauth/authorize?response_type=code&state=http%3A//localhost/hello&'
+                         'http://authz-server/authorize?response_type=code&state=http%3A//localhost/hello&'
                          'client_id=core-admin&scope=read+write+admin&redirect_uri=http://localhost/oauth2/callback')
 
-        m.post(OAUTH2_BASE_URL + '/oauth/token',
+        m.post(OAUTH2_BASE_URL + '/token',
                json={'access_token': 'access_token', 'refresh_token': 'refresh_token'})
-        m.get(OAUTH2_BASE_URL + '/oauth/check_token', json={'name': 'john.doe'})
+        m.get(OAUTH2_BASE_URL + '/introspect', json={'name': 'john.doe'})
         response = self.client.get('/oauth2/callback?code=secret&state=http%3A//localhost/hello')
         self.assertEqual(302, response.status_code)
         self.assertEqual(response.headers.get('Location'), 'http://localhost/hello')
