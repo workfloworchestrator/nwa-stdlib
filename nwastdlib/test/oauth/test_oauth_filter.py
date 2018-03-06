@@ -98,4 +98,4 @@ class TestOAuthFilter(TestCase):
 
     @staticmethod
     def _json(scopes):
-        return {'user_name': 'john.doe', 'scope': scopes}
+        return {'user_name': 'john.doe', 'scope': " ".join(scopes)}

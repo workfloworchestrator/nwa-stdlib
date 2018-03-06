@@ -56,8 +56,7 @@ class OAuthFilter(object):
                 raise Unauthorized(description="Provided oauth token {} is not valid".format(token))
             token_info = token_request.json()
 
-            user_scopes = set(token_info.get("scope", []))
-
+            user_scopes = set(token_info.get("scope", "").split(" "))
             self.scope_config.is_allowed(user_scopes, current_request.method, endpoint)
 
             flask.g.current_user = token_info
