@@ -11,14 +11,14 @@ import flask
 import requests
 from werkzeug.exceptions import Unauthorized, RequestTimeout
 
-from .scopes import Scopes
+from .access_control import AccessControl, UserAttributes
 from ..ex import show_ex
 
 
 class OAuthFilter(object):
     def __init__(self, security_definitions, token_check_url, resource_server_id, resource_server_secret,
                  white_listed_urls=[]):
-        self.scope_config = Scopes(list(security_definitions.values()))
+        self.access_rules = AccessControl(security_definitions)
         self.token_check_url = token_check_url
         self.white_listed_urls = white_listed_urls
         self.auth = (resource_server_id, resource_server_secret)
@@ -56,10 +56,10 @@ class OAuthFilter(object):
                 raise Unauthorized(description="Provided oauth token {} is not valid".format(token))
             token_info = token_request.json()
 
-            user_scopes = set(token_info.get("scope", "").split(" "))
-            self.scope_config.is_allowed(user_scopes, current_request.method, endpoint)
+            current_user = UserAttributes(token_info)
+            self.access_rules.is_allowed(current_user, current_request)
 
-            flask.g.current_user = token_info
+            flask.g.current_user = current_user
 
     @classmethod
     def current_user(cls):
