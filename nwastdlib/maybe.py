@@ -128,6 +128,22 @@ class Maybe(Generic[α]):
         """
         return self.maybe(a, identity)
 
+    def or_else_throw(self, error):
+        """"
+        Extracts the element of a Some and throws the error if Nothing.
+
+        >>> Maybe.of(None).or_else_throw(ValueError("Expected some"))
+        Traceback (most recent call last):
+            ...
+        ValueError: Expected some
+
+        >>> Maybe.of(1).or_else_throw(ValueError("Expected some"))
+        1
+        """
+        if self.isNothing():
+            raise error
+        return self.getSome()
+
     def getSome(self) -> α:
         '''
         Extracts the element of a Some and throws a ValueError if Nothing.
