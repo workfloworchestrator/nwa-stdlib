@@ -1,5 +1,4 @@
-"""
-Provides do-notation for monadic structures like Either and Maybe.
+"""Provides do-notation for monadic structures like Either and Maybe.
 
 >>> from nwastdlib import Maybe
 
@@ -15,11 +14,13 @@ Some 'Hello, World!'
 >>> mconcat(Maybe.Nothing(), Maybe.Some("World"))
 Nothing
 """
+from functools import wraps
 
 
 def do(M):
-    def wrapper(f):
-        def run(*args, **kwargs):
+    def decorate(f):
+        @wraps(f)
+        def wrapper(*args, **kwargs):
             it = f(*args, **kwargs)
 
             def send(val):
@@ -32,9 +33,9 @@ def do(M):
 
             return send(None)
 
-        return run
+        return wrapper
 
-    return wrapper
+    return decorate
 
 
 def mreturn(value):
