@@ -9,7 +9,7 @@ examples. The check_token payload is saved in the thread-local flask.g for subse
 """
 import flask
 import requests
-from werkzeug.exceptions import Unauthorized, Forbidden, RequestTimeout
+from werkzeug.exceptions import Unauthorized, RequestTimeout
 
 from .scopes import Scopes
 from ..ex import show_ex
