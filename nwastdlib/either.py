@@ -3,10 +3,10 @@ from .f import const, identity
 
 from typing import Callable, Generic, Iterable, List, TypeVar
 
-α = TypeVar('a')
-β = TypeVar('b')
-γ = TypeVar('c')
-δ = TypeVar('d')
+α = TypeVar('α')
+β = TypeVar('β')
+γ = TypeVar('γ')
+δ = TypeVar('δ')
 
 
 class Either(Generic[α, β]):

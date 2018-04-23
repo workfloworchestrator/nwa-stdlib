@@ -8,7 +8,7 @@ from functools import reduce
 from .f import complement
 from .maybe import Maybe
 
-α = TypeVar('a')
+α = TypeVar('α')
 
 
 def fst(xs: List[α]) -> α:
