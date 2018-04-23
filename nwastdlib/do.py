@@ -16,11 +16,15 @@ Nothing
 """
 from functools import wraps
 
+from typing import TypeVar, Callable
 
-def do(M):
-    def decorate(f):
+T = TypeVar('T')
+
+
+def do(M: T) -> Callable[[Callable], Callable[..., T]]:
+    def decorate(f: Callable) -> Callable[..., T]:
         @wraps(f)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args, **kwargs) -> T:
             it = f(*args, **kwargs)
 
             def send(val):
