@@ -6,8 +6,9 @@ lint check:
     image: python:3.6
     stage: lint
     script:
-      - pip install flake8 --quiet
+      - pip install flake8 flake8-mypy --quiet
       - flake8
+      - mypy -p nwastdlib
       - python setup.py check
       - python setup.py test
     tags:
