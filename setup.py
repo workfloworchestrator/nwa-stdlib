@@ -6,6 +6,7 @@ setup_params = dict(
     name='nwastdlib',
     version='0.2',
     packages=setuptools.find_packages(exclude=["*.test", "*.test.*"]),
+    package_data={"nwastdlib": ["py.typed"]},
     install_requires=['pytz==2017.2', 'pyyaml==3.12', 'redis==2.10.6', 'hiredis==0.2.0', 'Flask==0.12.2', 'requests==2.18.4'],
     extras_require={
         "mq": ['stomp.py==4.1'],
