@@ -1,7 +1,7 @@
 '''
 Module containing utility functions for lists.
 '''
-from typing import Callable, Dict, Set, TypeVar, Union
+from typing import Callable, Dict, Set, TypeVar, Union, Optional, cast, Any
 from functools import reduce
 
 from .either import Either
@@ -47,6 +47,7 @@ def getByKeys(ks: Set[k], d: Dict[k, α]) -> Either[k, Dict[k, α]]:
     >>> getByKeys({'a', 'c'}, d)
     Left 'c'
     '''
+
     def get(k):
         return lookup(k, d).maybe(
             Either.Left(k),
@@ -56,7 +57,7 @@ def getByKeys(ks: Set[k], d: Dict[k, α]) -> Either[k, Dict[k, α]]:
     return Either.sequence([get(k) for k in ks]).map(dict)
 
 
-def lookup(k: k, d: Dict[k, α]) -> Maybe[α]:
+def lookup(k: k, d: Dict[k, Optional[α]]) -> Maybe[α]:
     '''
     Lookup the value associated with a key in a dict.
 
@@ -117,7 +118,7 @@ def merge(d1: Dict[k, α]) -> Callable[[Dict[k, α]], Dict[k, α]]:
     return lambda d2: {**d1, **d2}
 
 
-def append(d1: Dict[k, α], d2: Dict[k, α]) -> Dict[k, α]:
+def append(d1: Dict[k, Any], d2: Dict[k, Any]) -> Dict[k, Any]:
     '''
     A rather limited version of append that only appends dicts. Even values that
     are easily appendable (eg int, str, etc) are /not/ appended by design.
@@ -138,11 +139,14 @@ def append(d1: Dict[k, α], d2: Dict[k, α]) -> Dict[k, α]:
     >>> append({'a': {'x': 1}}, {'a': {'y': 2}})
     {'a': {'x': 1, 'y': 2}}
     '''
-    d3 = dict((k, append(v, d2[k])) for (k, v) in d1.items() if k in d2 and isinstance(v, dict))
+    d3 = dict((k, append(v, cast(dict, d2[k]))) for (k, v) in d1.items() if
+              k in d2 and isinstance(v, dict) and isinstance(d2[k], dict))
     return {**d1, **d2, **d3}
 
 
-UnflatDict = Dict[str, Union[α, 'UnflatDict']]
+# Proper type is in comments, though MyPy currently doesn't support recursive types yet. Hence the use of `Any`
+# UnflatDict = Dict[str, Union[α, 'UnflatDict']]
+UnflatDict = Dict[str, Union[α, Any]]
 
 
 def unflatten(d: Dict[str, α], sep=".") -> UnflatDict:
@@ -161,6 +165,7 @@ def unflatten(d: Dict[str, α], sep=".") -> UnflatDict:
     >>> unflatten({})
     {}
     '''
+
     def unflatten1(parts, value):
         h, *t = parts
         if len(t) == 0:

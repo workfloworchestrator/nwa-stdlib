@@ -144,11 +144,14 @@ def partition(p: Callable[[α], bool], xs: List[α]) -> Tuple[List[α], List[α]
     >>> partition(lambda x: x < 3, [1,2,3,4,5])
     ([1, 2], [3, 4, 5])
     """
+
     def it(acc, e):
         a, b = acc
         return ([*a, e], b) if p(e) else (a, [*b, e])
 
-    return reduce(it, xs, ([], []))
+    initializer: Tuple[List[α], List[α]] = ([], [])
+
+    return reduce(it, xs, initializer)
 
 
 def join(x: List[List[α]]) -> List[α]:

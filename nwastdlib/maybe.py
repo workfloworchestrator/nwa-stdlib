@@ -1,21 +1,21 @@
-from abc import ABC, abstractmethod
+from abc import abstractmethod, ABCMeta
 from functools import reduce
-from .f import const, identity
+from typing import Any, Callable, Generic, Iterable, Optional, TypeVar, ClassVar, Type
 
-from typing import Any, Callable, Generic, Iterable, Optional, TypeVar, ClassVar
+from .f import const, identity
 
 α = TypeVar('α')
 β = TypeVar('β')
 
 
-class Maybe(ABC, Generic[α]):
+class Maybe(Generic[α], metaclass=ABCMeta):
     """
     The Maybe data type to represent an optional value.
     """
 
-    Nothing: ClassVar[Callable[[Any], "Maybe"]]
-    Some: ClassVar["Maybe"]
-    unit: ClassVar["Maybe"]
+    Nothing: ClassVar[Type["Maybe"]]
+    Some: ClassVar[Type["Maybe"]]
+    unit: ClassVar[Type["Maybe"]]
 
     @staticmethod
     def of(optional: Optional[α]) -> 'Maybe[α]':
@@ -30,19 +30,19 @@ class Maybe(ABC, Generic[α]):
         """
         return Maybe.Nothing() if optional is None else Maybe.Some(optional)
 
-    def __init__(self):
-        """
-        Enforce using specific data type constructors.
+    @abstractmethod
+    def __init__(self, value: Optional[α] = None) -> None:
+        """ Enforce using specific data type constructors.
 
         >>> Maybe()
         Traceback (most recent call last):
             ...
-        TypeError: Can't instantiate abstract class Maybe with abstract methods __iter__, flatmap, getSome, maybe
+        TypeError: Can't instantiate abstract class Maybe with abstract methods ...
 
         >>> Maybe('value')
         Traceback (most recent call last):
             ...
-        TypeError: Can't instantiate abstract class Maybe with abstract methods __iter__, flatmap, getSome, maybe
+        TypeError: Can't instantiate abstract class Maybe with abstract methods ...
         """
         raise AssertionError("Maybe is an abstract type; use a specific type constructor")
 
@@ -256,7 +256,7 @@ class Maybe(ABC, Generic[α]):
 
 
 class __Nothing(Maybe):
-    def __init__(self):
+    def __init__(self) -> None:
         """
         Nothing data constructor.
 
@@ -279,7 +279,7 @@ class __Nothing(Maybe):
 
 
 class __Some(Maybe):
-    def __init__(self, a: α):
+    def __init__(self, a: α) -> None:
         """
         Some data constructor
 

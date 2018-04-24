@@ -1,8 +1,8 @@
-from abc import ABC, abstractmethod
+from abc import abstractmethod, ABCMeta
 from functools import reduce
-from .f import const, identity
+from typing import Callable, Generic, Iterable, List, TypeVar, ClassVar, Type, Optional, Tuple
 
-from typing import Callable, Generic, Iterable, List, TypeVar, ClassVar
+from .f import const, identity
 
 α = TypeVar('α')
 β = TypeVar('β')
@@ -10,18 +10,22 @@ from typing import Callable, Generic, Iterable, List, TypeVar, ClassVar
 δ = TypeVar('δ')
 
 
-class Either(ABC, Generic[α, β]):
+class Either(Generic[α, β], metaclass=ABCMeta):
     """The Either data type.
 
     ``Either α β`` represents a value two possibilities: ``Left α`` or ``Right β``
     """
 
-    Left: ClassVar["Either"]
-    Right: ClassVar["Either"]
-    unit: ClassVar["Either"]
+    Left: ClassVar[Type["Either"]]
+    Right: ClassVar[Type["Either"]]
+    unit: ClassVar[Type["Either"]]
+
+    @abstractmethod
+    def __init__(self, value: Optional[α] = None) -> None:
+        raise NotImplementedError()
 
     @staticmethod
-    def partition(xs: List['Either[α, β]']) -> List[β]:
+    def partition(xs: List['Either[α, β]']) -> Tuple[List[α], List[β]]:
         """
         >>> Either.partition([])
         ([], [])
@@ -42,7 +46,9 @@ class Either(ABC, Generic[α, β]):
                 lambda x: (acc[0], acc[1] + [x])
             )
 
-        return reduce(fold, xs, ([], []))
+        initializer: Tuple[List[α], List[β]] = ([], [])
+
+        return reduce(fold, xs, initializer)
 
     def map(self, f: Callable[[β], γ]) -> 'Either[α, γ]':
         """
@@ -203,7 +209,7 @@ class Either(ABC, Generic[α, β]):
 
 
 class __Left(Either):
-    def __init__(self, a: α):
+    def __init__(self, a: α) -> None:
         """
         Left data constructor
 
@@ -223,7 +229,7 @@ class __Left(Either):
 
 
 class __Right(Either):
-    def __init__(self, b: β):
+    def __init__(self, b: β) -> None:
         """
         Right data constructor
 

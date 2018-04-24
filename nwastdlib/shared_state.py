@@ -1,3 +1,6 @@
+from typing import Type, Dict, ClassVar
+
+
 class SharedState(type):
     '''
     Type to imperatively share object state between modules.
@@ -27,7 +30,7 @@ class SharedState(type):
     False
     '''
 
-    __instances = {}
+    __instances: ClassVar[Dict[Type, object]] = {}
 
     def __call__(cls, *args, **kwargs):
         instance = cls.__instances.get(cls)
