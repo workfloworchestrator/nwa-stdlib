@@ -230,6 +230,30 @@ class Maybe(ABC, Generic[α]):
             lambda a: "Some %s" % repr(a)
         )
 
+    @staticmethod
+    def sequence(xs: Iterable["Maybe[α]"]) -> "Maybe[Iterable[α]]":
+        """ Fold an iterable of Maybe to a Maybe of iterable.
+
+        The iterable's class must have constructor that returns an empty instance
+        given no arguments, and a non-empty instance given a singleton tuple.
+
+        >>> Maybe.sequence([Maybe.Some(1), Maybe.Some(2)])
+        Some [1, 2]
+
+        >>> Maybe.sequence((Maybe.Some(2), Maybe.Some(3)))
+        Some (2, 3)
+
+        >>> Maybe.sequence((Maybe.Some(3), Maybe.Nothing()))
+        Nothing
+        """
+        unit = xs.__class__
+        empty = unit()
+
+        def iter(acc, e):
+            return acc.flatmap(lambda rs: e.map(lambda x: rs + unit((x,))))
+
+        return reduce(iter, xs, Maybe.Some(empty))
+
 
 class __Nothing(Maybe):
     def __init__(self):
@@ -292,31 +316,3 @@ class __Some(Maybe):
 Maybe.Nothing = const(__Nothing())
 Maybe.Some = __Some
 Maybe.unit = __Some
-
-
-def sequence(xs: Iterable[Maybe[α]]) -> Maybe[Iterable[α]]:
-    """
-    Fold an iterable of Maybe to a Maybe of iterable.
-
-    The iterable's class must have constructor that returns an empty instance
-    given no arguments, and a non-empty instance given a singleton tuple.
-
-    >>> Maybe.sequence([Maybe.Some(1), Maybe.Some(2)])
-    Some [1, 2]
-
-    >>> Maybe.sequence((Maybe.Some(2), Maybe.Some(3)))
-    Some (2, 3)
-
-    >>> Maybe.sequence((Maybe.Some(3), Maybe.Nothing()))
-    Nothing
-    """
-    unit = xs.__class__
-    empty = unit()
-
-    def iter(acc, e):
-        return acc.flatmap(lambda rs: e.map(lambda x: rs + unit((x,))))
-
-    return reduce(iter, xs, Maybe.Some(empty))
-
-
-Maybe.sequence = sequence

@@ -177,6 +177,30 @@ class Either(ABC, Generic[α, β]):
             lambda b: "Right %s" % repr(b)
         )
 
+    @staticmethod
+    def sequence(eithers: Iterable["Either[α, β]"]) -> "Either[α, Iterable[β]]":
+        """Fold an iterable of Either to an Either of iterable.
+
+        The iterable's class must have constructor that returns an empty instance
+        given no arguments, and a non-empty instance given a singleton tuple.
+
+        >>> Either.sequence([Either.Right(1), Either.Right(2)])
+        Right [1, 2]
+
+        >>> Either.sequence((Either.Right(2), Either.Right(3)))
+        Right (2, 3)
+
+        >>> Either.sequence((Either.Right(3), Either.Left('x')))
+        Left 'x'
+        """
+        unit = eithers.__class__
+        empty = unit()
+
+        def iter(acc, e):
+            return acc.flatmap(lambda rs: e.map(lambda x: rs + unit((x,))))
+
+        return reduce(iter, eithers, Either.Right(empty))
+
 
 class __Left(Either):
     def __init__(self, a: α):
@@ -224,30 +248,3 @@ class __Right(Either):
 Either.Left = __Left
 Either.Right = __Right
 Either.unit = __Right
-
-
-def sequence(eithers: Iterable[Either[α, β]]) -> Either[α, Iterable[β]]:
-    """Fold an iterable of Either to an Either of iterable.
-
-    The iterable's class must have constructor that returns an empty instance
-    given no arguments, and a non-empty instance given a singleton tuple.
-
-    >>> Either.sequence([Either.Right(1), Either.Right(2)])
-    Right [1, 2]
-
-    >>> Either.sequence((Either.Right(2), Either.Right(3)))
-    Right (2, 3)
-
-    >>> Either.sequence((Either.Right(3), Either.Left('x')))
-    Left 'x'
-    """
-    unit = eithers.__class__
-    empty = unit()
-
-    def iter(acc, e):
-        return acc.flatmap(lambda rs: e.map(lambda x: rs + unit((x,))))
-
-    return reduce(iter, eithers, Either.Right(empty))
-
-
-Either.sequence = sequence
