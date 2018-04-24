@@ -37,12 +37,12 @@ class Maybe(ABC, Generic[α]):
         >>> Maybe()
         Traceback (most recent call last):
             ...
-        AssertionError: Maybe is an abstract type; use a specific type constructor
+        TypeError: Can't instantiate abstract class Maybe with abstract methods __iter__, flatmap, getSome, maybe
 
         >>> Maybe('value')
         Traceback (most recent call last):
             ...
-        TypeError: __init__() takes 1 positional argument but 2 were given
+        TypeError: Can't instantiate abstract class Maybe with abstract methods __iter__, flatmap, getSome, maybe
         """
         raise AssertionError("Maybe is an abstract type; use a specific type constructor")
 
