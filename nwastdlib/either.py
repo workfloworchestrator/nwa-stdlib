@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from functools import reduce
 from .f import const, identity
 
-from typing import Callable, Generic, Iterable, List, TypeVar
+from typing import Callable, Generic, Iterable, List, TypeVar, ClassVar
 
 α = TypeVar('α')
 β = TypeVar('β')
@@ -16,9 +16,9 @@ class Either(ABC, Generic[α, β]):
     ``Either α β`` represents a value two possibilities: ``Left α`` or ``Right β``
     """
 
-    Left: "Either"
-    Right: "Either"
-    unit: "Either"
+    Left: ClassVar["Either"]
+    Right: ClassVar["Either"]
+    unit: ClassVar["Either"]
 
     @staticmethod
     def partition(xs: List['Either[α, β]']) -> List[β]:

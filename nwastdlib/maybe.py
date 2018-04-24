@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from functools import reduce
 from .f import const, identity
 
-from typing import Any, Callable, Generic, Iterable, Optional, TypeVar
+from typing import Any, Callable, Generic, Iterable, Optional, TypeVar, ClassVar
 
 α = TypeVar('α')
 β = TypeVar('β')
@@ -13,9 +13,9 @@ class Maybe(ABC, Generic[α]):
     The Maybe data type to represent an optional value.
     """
 
-    Nothing: Callable[[Any], "Maybe"]
-    Some: "Maybe"
-    unit: "Maybe"
+    Nothing: ClassVar[Callable[[Any], "Maybe"]]
+    Some: ClassVar["Maybe"]
+    unit: ClassVar["Maybe"]
 
     @staticmethod
     def of(optional: Optional[α]) -> 'Maybe[α]':
