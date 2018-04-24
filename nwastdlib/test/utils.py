@@ -44,7 +44,7 @@ def create_test_app():
     @onlyfor.route("/infrabeheerder")
     def infrabeheerder():
         return "You are an Infrabeheerder"
-    
+
     app.register_blueprint(onlyfor)
 
     return app
