@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from functools import reduce
 from .f import const, identity
 
@@ -9,7 +10,7 @@ from typing import Callable, Generic, Iterable, List, TypeVar
 δ = TypeVar('δ')
 
 
-class Either(Generic[α, β]):
+class Either(ABC, Generic[α, β]):
     """The Either data type.
 
     ``Either α β`` represents a value two possibilities: ``Left α`` or ``Right β``
@@ -53,6 +54,7 @@ class Either(Generic[α, β]):
         """
         return self.flatmap(lambda b: Either.Right(f(b)))
 
+    @abstractmethod
     def flatmap(self, f: Callable[[β], 'Either[α, γ]']) -> 'Either[α, γ]':
         """
         >>> Either.Right(1).flatmap(lambda x: Either.Right(x + 1))
@@ -71,6 +73,7 @@ class Either(Generic[α, β]):
         """
         raise NotImplementedError("Abstract function `flatmap` must be implemented by the type constructor")
 
+    @abstractmethod
     def either(self, f: Callable[[α], γ], g: Callable[[β], γ]) -> γ:
         """
         >>> Either.Left(None).either(const('left'), const('right'))

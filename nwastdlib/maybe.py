@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from functools import reduce
 from .f import const, identity
 
@@ -7,7 +8,7 @@ from typing import Any, Callable, Generic, Iterable, Optional, TypeVar
 β = TypeVar('β')
 
 
-class Maybe(Generic[α]):
+class Maybe(ABC, Generic[α]):
     """
     The Maybe data type to represent an optional value.
     """
@@ -57,6 +58,7 @@ class Maybe(Generic[α]):
         """
         return self.flatmap(lambda a: Maybe.Some(f(a)))
 
+    @abstractmethod
     def flatmap(self, f: Callable[[α], 'Maybe[β]']) -> 'Maybe[β]':
         """
         >>> Maybe.Some(1).flatmap(lambda _: Maybe.Some(2))
@@ -75,6 +77,7 @@ class Maybe(Generic[α]):
         """
         raise NotImplementedError("Abstract function `flatmap` must be implemented by the type constructor")
 
+    @abstractmethod
     def maybe(self, b: β, f: Callable[[α], β]) -> β:
         """
         Extract some value through `f` or get the default value `a`.
@@ -148,6 +151,7 @@ class Maybe(Generic[α]):
             raise error
         return self.getSome()
 
+    @abstractmethod
     def getSome(self) -> α:
         '''
         Extracts the element of a Some and throws a ValueError if Nothing.
@@ -174,6 +178,7 @@ class Maybe(Generic[α]):
         '''
         return self.flatmap(lambda x: Maybe.Some(x) if p(x) else Maybe.Nothing())
 
+    @abstractmethod
     def __iter__(self):
         '''
         Get an iterator over this Maybe
