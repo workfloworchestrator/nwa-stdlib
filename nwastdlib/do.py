@@ -16,18 +16,18 @@ Nothing
 """
 from functools import wraps
 
-from typing import TypeVar, Callable
+from typing import TypeVar, Callable, NoReturn, Any, Union
 
 T = TypeVar('T')
 
 
-def do(M: T) -> Callable[[Callable], Callable[..., T]]:
-    def decorate(f: Callable) -> Callable[..., T]:
+def do(M: T) -> Callable[[Callable[..., T]], Callable[..., T]]:
+    def decorate(f: Callable[..., T]) -> Callable[..., T]:
         @wraps(f)
         def wrapper(*args, **kwargs) -> T:
             it = f(*args, **kwargs)
 
-            def send(val):
+            def send(val: Any) -> Any:
                 try:
                     return it.send(val).flatmap(send)
                 except StopIteration as e:
@@ -42,7 +42,7 @@ def do(M: T) -> Callable[[Callable], Callable[..., T]]:
     return decorate
 
 
-def mreturn(value):
+def mreturn(value: Any) -> NoReturn:
     raise ReturnMonadic(value)
 
 
