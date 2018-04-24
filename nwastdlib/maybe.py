@@ -12,6 +12,10 @@ class Maybe(Generic[α]):
     The Maybe data type to represent an optional value.
     """
 
+    Nothing: Callable[[Any], "Maybe"]
+    Some: "Maybe"
+    unit: "Maybe"
+
     @staticmethod
     def of(optional: Optional[α]) -> 'Maybe[α]':
         """

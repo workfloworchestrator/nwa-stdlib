@@ -15,6 +15,10 @@ class Either(Generic[α, β]):
     ``Either α β`` represents a value two possibilities: ``Left α`` or ``Right β``
     """
 
+    Left: "Either"
+    Right: "Either"
+    unit: "Either"
+
     @staticmethod
     def partition(xs: List['Either[α, β]']) -> List[β]:
         """
@@ -30,6 +34,7 @@ class Either(Generic[α, β]):
         >>> Either.partition([Either.Left("foo"), Either.Right(7)])
         (['foo'], [7])
         """
+
         def fold(acc, e):
             return e.either(
                 lambda x: (acc[0] + [x], acc[1]),
