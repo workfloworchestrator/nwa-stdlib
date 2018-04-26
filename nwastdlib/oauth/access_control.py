@@ -153,6 +153,18 @@ class UserAttributes(object):
         return self.oauth_attrs[item]
 
     @property
+    def display_name(self):
+        return self.oauth_attrs.get("display_name", "")
+
+    @property
+    def principal_name(self):
+        return self.oauth_attrs.get("edu_person_principal_name", "")
+
+    @property
+    def email(self):
+        return self.oauth_attrs.get("email", "")
+
+    @property
     def memberships(self):
         return self.oauth_attrs.get("edumember_is_member_of", [])
 
@@ -189,7 +201,10 @@ class AccessControl(object):
         self.security_definitions = security_definitions
 
         self.rules = []
-        for counter, definition in enumerate(self.security_definitions.get('rules', [])):
+        if security_definitions is None or 'rules' not in security_definitions:
+            return
+
+        for counter, definition in enumerate(self.security_definitions['rules']):
             try:
                 endpoint = definition['endpoint']
             except KeyError:
@@ -220,6 +235,9 @@ class AccessControl(object):
             self.rules.append((endpoint, http_methods, checkers))
 
     def is_allowed(self, current_user, current_request):
+        if not self.rules:
+            return
+
         if isinstance(current_user, UserAttributes):
             user_attributes = current_user
         else:
