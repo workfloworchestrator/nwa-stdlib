@@ -31,17 +31,13 @@ class TargetOrganizations(AbstractCondition):
         'all': all}
 
     def __init__(self, options):
-        self.target_organizations = [self.valid[option] for option in options]
+        self.target_organizations = set.union(*[self.valid[option] for option in options])
 
     def __str__(self):
-        return f"CODE in {self.URN}CODE in eduperson_entitlements should be one of {self.target_organizations}"
+        return f"CODE in {self.URN}CODE in eduperson_entitlements should be one of {sorted(self.target_organizations)}"
 
     def test(self, user_attributes, current_request):
-        targeted = False
-        for target in self.target_organizations:
-            if user_attributes.organization_codes & target:
-                targeted = True
-        return targeted
+        return bool(user_attributes.organization_codes & self.target_organizations)
 
 
 class SABRoles(AbstractCondition):
@@ -98,7 +94,7 @@ class AnyOf(AbstractCondition):
         return f"Any of the following conditions should apply:\n{lst}"
 
     def test(self, user_attributes, current_request):
-        return True in [condition.test(user_attributes, current_request) for condition in self.conditions]
+        return True in (condition.test(user_attributes, current_request) for condition in self.conditions)
 
 
 def AllOf(AbstractCondition):
@@ -111,13 +107,15 @@ def AllOf(AbstractCondition):
         return f"All of the following conditions should apply:\n{lst}"
 
     def test(self, user_attributes, current_request):
-        return False not in [condition.test(user_attributes, current_request) for condition in self.conditions]
+        return False not in (condition.test(user_attributes, current_request) for condition in self.conditions)
 
 
 class OrganizationGUID(AbstractCondition):
     URN = "urn:mace:surfnet.nl:surfnet.nl:sab:organizationGUID:"
+    valid = {"path", "query", "json"}
 
     def __init__(self, options):
+        assert options["where"] in self.valid, f"The 'where' option should be one of {self.valid}"
         self.where = options["where"]
         self.param = options["parameter"]
 
@@ -151,6 +149,10 @@ class UserAttributes(object):
 
     def __getitem__(self, item):
         return self.oauth_attrs[item]
+
+    @property
+    def authenticating_authority(self):
+        return self.oauth_attrs.get("authenticating_authority", "")
 
     @property
     def display_name(self):
@@ -228,8 +230,11 @@ class AccessControl(object):
             for name, options in conditions.items():
                 try:
                     checkers.append(AbstractCondition.concrete_condition(name, options))
-                except KeyError:
-                    message = f"Could not process condition: {name}: {options}"
+                except KeyError as exc:
+                    message = f"Missing option {exc}. Could not process condition: {name}: {options}"
+                    raise InvalidRuleDefinition(message, counter, definition)
+                except AssertionError as exc:
+                    message = str(exc)
                     raise InvalidRuleDefinition(message, counter, definition)
 
             self.rules.append((endpoint, http_methods, checkers))
