@@ -70,7 +70,7 @@ class TestOAuthFilter(TestCase):
         self._check(m,
                     status_code=400,
                     response_status_code=401,
-                    response_detail='401 Unauthorized: Provided oauth token test is not valid')
+                    response_detail='401 Unauthorized: Provided oauth token is not valid: test')
 
     def test_whitelisted_endpoints(self, m):
         m.get(TOKEN_CHECK_URL, status_code=500)
