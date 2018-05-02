@@ -90,7 +90,7 @@ class AnyOf(AbstractCondition):
         self.conditions = [AbstractCondition.concrete_condition(name, suboptions) for name, suboptions in options.items()]
 
     def __str__(self):
-        lst = "\n".join(self.conditions)
+        lst = "\n".join(str(c) for c in self.conditions)
         return f"Any of the following conditions should apply:\n{lst}"
 
     def test(self, user_attributes, current_request):
@@ -103,7 +103,7 @@ class AllOf(AbstractCondition):
         self.conditions = [AbstractCondition.concrete_condition(name, suboptions) for name, suboptions in options.items()]
 
     def __str__(self):
-        lst = "\n".join(self.conditions)
+        lst = "\n".join(str(c) for c in self.conditions)
         return f"All of the following conditions should apply:\n{lst}"
 
     def test(self, user_attributes, current_request):
