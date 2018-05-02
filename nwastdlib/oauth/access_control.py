@@ -97,7 +97,7 @@ class AnyOf(AbstractCondition):
         return True in (condition.test(user_attributes, current_request) for condition in self.conditions)
 
 
-def AllOf(AbstractCondition):
+class AllOf(AbstractCondition):
 
     def __init__(self, options):
         self.conditions = [AbstractCondition.concrete_condition(name, suboptions) for name, suboptions in options.items()]
@@ -149,6 +149,10 @@ class UserAttributes(object):
 
     def __getitem__(self, item):
         return self.oauth_attrs[item]
+
+    @property
+    def active(self):
+        return self.oauth_attrs.get("active", False)
 
     @property
     def authenticating_authority(self):
@@ -246,7 +250,7 @@ class AccessControl(object):
         if isinstance(current_user, UserAttributes):
             user_attributes = current_user
         else:
-            user_attributes = UserAttributes(user_attributes)
+            user_attributes = UserAttributes(current_user)
 
         endpoint = current_request.endpoint or current_request.base_url
         method = current_request.method

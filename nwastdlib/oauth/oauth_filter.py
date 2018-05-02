@@ -1,11 +1,7 @@
 """
 OAuthFilter checks the bearer access_token in the Authorization header using the check_token endpoint exposed by
-the AuthorizationServer. The check_token dictionary payload contains the granted scopes for the user and the allowed
-resource servers (e.g. an array of string in the aud key). The aud key must contain the unique name of the resource
-server protected by the OAuthFilter. The granted scopes must contain the scope configured - if any - for the intended
-endpoint and - if configured in the swagger API yml file - either the read or write scope for respectively GET and
-update methods - PUT, PATCH, POST and DELETE - http methods. See the integration tests in test_oauth_filter.py for
-examples. The check_token payload is saved in the thread-local flask.g for subsequent use in the API endpoints.
+the AuthorizationServer. See the integration tests in test_oauth_filter.py for examples. The check_token payload
+is saved in the thread-local flask.g for subsequent use in the API endpoints.
 """
 import flask
 import requests
@@ -53,11 +49,15 @@ class OAuthFilter(object):
                 raise RequestTimeout(description='RequestTimeout from authorization server')
 
             if not token_request.ok:
-                raise Unauthorized(description="Provided oauth token {} is not valid".format(token))
+                raise Unauthorized(description="Provided oauth token is not valid: {}".format(token))
             token_info = token_request.json()
 
             current_user = UserAttributes(token_info)
-            self.access_rules.is_allowed(current_user, current_request)
+
+            if current_user.active:
+                self.access_rules.is_allowed(current_user, current_request)
+            else:
+                raise Unauthorized(description="Provided oauth token is not active: {}".format(token))
 
             flask.g.current_user = current_user
 
