@@ -44,7 +44,7 @@ class TestOAuthFilter(TestCase):
             security_definitions = yaml.load(file)
             app.before_request(
                 OAuthFilter(security_definitions, TOKEN_CHECK_URL, 'coredb', 'secret',
-                            ['config']).filter)
+                            ['config'], False).filter)
             return app
 
     def tearDown(self):
