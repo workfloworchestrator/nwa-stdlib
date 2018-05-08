@@ -13,16 +13,18 @@ from ..ex import show_ex
 
 class OAuthFilter(object):
     def __init__(self, security_definitions, token_check_url, resource_server_id, resource_server_secret,
-                 white_listed_urls=[]):
+                 white_listed_urls=[], allow_localhost_calls=True):
         self.access_rules = AccessControl(security_definitions)
         self.token_check_url = token_check_url
         self.white_listed_urls = white_listed_urls
         self.auth = (resource_server_id, resource_server_secret)
+        self.allow_localhost_calls = allow_localhost_calls
 
     def filter(self):
         current_request = flask.request
-        # Allow Cross-Origin Resource Sharing calls
-        if current_request.method == "OPTIONS":
+        # Allow Cross-Origin Resource Sharing calls and local health checks
+        if current_request.method == "OPTIONS" or (
+                self.allow_localhost_calls and current_request.base_url.startswith("http://localhost")):
             return
 
         endpoint = current_request.endpoint if current_request.endpoint else current_request.base_url
