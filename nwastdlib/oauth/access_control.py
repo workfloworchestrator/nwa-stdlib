@@ -154,7 +154,7 @@ class OrganizationGUID(AbstractCondition):
 class UserAttributes(object):
 
     def __init__(self, oauth_attrs):
-        self.oauth_attrs: Dict = oauth_attrs
+        self.oauth_attrs = oauth_attrs
 
     def __json__(self):
         return self.oauth_attrs
