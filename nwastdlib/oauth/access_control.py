@@ -1,4 +1,5 @@
 from werkzeug.exceptions import Forbidden
+from abc import ABCMeta, abstractmethod
 import fnmatch
 from functools import reduce
 
@@ -8,13 +9,26 @@ class InvalidRuleDefinition(Exception):
         return "{} (rule {}):\n{}".format(*self.args)
 
 
-class AbstractCondition(object):
+class AbstractCondition(object, metaclass=ABCMeta):
+    """Abstract class definition for access control conditions"""
 
     @classmethod
     def concrete_condition(klass, name, options):
         subclasses = {subclass.__name__: subclass for subclass in klass.__subclasses__()}
         my_condition = subclasses[name](options)
         return my_condition
+
+    @abstractmethod
+    def __init__(self, options):
+        pass
+
+    @abstractmethod
+    def __str__(self):
+        pass
+
+    @abstractmethod
+    def test(self, user_attributes, current_request):
+        pass
 
 
 class TargetOrganizations(AbstractCondition):
@@ -140,7 +154,7 @@ class OrganizationGUID(AbstractCondition):
 class UserAttributes(object):
 
     def __init__(self, oauth_attrs):
-        self.oauth_attrs = oauth_attrs
+        self.oauth_attrs: Dict = oauth_attrs
 
     def __json__(self):
         return self.oauth_attrs
