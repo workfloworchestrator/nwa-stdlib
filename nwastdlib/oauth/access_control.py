@@ -197,6 +197,14 @@ class UserAttributes(object):
         prefix = OrganizationGUID.URN
         return {urn[len(prefix):] for urn in self.entitlements if urn.startswith(prefix)}
 
+    @property
+    def user_name(self):
+        return self.oauth_attrs.get("user_name", "")
+
+    @property
+    def unspecified_id(self):
+        return self.oauth_attrs.get("unspecified_id", "")
+
 
 class AccessControl(object):
 
