@@ -215,11 +215,12 @@ class UserAttributes(object):
 
     @property
     def user_name(self):
-        return self.oauth_attrs.get("user_name", "")
-
-    @property
-    def unspecified_id(self):
-        return self.oauth_attrs.get("unspecified_id", "")
+        if "user_name" in self.oauth_attrs:
+            return self.oauth_attrs.get("user_name")
+        elif "unspecified_id" in self.oauth_attrs:
+            return self.oauth_attrs.get("unspecified_id", "")
+        else:
+            return ""
 
 
 class AccessControl(object):
