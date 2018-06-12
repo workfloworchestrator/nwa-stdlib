@@ -1,6 +1,7 @@
 from werkzeug.exceptions import Forbidden
-import sys
+from abc import ABCMeta, abstractmethod
 import fnmatch
+from functools import reduce
 
 
 class InvalidRuleDefinition(Exception):
@@ -8,7 +9,8 @@ class InvalidRuleDefinition(Exception):
         return "{} (rule {}):\n{}".format(*self.args)
 
 
-class AbstractCondition(object):
+class AbstractCondition(object, metaclass=ABCMeta):
+    """Abstract class definition for access control conditions"""
 
     @classmethod
     def concrete_condition(klass, name, options):
@@ -16,22 +18,36 @@ class AbstractCondition(object):
         my_condition = subclasses[name](options)
         return my_condition
 
+    @abstractmethod
+    def __init__(self, options):
+        pass
+
+    @abstractmethod
+    def __str__(self):
+        pass
+
+    @abstractmethod
+    def test(self, user_attributes, current_request):
+        pass
+
 
 class TargetOrganizations(AbstractCondition):
     URN = "urn:mace:surfnet.nl:surfnet.nl:sab:organizationCode:"
-    institutions = set([1, 2, 4, 5, 8, 9, 14, 15, 16, 18, 19, 21, 22, 23, 24, 100])
-    service_providers = set([11])
-    international_partners = set([13])
-    all = institutions | service_providers | international_partners
+    institutions = [1, 2, 3, 4, 9, 14, 18, 19, 22, 23, 24]
+    service_providers = [11]
+    international_partners = [13]
+    colo_providers = [6, 10]
+    other = [5, 7, 8, 11, 12, 15, 16, 17, 20, 21, 25, 27, 28, 29, 30, 31, 32, 100]
 
     valid = {
         'institutions': institutions,
         'service_providers': service_providers,
         'international_partners': international_partners,
-        'all': all}
+        'colo_providers': colo_providers,
+        'other': other}
 
     def __init__(self, options):
-        self.target_organizations = set.union(*[self.valid[option] for option in options])
+        self.target_organizations = reduce(set.union, (set(self.valid[option]) for option in options))
 
     def __str__(self):
         return f"CODE in {self.URN}CODE in eduperson_entitlements should be one of {sorted(self.target_organizations)}"
