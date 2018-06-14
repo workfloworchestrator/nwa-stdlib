@@ -109,7 +109,7 @@ class Scopes(AbstractCondition):
         return f"Scope must be one of the following: {self.scopes}"
 
     def test(self, user_attributes, current_request):
-        return bool(user_attributes.scope & self.scopes)
+        return bool(user_attributes.scopes & self.scopes)
 
 
 class AnyOf(AbstractCondition):
