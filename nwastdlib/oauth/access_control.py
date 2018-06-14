@@ -100,6 +100,18 @@ class Teams(AbstractCondition):
         return bool(user_attributes.teams & self.teams)
 
 
+class Scopes(AbstractCondition):
+
+    def __init__(self, options):
+        self.scopes = set(options)
+
+    def __str__(self):
+        return f"Scope must be one of the following: {self.scopes}"
+
+    def test(self, user_attributes, current_request):
+        return bool(user_attributes.scope & self.scopes)
+
+
 class AnyOf(AbstractCondition):
 
     def __init__(self, options):
@@ -197,6 +209,10 @@ class UserAttributes(object):
     def roles(self):
         prefix = SABRoles.URN
         return {urn[len(prefix):] for urn in self.entitlements if urn.startswith(prefix)}
+
+    @property
+    def scopes(self):
+        return set(self.oauth_attrs.get("scope", "").split(" "))
 
     @property
     def teams(self):
