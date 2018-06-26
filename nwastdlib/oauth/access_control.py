@@ -2,6 +2,7 @@ from werkzeug.exceptions import Forbidden
 from abc import ABCMeta, abstractmethod
 import fnmatch
 from functools import reduce
+from typing import Any, List, Dict, Set, Union, Tuple
 
 
 class InvalidRuleDefinition(Exception):
@@ -19,15 +20,15 @@ class AbstractCondition(object, metaclass=ABCMeta):
         return my_condition
 
     @abstractmethod
-    def __init__(self, options):
+    def __init__(self, options: Any) -> None:
         pass
 
     @abstractmethod
-    def __str__(self):
+    def __str__(self) -> str:
         pass
 
     @abstractmethod
-    def test(self, user_attributes, current_request):
+    def test(self, user_attributes: 'UserAttributes', current_request: Any) -> bool:
         pass
 
 
@@ -168,7 +169,7 @@ class UserAttributes(object):
     def __init__(self, oauth_attrs):
         self.oauth_attrs = oauth_attrs
 
-    def __json__(self):
+    def __json__(self) -> Dict:
         return self.oauth_attrs
 
     def __str__(self):
@@ -182,52 +183,52 @@ class UserAttributes(object):
         return self.oauth_attrs.get("active", False)
 
     @property
-    def authenticating_authority(self):
+    def authenticating_authority(self) -> str:
         return self.oauth_attrs.get("authenticating_authority", "")
 
     @property
-    def display_name(self):
+    def display_name(self) -> str:
         return self.oauth_attrs.get("display_name", "")
 
     @property
-    def principal_name(self):
+    def principal_name(self) -> str:
         return self.oauth_attrs.get("edu_person_principal_name", "")
 
     @property
-    def email(self):
+    def email(self) -> str:
         return self.oauth_attrs.get("email", "")
 
     @property
-    def memberships(self):
+    def memberships(self) -> List[str]:
         return self.oauth_attrs.get("edumember_is_member_of", [])
 
     @property
-    def entitlements(self):
+    def entitlements(self) -> List[str]:
         return self.oauth_attrs.get("eduperson_entitlement", [])
 
     @property
-    def roles(self):
+    def roles(self) -> Set[str]:
         prefix = SABRoles.URN
         return {urn[len(prefix):] for urn in self.entitlements if urn.startswith(prefix)}
 
     @property
-    def scopes(self):
+    def scopes(self) -> Set[str]:
         if isinstance(list(), type(self.oauth_attrs.get("scope"))):
             return set(self.oauth_attrs.get("scope"))
         return set(self.oauth_attrs.get("scope", "").split(" "))
 
     @property
-    def teams(self):
+    def teams(self) -> Set[str]:
         prefix = Teams.URN
         return {urn[len(prefix):] for urn in self.memberships if urn.startswith(prefix)}
 
     @property
-    def organization_codes(self):
+    def organization_codes(self) -> Set[int]:
         prefix = TargetOrganizations.URN
         return {int(urn[len(prefix):]) for urn in self.entitlements if urn.startswith(prefix)}
 
     @property
-    def organization_guids(self):
+    def organization_guids(self) -> Set[str]:
         prefix = OrganizationGUID.URN
         return {urn[len(prefix):] for urn in self.entitlements if urn.startswith(prefix)}
 
@@ -241,14 +242,18 @@ class UserAttributes(object):
             return ""
 
 
+Rules = List[Tuple[str, List[str], List[AbstractCondition]]]
+
+
 class AccessControl(object):
 
     VALID_HTTP_METHODS = {'*', 'DELETE', 'PATCH', 'GET', 'HEAD', 'POST', 'PUT'}
 
     def __init__(self, security_definitions):
-        self.security_definitions = security_definitions
+        self.security_definitions: Dict[str, Any] = security_definitions
 
-        self.rules = []
+        self.rules: Rules = []
+
         if security_definitions is None or 'rules' not in security_definitions:
             return
 
@@ -285,7 +290,7 @@ class AccessControl(object):
 
             self.rules.append((endpoint, http_methods, checkers))
 
-    def is_allowed(self, current_user, current_request):
+    def is_allowed(self, current_user: Union['UserAttributes', Dict[str, Any]], current_request: Any) -> None:
         if not self.rules:
             return
 

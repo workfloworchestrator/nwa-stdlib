@@ -7,8 +7,9 @@ import flask
 import requests
 from werkzeug.exceptions import Unauthorized, RequestTimeout
 
-from .access_control import AccessControl, UserAttributes
-from ..ex import show_ex
+from nwastdlib.oauth.access_control import AccessControl, UserAttributes
+from nwastdlib.ex import show_ex
+from nwastdlib.cache import cached_result
 
 
 class OAuthFilter(object):
@@ -42,6 +43,19 @@ class OAuthFilter(object):
             except ValueError:
                 raise Unauthorized(description="Invalid authorization header: {}".format(authorization))
 
+            token_info = self.check_token(token)
+
+            current_user = UserAttributes(token_info)
+
+            if current_user.active:
+                self.access_rules.is_allowed(current_user, current_request)
+            else:
+                raise Unauthorized(description="Provided oauth token is not active: {}".format(token))
+
+            flask.g.current_user = current_user
+
+    @cached_result(expiry=30)
+    def check_token(self, token):
             try:
                 with requests.Session() as s:
                     s.auth = self.auth
@@ -52,16 +66,7 @@ class OAuthFilter(object):
 
             if not token_request.ok:
                 raise Unauthorized(description="Provided oauth token is not valid: {}".format(token))
-            token_info = token_request.json()
-
-            current_user = UserAttributes(token_info)
-
-            if current_user.active:
-                self.access_rules.is_allowed(current_user, current_request)
-            else:
-                raise Unauthorized(description="Provided oauth token is not active: {}".format(token))
-
-            flask.g.current_user = current_user
+            return token_request.json()
 
     @classmethod
     def current_user(cls):
