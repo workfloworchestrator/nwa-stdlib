@@ -212,7 +212,7 @@ class UserAttributes(object):
 
     @property
     def scopes(self):
-        if isinstance(list, self.oauth_attrs.get("scope")):
+        if isinstance(list(), type(self.oauth_attrs.get("scope"))):
             return set(self.oauth_attrs.get("scope"))
         return set(self.oauth_attrs.get("scope", "").split(" "))
 
