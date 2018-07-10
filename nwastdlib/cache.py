@@ -9,7 +9,7 @@ from itertools import chain
 from uuid import UUID
 
 import redis
-from flask import request, has_app_context, current_app
+from flask import request, has_app_context, current_app, has_request_context
 
 from . import Either, Maybe, const, identity
 from .ex import format_ex
@@ -110,7 +110,7 @@ def read_object(pool: Any, key: str) -> Any:
     """Return python object from redis cache"""
 
     def read(r, key):
-        if request.headers.get('nwa-stdlib-no-cache'):
+        if has_request_context() and request.headers.get('nwa-stdlib-no-cache'):
             return Either.Left(None)
         return Maybe.of(r.get(key))\
             .maybe(
@@ -160,6 +160,7 @@ def cached_result(pool: Any=None, prefix: Optional[str]=None, expiry: int=120) -
                     pool = current_app.cache
                 else:
                     return func(*args, **kwargs)
+
             components = [prefix]
             for arg in chain(args, kwargs.values()):
                 if isinstance(arg, str):
