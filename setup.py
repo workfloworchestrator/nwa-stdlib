@@ -4,7 +4,7 @@ import setuptools
 
 setup_params = dict(
     name='nwastdlib',
-    version='0.9.10',
+    version='0.9.13',
     packages=setuptools.find_packages(),
     include_package_data=True,
     package_data={"nwastdlib": ["py.typed"], "nwastdlib.test.oauth": ["security_definitions.yaml"]},
@@ -13,7 +13,7 @@ setup_params = dict(
         "redis": ['redis==2.10.6', 'hiredis==0.2.0']
     },
     setup_requires=['pytest-runner'],
-    tests_require=['pytest', 'Flask-Testing==0.7.1', 'requests-mock==1.4.0'],
+    tests_require=['pytest', 'Flask-Testing==0.7.1', 'requests-mock==1.4.0', 'fakeredis==0.10.3'],
     description='Network Automation Standard Library',
     long_description='Network Automation Standard Library',
     author='SURFNet Automation',
