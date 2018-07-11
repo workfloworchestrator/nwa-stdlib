@@ -8,7 +8,7 @@ setup_params = dict(
     packages=setuptools.find_packages(),
     include_package_data=True,
     package_data={"nwastdlib": ["py.typed"], "nwastdlib.test.oauth": ["security_definitions.yaml"]},
-    install_requires=['pytz==2018.4', 'pyyaml==3.12', 'redis==2.10.6', 'hiredis==0.2.0', 'Flask>=1.0.2', 'requests==2.18.4'],
+    install_requires=['pytz==2018.4', 'pyyaml==4.1', 'redis==2.10.6', 'hiredis==0.2.0', 'Flask>=1.0.2', 'requests==2.18.4'],
     extras_require={
         "redis": ['redis==2.10.6', 'hiredis==0.2.0']
     },
