@@ -34,11 +34,11 @@ class AbstractCondition(object, metaclass=ABCMeta):
 
 class TargetOrganizations(AbstractCondition):
     URN = "urn:mace:surfnet.nl:surfnet.nl:sab:organizationCode:"
-    institutions = ["1", "2", "3", "4", "9", "14", "18", "19", "22", "23", "24", "TESTACCOUNT"]
-    service_providers = ["11"]
-    international_partners = ["13"]
-    colo_providers = ["6", "10"]
-    other = ["5", "7", "8", "11", "12", "15", "16", "17", "20", "21", "25", "27", "28", "29", "30", "31", "32", "100"]
+    institutions = [1, 2, 3, 4, 9, 14, 18, 19, 22, 23, 24]
+    service_providers = [11]
+    international_partners = [13]
+    colo_providers = [6, 10]
+    other = [5, 7, 8, 11, 12, 15, 16, 17, 20, 21, 25, 27, 28, 29, 30, 31, 32, 100]
 
     valid = {
         'institutions': institutions,
@@ -51,7 +51,7 @@ class TargetOrganizations(AbstractCondition):
         self.target_organizations = reduce(set.union, (set(self.valid[option]) for option in options))
 
     def __str__(self):
-        return f"CODE in {self.URN}CODE in eduperson_entitlements should be one of {self.target_organizations}"
+        return f"CODE in {self.URN}CODE in eduperson_entitlements should be one of {sorted(self.target_organizations)}"
 
     def test(self, user_attributes, current_request):
         return bool(user_attributes.organization_codes & self.target_organizations)
@@ -225,7 +225,7 @@ class UserAttributes(object):
     @property
     def organization_codes(self) -> Set[str]:
         prefix = TargetOrganizations.URN
-        return {urn[len(prefix):] for urn in self.entitlements if urn.startswith(prefix)}
+        return {int(urn[len(prefix):]) for urn in self.entitlements if urn.startswith(prefix)}
 
     @property
     def organization_guids(self) -> Set[str]:
