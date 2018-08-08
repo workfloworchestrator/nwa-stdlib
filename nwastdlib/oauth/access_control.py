@@ -51,7 +51,7 @@ class TargetOrganizations(AbstractCondition):
         self.target_organizations = reduce(set.union, (set(self.valid[option]) for option in options))
 
     def __str__(self):
-        return f"CODE in {self.URN}CODE in eduperson_entitlements should be one of {sorted(self.target_organizations)}"
+        return f"CODE in {self.URN}CODE in eduperson_entitlements should be one of {self.target_organizations}"
 
     def test(self, user_attributes, current_request):
         return bool(user_attributes.organization_codes & self.target_organizations)
