@@ -34,7 +34,7 @@ class AbstractCondition(object, metaclass=ABCMeta):
 
 class TargetOrganizations(AbstractCondition):
     URN = "urn:mace:surfnet.nl:surfnet.nl:sab:organizationCode:"
-    institutions = [1, 2, 3, 4, 9, 14, 18, 19, 22, 23, 24]
+    institutions = [1, 2, 3, 4, 9, 14, 18, 19, 22, 23, 24, "TESTACCOUNT"]
     service_providers = [11]
     international_partners = [13]
     colo_providers = [6, 10]
