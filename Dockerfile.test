@@ -3,6 +3,6 @@ FROM python:3.6-alpine
 MAINTAINER Paul Frederiks "p.frederiks@developers.nl"
 
 RUN apk add --no-cache --virtual .build-deps gcc musl-dev git
-ADD dist/nwastdlib-0.9.13.tar.gz /root
-WORKDIR /root/nwastdlib-0.9.13
+ADD dist/nwastdlib-0.9.16.tar.gz /root
+WORKDIR /root/nwastdlib-0.9.16
 CMD python setup.py test
