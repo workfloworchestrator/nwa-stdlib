@@ -225,7 +225,7 @@ class UserAttributes(object):
     @property
     def organization_codes(self) -> Set[str]:
         prefix = TargetOrganizations.URN
-        return {int(urn[len(prefix):]) for urn in self.entitlements if urn.startswith(prefix)}
+        return {urn[len(prefix):] for urn in self.entitlements if urn.startswith(prefix)}
 
     @property
     def organization_guids(self) -> Set[str]:

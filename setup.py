@@ -4,7 +4,7 @@ import setuptools
 
 setup_params = dict(
     name='nwastdlib',
-    version='0.9.15',
+    version='0.9.17',
     packages=setuptools.find_packages(),
     include_package_data=True,
     package_data={"nwastdlib": ["py.typed"], "nwastdlib.test.oauth": ["security_definitions.yaml"]},

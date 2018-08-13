@@ -9,7 +9,14 @@ from itertools import chain
 from uuid import UUID
 
 import redis
-from flask import request, has_app_context, current_app, has_request_context
+from flask import (
+    current_app,
+    has_app_context,
+    has_request_context,
+    jsonify,
+    make_response,
+    request,
+)
 
 from . import Either, Maybe, const, identity
 from .ex import format_ex
@@ -33,12 +40,10 @@ def handle_query(pool):
     key = request.full_path
 
     def resp_parser(pool):
-        if request.headers.get('nwa-stdlib-no-cache'):
+        if request.headers.get("nwa-stdlib-no-cache"):
             return Either.Left(None)
-        return Maybe.of(pool.get(key))\
-            .maybe(
-                Either.Left(None),
-                lambda x: Either.Right(pickle.loads(x))
+        return Maybe.of(pool.get(key)).maybe(
+            Either.Left(None), lambda x: Either.Right(pickle.loads(x))
         )
 
     return resp_parser(pool)
@@ -57,6 +62,7 @@ def handle_setter(pool, payload):
         except Exception as e:
             print("Not able to to set the payload due to: %s" % e, file=sys.stderr)
             return Either.Left("Not able to to set the payload due to: %s" % e)
+
     return set_val(pool, payload)
 
 
@@ -72,18 +78,23 @@ def flush_all(pool):
 
 def flush_selected(pool, key):
     try:
+
         def del_key(keyspec):
             pool.map(lambda x: x.delete(keyspec))
 
         def check_res(res):
             if len(list(filter(lambda x: x == 0, res))) > 0:
-                return Either.Left(Error(400, "Some Deletions not done", "Some Deletions not done"))
+                return Either.Left(
+                    Error(400, "Some Deletions not done", "Some Deletions not done")
+                )
             else:
                 return Either.Right("Delete of keys for: %s completely succesful" % key)
 
-        return pool.map(lambda p: p.keys(key))\
-            .map(lambda keys: [del_key(k) for k in keys])\
+        return (
+            pool.map(lambda p: p.keys(key))
+            .map(lambda keys: [del_key(k) for k in keys])
             .flatmap(check_res)
+        )
     except Exception as e:
         format_ex(e)
         return Either.Left(Error(500, e, "Flush unsuccesfull: %s" % e))
@@ -102,26 +113,27 @@ def write_object(pool: Any, key: str, obj: Any, exp: int) -> Any:
         except Exception as e:
             return Either.Left("Not able to set the payload due to: %s" % e)
 
-    return pool.flatmap(lambda x: write(x, key, obj, exp)) \
-        .either(const(obj), const(obj))
+    return pool.flatmap(lambda x: write(x, key, obj, exp)).either(
+        const(obj), const(obj)
+    )
 
 
 def read_object(pool: Any, key: str) -> Any:
     """Return python object from redis cache"""
 
     def read(r, key):
-        if has_request_context() and request.headers.get('nwa-stdlib-no-cache'):
+        if has_request_context() and request.headers.get("nwa-stdlib-no-cache"):
             return Either.Left(None)
-        return Maybe.of(r.get(key))\
-            .maybe(
-                Either.Left(None),
-                lambda x: Either.Right(pickle.loads(x))
+        return Maybe.of(r.get(key)).maybe(
+            Either.Left(None), lambda x: Either.Right(pickle.loads(x))
         )
 
     return pool.flatmap(lambda r: read(r, key)).either(const(None), identity)
 
 
-def cached_result(pool: Any=None, prefix: Optional[str]=None, expiry: int=120) -> Callable:
+def cached_result(
+    pool: Any = None, prefix: Optional[str] = None, expiry: int = 120
+) -> Callable:
     """Decorator to cache returned result objects from a function call into redis
 
     Returns a decorator function that will cache every result of a function to redis. This only works
@@ -156,7 +168,7 @@ def cached_result(pool: Any=None, prefix: Optional[str]=None, expiry: int=120) -
         def func_wrapper(*args, **kwargs):
             nonlocal pool
             if pool is None:
-                if has_app_context() and hasattr(current_app, 'cache'):
+                if has_app_context() and hasattr(current_app, "cache"):
                     pool = current_app.cache
                 else:
                     return func(*args, **kwargs)
@@ -177,4 +189,56 @@ def cached_result(pool: Any=None, prefix: Optional[str]=None, expiry: int=120) -
                 return write_object(pool, cache_key, func(*args, **kwargs), expiry)
 
         return func_wrapper
+
+    return cache_decorator
+
+
+def cached_json_endpoint(pool: Any = None, expiry: int = 3600) -> Callable:
+    """Decorator to cache functions meant as flask JSON endpoints"""
+
+    def cache_decorator(func: Callable) -> Callable:
+        @wraps(func)
+        def func_wrapper(*args, **kwargs):
+            nonlocal pool, expiry
+            if pool is None:
+                if has_app_context() and hasattr(current_app, "cache"):
+                    pool = current_app.cache
+                else:
+                    return func(*args, **kwargs)
+
+            if pool.isleft():
+                print(pool.value.message, file=sys.stderr)
+                body, status = func(*args, **kwargs)
+                return jsonify(body), status
+
+            cache_key = request.full_path
+
+            if request.headers.get("nwa-stdlib-no-cache"):
+                print(f"@cached_json_endpoint {func.__name__} nwa-stdlib-no-cache header detected for {cache_key}")
+                result = None
+            else:
+                result = pool.either(const(None), lambda p: p.get(cache_key))
+
+            if result:
+                print(f"@cached_json_endpoint {func.__name__} cache hit on {cache_key}")
+                response = make_response(result, 200)
+                response.mimetype = "application/json"
+                return response
+            else:
+                print(f"@cached_json_endpoint {func.__name__} cache miss on {cache_key}")
+                body, status = func(*args, **kwargs)
+                result = jsonify(body)
+                if status == 200:
+                    cache_success = pool.either(
+                        const(False),
+                        lambda p: p.set(cache_key, result.get_data(), ex=expiry),
+                    )
+                    if cache_success:
+                        print(f"@cached_json_endpoint {func.__name__} set success: {cache_key}")
+                    else:
+                        print(f"@cached_json_endpoint {func.__name__} set failed: {cache_key}")
+                return result, status
+
+        return func_wrapper
+
     return cache_decorator
