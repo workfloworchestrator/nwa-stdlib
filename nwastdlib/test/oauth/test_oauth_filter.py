@@ -84,7 +84,7 @@ class TestOAuthFilter(TestCase):
     def test_restricted_endpoint_allow(self, m):
         entitlements = [
             'urn:mace:surfnet.nl:surfnet.nl:sab:role:Infraverantwoordelijke',
-            'urn:mace:surfnet.nl:surfnet.nl:sab:organizationCode:9']
+            ]
         m.get(TOKEN_CHECK_URL, json={**JOHN_DOE, "eduperson_entitlement": entitlements}, status_code=200)
         response = self.client.get(
             "/restricted/endpoint",
@@ -100,7 +100,6 @@ class TestOAuthFilter(TestCase):
             environ_base=ENVIRON_BASE)
 
         self.assertEqual(403, response.status_code)
-        self.assertEqual("CODE", response.json['detail'].split(": ")[1][:4])
 
     def test_onlyfor_infrabeheerder_allow(self, m):
         entitlements = ['urn:mace:surfnet.nl:surfnet.nl:sab:role:Infrabeheerder']

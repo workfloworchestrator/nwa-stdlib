@@ -3,8 +3,6 @@ rules:
      methods:
        - GET
      conditions:
-       TargetOrganizations:
-         - institutions
        SABRoles:
          - Infraverantwoordelijke
    - endpoint: onlyfor.klantsupport
