@@ -84,7 +84,7 @@ class TestOAuthFilter(TestCase):
     def test_restricted_endpoint_allow(self, m):
         entitlements = [
             'urn:mace:surfnet.nl:surfnet.nl:sab:role:Infraverantwoordelijke',
-            ]
+        ]
         m.get(TOKEN_CHECK_URL, json={**JOHN_DOE, "eduperson_entitlement": entitlements}, status_code=200)
         response = self.client.get(
             "/restricted/endpoint",
