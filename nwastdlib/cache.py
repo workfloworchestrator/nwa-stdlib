@@ -209,7 +209,7 @@ def cached_json_endpoint(pool: Any = None, expiry: int = 3600) -> Callable:
             if pool.isleft():
                 print(pool.value.message, file=sys.stderr)
                 body, status = func(*args, **kwargs)
-                return jsonify(body), status
+                return make_response(jsonify(body), status)
 
             cache_key = request.full_path
 
