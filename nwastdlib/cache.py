@@ -209,24 +209,25 @@ def cached_json_endpoint(pool: Any = None, expiry: int = 3600) -> Callable:
             if pool.isleft():
                 print(pool.value.message, file=sys.stderr)
                 body, status = func(*args, **kwargs)
-                return jsonify(body), status
+                return make_response(jsonify(body), status)
 
             cache_key = request.full_path
 
             if request.headers.get("nwa-stdlib-no-cache"):
-                print(f"@cached_json_endpoint {func.__name__} nwa-stdlib-no-cache header detected for {cache_key}")
+                print(f"@cached_json_endpoint {func.__name__} nwa-stdlib-no-cache header detected for {cache_key}", file=sys.stderr)
                 result = None
             else:
                 result = pool.either(const(None), lambda p: p.get(cache_key))
 
             if result:
-                print(f"@cached_json_endpoint {func.__name__} cache hit on {cache_key}")
+                print(f"@cached_json_endpoint {func.__name__} cache hit on {cache_key}", file=sys.stderr)
                 response = make_response(result, 200)
                 response.mimetype = "application/json"
                 return response
             else:
-                print(f"@cached_json_endpoint {func.__name__} cache miss on {cache_key}")
+                print(f"@cached_json_endpoint {func.__name__} cache miss on {cache_key}", file=sys.stderr)
                 body, status = func(*args, **kwargs)
+                print(f"@cached_json_endpoint {func.__name__} status is {status}", file=sys.stderr)
                 result = jsonify(body)
                 if status == 200:
                     cache_success = pool.either(
@@ -234,10 +235,10 @@ def cached_json_endpoint(pool: Any = None, expiry: int = 3600) -> Callable:
                         lambda p: p.set(cache_key, result.get_data(), ex=expiry),
                     )
                     if cache_success:
-                        print(f"@cached_json_endpoint {func.__name__} set success: {cache_key}")
+                        print(f"@cached_json_endpoint {func.__name__} set success: {cache_key}", file=sys.stderr)
                     else:
-                        print(f"@cached_json_endpoint {func.__name__} set failed: {cache_key}")
-                return result, status
+                        print(f"@cached_json_endpoint {func.__name__} set failed: {cache_key}", file=sys.stderr)
+                return make_response(result, status)
 
         return func_wrapper
 
