@@ -227,6 +227,7 @@ def cached_json_endpoint(pool: Any = None, expiry: int = 3600) -> Callable:
             else:
                 print(f"@cached_json_endpoint {func.__name__} cache miss on {cache_key}")
                 body, status = func(*args, **kwargs)
+                print(f"@cached_json_endpoint {func.__name__} status is {status}")
                 result = jsonify(body)
                 if status == 200:
                     cache_success = pool.either(
@@ -237,7 +238,7 @@ def cached_json_endpoint(pool: Any = None, expiry: int = 3600) -> Callable:
                         print(f"@cached_json_endpoint {func.__name__} set success: {cache_key}")
                     else:
                         print(f"@cached_json_endpoint {func.__name__} set failed: {cache_key}")
-                return result, status
+                return make_response(result, status)
 
         return func_wrapper
 
