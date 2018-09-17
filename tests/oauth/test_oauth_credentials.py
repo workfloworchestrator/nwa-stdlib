@@ -2,9 +2,9 @@ import requests
 import requests_mock
 from flask_testing import TestCase
 
-from nwastdlib.oauth.oauth_credentials import obtain_client_credentials_token, AUTH_RESOURCE_SERVER, \
-    add_client_credentials_token_header, refresh_client_credentials_token
-from nwastdlib.test.utils import create_test_app
+from nwastdlib.oauth.oauth_credentials import (AUTH_RESOURCE_SERVER, add_client_credentials_token_header,
+                                               obtain_client_credentials_token, refresh_client_credentials_token)
+from tests.utils import create_test_app
 
 OAUTH2_TOKEN_URL = 'http://authz-server/oauth/token'
 
