@@ -4,7 +4,7 @@ Module that contains utility functions for Swagger.
 
 import tempfile
 from pathlib import Path
-from typing import Union
+from typing import Union, Dict
 
 from ruamel.yaml import YAML
 
@@ -14,7 +14,7 @@ from . import Either
 class SwaggerFile(object):
     def __init__(self, filename: Union[str, Path]) -> None:
         self.filename = Path(filename)
-        self.substitutions = dict()
+        self.substitutions: Dict = dict()
 
     def set_host(self, host):
         self.substitutions['host'] = host
