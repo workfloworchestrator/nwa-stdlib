@@ -4,10 +4,10 @@ import setuptools
 
 setup_params = dict(
     name='nwastdlib',
-    version='0.9.18',
+    version='0.9.19',
     packages=setuptools.find_packages(),
     include_package_data=True,
-    install_requires=['pytz==2018.5', 'pyyaml==3.13', 'redis==2.10.6', 'hiredis==0.2.0', 'Flask>=1.0.2', 'requests==2.18.4'],
+    install_requires=['pytz==2018.5', 'ruamel.yaml~=0.15.66', 'redis==2.10.6', 'hiredis==0.2.0', 'Flask>=1.0.2', 'requests==2.18.4'],
     extras_require={
         "redis": ['redis==2.10.6', 'hiredis==0.2.0']
     },
