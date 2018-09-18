@@ -3,8 +3,8 @@ import requests_mock
 from flask import session
 from flask_testing import TestCase
 
-from nwastdlib.oauth.oauth_client import add_oauth_remote, add_access_token_header, reload_authentication
-from nwastdlib.test.utils import create_test_app
+from nwastdlib.oauth.oauth_client import add_access_token_header, add_oauth_remote, reload_authentication
+from tests.utils import create_test_app
 
 ENVIRON_BASE = {'HTTP_AUTHORIZATION': 'bearer test'}
 

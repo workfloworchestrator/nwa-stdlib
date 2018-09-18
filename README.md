@@ -19,6 +19,21 @@ python setup.py check
 python setup.py test
 ```
 
+If you want to enhance of develop bug fixes for `nwastdlib` it's easiest to run the following commands:
+
+```
+pip install -e '.[test]'
+```
+
+This will install the `nwastdlib` in editable mode in the current virtual environment. A simple:
+
+```
+pytest
+```
+
+will then all run tests.
+
+
 Projects that depend on nwa-stdlib import the project using the git commit. Update the necessary `requirement.txt` files
 to get your changes in. To check the syntax before push:
 

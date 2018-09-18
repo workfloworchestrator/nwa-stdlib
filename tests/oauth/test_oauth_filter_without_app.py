@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 from nwastdlib.oauth.oauth_filter import OAuthFilter
 

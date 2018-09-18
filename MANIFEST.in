@@ -1,2 +1,3 @@
 include README.md
-include nwastdlib/test/oauth/security_definitions.yaml
+include tests/oauth/security_definitions.yaml
+include nwastdlib/py.typed

@@ -1,12 +1,13 @@
-import requests
-import requests_mock
-import yaml
 import os
 import uuid
+
+import requests
+import requests_mock
+from ruamel.yaml import YAML
 from flask_testing import TestCase
 
 from nwastdlib.oauth.oauth_filter import OAuthFilter
-from nwastdlib.test.utils import create_test_app
+from tests.utils import create_test_app
 
 ENVIRON_BASE = {'HTTP_AUTHORIZATION': 'bearer test'}
 
@@ -41,6 +42,7 @@ class TestOAuthFilter(TestCase):
     def create_app(self):
         app = create_test_app()
         with open(os.path.join(os.path.dirname(__file__), 'security_definitions.yaml')) as file:
+            yaml = YAML(typ="safe")
             security_definitions = yaml.load(file)
             app.before_request(
                 OAuthFilter(security_definitions, TOKEN_CHECK_URL, 'coredb', 'secret',
