@@ -9,7 +9,7 @@ setup_params = dict(
     packages=setuptools.find_packages(),
     include_package_data=True,
     install_requires=['pytz==2018.5', 'ruamel.yaml~=0.15.66', 'redis==2.10.6', 'hiredis==0.2.0', 'Flask>=1.0.2',
-                      'requests==2.18.4'],
+                      'requests~=2.19.1'],
     extras_require={
         "redis": ['redis==2.10.6', 'hiredis==0.2.0'],
         "test": test_dependencies
