@@ -247,7 +247,7 @@ class Maybe(Generic[α], metaclass=ABCMeta):
         Nothing
         """
         unit = xs.__class__
-        empty = unit()
+        empty = unit()  # type: ignore
 
         def iter(acc, e):
             return acc.flatmap(lambda rs: e.map(lambda x: rs + unit((x,))))

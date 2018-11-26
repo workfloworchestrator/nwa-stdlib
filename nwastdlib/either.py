@@ -200,7 +200,7 @@ class Either(Generic[α, β], metaclass=ABCMeta):
         Left 'x'
         """
         unit = eithers.__class__
-        empty = unit()
+        empty = unit()  # type: ignore
 
         def iter(acc, e):
             return acc.flatmap(lambda rs: e.map(lambda x: rs + unit((x,))))
