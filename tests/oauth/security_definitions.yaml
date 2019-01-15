@@ -12,8 +12,6 @@ rules:
        AnyOf:
          Scopes:
            - nwa-cert
-         Teams:
-           - superuserro
    - endpoint: restricted_endpoint
      methods:
        - GET

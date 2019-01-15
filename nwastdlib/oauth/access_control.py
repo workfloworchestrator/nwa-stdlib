@@ -302,21 +302,27 @@ class AccessControl(object):
         endpoint = current_request.endpoint or current_request.base_url
         method = current_request.method
 
-        explicit_rules = [rule for rule in self.rules if rule[0] != "*"]
-        wildcard_rules = [rule for rule in self.rules if rule[0] == "*"]
+        matches = []
 
-        for endpoint_pattern, http_methods, conditions in explicit_rules:
-            if endpoint_pattern != "*" and fnmatch.fnmatch(endpoint, endpoint_pattern):
+        for endpoint_pattern, http_methods, conditions in self.rules:
+            if fnmatch.fnmatch(endpoint, endpoint_pattern):
                 if "*" in http_methods or method in http_methods:
-                    for condition in conditions:
-                        allowed = condition.test(user_attributes, current_request)
-                        if not allowed:
-                            raise Forbidden(str(condition))
-                    return
+                    if len(conditions) > 1:
+                        matches.append(AllOf(conditions))
+                    else:
+                        matches.append(conditions[0])
 
-        for endpoint_pattern, http_methods, conditions in wildcard_rules:
-            if "*" in http_methods or method in http_methods:
-                for condition in conditions:
-                    allowed = condition.test(user_attributes, current_request)
-                    if not allowed:
-                        raise Forbidden(str(condition))
+        if len(matches) > 1:
+            if True in (condition.test(user_attributes, current_request) for condition in matches):
+                return
+            else:
+                raise Forbidden("\n".join(str(c) for c in matches))
+        elif len(matches) == 1:
+            condition = matches[0]
+            if condition.test(user_attributes, current_request):
+                return
+            else:
+                raise Forbidden(str(condition))
+        else:
+            raise Forbidden(f"No rules matched endpoint {endpoint} and HTTP method {method}")
+

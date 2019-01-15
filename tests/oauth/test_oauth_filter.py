@@ -1,4 +1,5 @@
 import os
+
 import uuid
 
 import requests
@@ -51,12 +52,6 @@ class TestOAuthFilter(TestCase):
 
     def tearDown(self):
         requests.Session().close()
-
-    def test_no_rules(self, m):
-        self._check(m,
-                    json=JOHN_DOE,
-                    response_status_code=403,
-                    status_code=401)
 
     def test_no_token(self, m):
         self._check(m,
@@ -116,16 +111,16 @@ class TestOAuthFilter(TestCase):
         m.get(TOKEN_CHECK_URL, json=JOHN_DOE, status_code=200)
         response = self.client.get("/onlyfor/infrabeheerder", environ_base=ENVIRON_BASE)
         self.assertEqual(403, response.status_code)
-        self.assertEqual("ROLE", response.json['detail'].split(": ")[1][:4])
+        self.assertIn("ROLE", response.json['detail'])
 
     def test_customer_id_deny(self, m):
         m.get(TOKEN_CHECK_URL, json=JOHN_DOE, status_code=200)
         response = self.client.get("/customer/{}".format(CUSTOMER_ID), environ_base=ENVIRON_BASE)
         self.assertEqual(403, response.status_code)
-        self.assertEqual("Parameter customerId in the request path", response.json['detail'].split(": ")[1][:40])
+        self.assertIn("Parameter customerId in the request path", response.json['detail'])
 
     def test_wildcard(self, m):
-        teams = ["noc_superuserro_team_for_netwerkdashboard"]
+        teams = ["urn:collab:group:surfteams.nl:nl:surfnet:diensten:noc_superuserro_team_for_netwerkdashboard"]
         m.get(TOKEN_CHECK_URL, json={**JOHN_DOE, "edumember_is_member_of": teams}, status_code=200)
         response = self.client.get("/cert_endpoint", environ_base=ENVIRON_BASE)
         self.assertEqual(200, response.status_code)
