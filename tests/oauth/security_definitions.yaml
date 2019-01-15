@@ -9,7 +9,7 @@ rules:
      methods:
        - GET
      conditions:
-       Scope:
+       Scopes:
          - nwa-cert
    - endpoint: restricted_endpoint
      methods:
