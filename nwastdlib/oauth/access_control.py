@@ -292,7 +292,7 @@ class AccessControl(object):
 
     def is_allowed(self, current_user: Union['UserAttributes', Dict[str, Any]], current_request: Any) -> None:
         if not self.rules:
-            return
+            raise Forbidden(str("No security rules found"))
 
         if isinstance(current_user, UserAttributes):
             user_attributes = current_user
