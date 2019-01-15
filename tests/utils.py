@@ -27,6 +27,10 @@ def create_test_app():
     def check_customer_id(customerId):
         return "{} passed the test".format(customerId)
 
+    @app.route("/cert_endpoint")
+    def cert_endpoint():
+        return "Only cert can call this"
+
     @app.errorhandler(401)
     def unauthorized(e):
         return flask.jsonify(error=401, detail=str(e)), 401

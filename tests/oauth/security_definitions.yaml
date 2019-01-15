@@ -1,4 +1,16 @@
 rules:
+   - endpoint: "*"
+     methods:
+       - GET
+     conditions:
+       Teams:
+         - superuserro
+   - endpoint: cert_endpoint
+     method:
+       - GET
+     conditions:
+       Teams:
+         - nwa-cert
    - endpoint: restricted_endpoint
      methods:
        - GET

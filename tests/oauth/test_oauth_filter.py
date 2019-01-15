@@ -122,6 +122,26 @@ class TestOAuthFilter(TestCase):
         self.assertEqual(403, response.status_code)
         self.assertEqual("Parameter customerId in the request path", response.json['detail'].split(": ")[1][:40])
 
+    def test_wildcard(self, m):
+        teams = ["noc_superuserro_team_for_netwerkdashboard"]
+        m.get(TOKEN_CHECK_URL, json={**JOHN_DOE, "edumember_is_member_of": teams}, status_code=200)
+        response = self.client.get("/cert_endpoint", environ_base=ENVIRON_BASE)
+        self.assertEqual(200, response.status_code)
+
+    def test_invalid_wildcard(self, m):
+        teams = ["WRONG_TEAM"]
+        m.get(TOKEN_CHECK_URL, json={**JOHN_DOE, "edumember_is_member_of": teams}, status_code=200)
+        response = self.client.get("/cert_endpoint", environ_base=ENVIRON_BASE)
+        self.assertEqual(403, response.status_code)
+
+    def test_cert_only(self, m):
+        teams = ["nwa-cert"]
+        m.get(TOKEN_CHECK_URL, json={**JOHN_DOE, "edumember_is_member_of": teams}, status_code=200)
+        response = self.client.get("/cert_endpoint", environ_base=ENVIRON_BASE)
+        self.assertEqual(200, response.status_code)
+        response = self.client.get("/customer/{}".format(CUSTOMER_ID), environ_base=ENVIRON_BASE)
+        self.assertEqual(403, response.status_code)
+
     def test_customer_id_allow(self, m):
         entitlements = ["urn:mace:surfnet.nl:surfnet.nl:sab:organizationGUID:{}".format(CUSTOMER_ID)]
         m.get(TOKEN_CHECK_URL, json={**JOHN_DOE, "eduperson_entitlement": entitlements}, status_code=200)
