@@ -130,7 +130,7 @@ class TestOAuthFilter(TestCase):
 
     def test_invalid_wildcard(self, m):
         scope = "WRONG_SCOPE"
-        m.get(TOKEN_CHECK_URL, json={**JOHN_DOE, "edumember_is_member_of": scope}, status_code=200)
+        m.get(TOKEN_CHECK_URL, json={**JOHN_DOE, "scope": scope}, status_code=200)
         response = self.client.get("/cert_endpoint", environ_base=ENVIRON_BASE)
         self.assertEqual(403, response.status_code)
 
