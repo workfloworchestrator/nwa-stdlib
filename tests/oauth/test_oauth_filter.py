@@ -129,14 +129,14 @@ class TestOAuthFilter(TestCase):
         self.assertEqual(200, response.status_code)
 
     def test_invalid_wildcard(self, m):
-        teams = ["WRONG_TEAM"]
-        m.get(TOKEN_CHECK_URL, json={**JOHN_DOE, "edumember_is_member_of": teams}, status_code=200)
+        scope = "WRONG_SCOPE"
+        m.get(TOKEN_CHECK_URL, json={**JOHN_DOE, "edumember_is_member_of": scope}, status_code=200)
         response = self.client.get("/cert_endpoint", environ_base=ENVIRON_BASE)
         self.assertEqual(403, response.status_code)
 
     def test_cert_only(self, m):
-        teams = ["nwa-cert"]
-        m.get(TOKEN_CHECK_URL, json={**JOHN_DOE, "edumember_is_member_of": teams}, status_code=200)
+        scope = "nwa-cert"
+        m.get(TOKEN_CHECK_URL, json={**JOHN_DOE, "scope": scope}, status_code=200)
         response = self.client.get("/cert_endpoint", environ_base=ENVIRON_BASE)
         self.assertEqual(200, response.status_code)
         response = self.client.get("/customer/{}".format(CUSTOMER_ID), environ_base=ENVIRON_BASE)
