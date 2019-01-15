@@ -52,9 +52,10 @@ class TestOAuthFilter(TestCase):
     def tearDown(self):
         requests.Session().close()
 
-    def test_happy_flow(self, m):
+    def test_no_rules(self, m):
         self._check(m,
-                    json=JOHN_DOE)
+                    json=JOHN_DOE,
+                    response_status_code=403)
 
     def test_no_token(self, m):
         self._check(m,
