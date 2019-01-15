@@ -9,8 +9,11 @@ rules:
      methods:
        - GET
      conditions:
-       Scopes:
-         - nwa-cert
+       AnyOf:
+         Scopes:
+           - nwa-cert
+         Teams:
+           - superuserro
    - endpoint: restricted_endpoint
      methods:
        - GET

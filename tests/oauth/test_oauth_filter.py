@@ -55,7 +55,8 @@ class TestOAuthFilter(TestCase):
     def test_no_rules(self, m):
         self._check(m,
                     json=JOHN_DOE,
-                    response_status_code=403)
+                    response_status_code=403,
+                    status_code=401)
 
     def test_no_token(self, m):
         self._check(m,
