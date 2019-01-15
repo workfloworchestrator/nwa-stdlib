@@ -6,7 +6,7 @@ rules:
        Teams:
          - superuserro
    - endpoint: cert_endpoint
-     method:
+     methods:
        - GET
      conditions:
        Teams:
