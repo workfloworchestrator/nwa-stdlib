@@ -242,7 +242,7 @@ class UserAttributes(object):
             return ""
 
 
-Rules = List[Tuple[str, List[str], List[AbstractCondition]]]
+Rules = List[Tuple[str, List[str], AbstractCondition]]
 
 
 class AccessControl(object):
@@ -277,18 +277,28 @@ class AccessControl(object):
             except KeyError:
                 raise InvalidRuleDefinition("Missing conditions or options", counter, definition)
 
-            checkers = []
-            for name, options in conditions.items():
+            if len(conditions) > 1:
                 try:
-                    checkers.append(AbstractCondition.concrete_condition(name, options))
+                    checker = AllOf(conditions)
                 except KeyError as exc:
-                    message = f"Missing option {exc}. Could not process condition: {name}: {options}"
+                    message = f"Missing option {exc}."
                     raise InvalidRuleDefinition(message, counter, definition)
                 except AssertionError as exc:
-                    message = str(exc)
-                    raise InvalidRuleDefinition(message, counter, definition)
+                        message = str(exc)
+                        raise InvalidRuleDefinition(message, counter, definition)
+            else:
+                # loop will only run once
+                for name, options in conditions.items():
+                    try:
+                        checker = AbstractCondition.concrete_condition(name, options)
+                    except KeyError as exc:
+                        message = f"Missing option {exc}."
+                        raise InvalidRuleDefinition(message, counter, definition)
+                    except AssertionError as exc:
+                        message = str(exc)
+                        raise InvalidRuleDefinition(message, counter, definition)
 
-            self.rules.append((endpoint, http_methods, checkers))
+            self.rules.append((endpoint, http_methods, checker))
 
     def is_allowed(self, current_user: Union['UserAttributes', Dict[str, Any]], current_request: Any) -> None:
         if not self.rules:
@@ -304,25 +314,21 @@ class AccessControl(object):
 
         matches = []
 
-        for endpoint_pattern, http_methods, conditions in self.rules:
+        for endpoint_pattern, http_methods, checker in self.rules:
             if fnmatch.fnmatch(endpoint, endpoint_pattern):
                 if "*" in http_methods or method in http_methods:
-                    if len(conditions) > 1:
-                        matches.append(AllOf(conditions))
-                    else:
-                        matches.append(conditions[0])
+                    matches.append(checker)
 
         if len(matches) > 1:
-            if True in (condition.test(user_attributes, current_request) for condition in matches):
+            if True in (c.test(user_attributes, current_request) for c in matches):
                 return
             else:
                 raise Forbidden("\n".join(str(c) for c in matches))
         elif len(matches) == 1:
-            condition = matches[0]
-            if condition.test(user_attributes, current_request):
+            checker = matches[0]
+            if checker.test(user_attributes, current_request):
                 return
             else:
-                raise Forbidden(str(condition))
+                raise Forbidden(str(checker))
         else:
             raise Forbidden(f"No rules matched endpoint {endpoint} and HTTP method {method}")
-
