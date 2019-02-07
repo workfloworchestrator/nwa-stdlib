@@ -61,12 +61,16 @@ class SABRoles(AbstractCondition):
     URN = "urn:mace:surfnet.nl:surfnet.nl:sab:role:"
     infrabeheerder = "Infrabeheerder"
     infraverantwoordelijke = "Infraverantwoordelijke"
+    superuserro = "SuperuserRO"
 
     valid = {
         'infrabeheerder': infrabeheerder,
         'infraverantwoordelijke': infraverantwoordelijke,
         'Infrabeheerder': infrabeheerder,
-        'Infraverantwoordelijke': infraverantwoordelijke}
+        'Infraverantwoordelijke': infraverantwoordelijke,
+        'SuperuserRO': superuserro,
+        'superuserro': superuserro
+    }
 
     def __init__(self, options):
         self.roles = {self.valid[option] for option in options}
