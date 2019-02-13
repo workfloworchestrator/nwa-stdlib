@@ -16,6 +16,7 @@ Nothing
 """
 from functools import wraps
 from typing import TypeVar, Callable, NoReturn, Any
+from inspect import isgenerator
 
 from nwastdlib import Maybe, Either
 
@@ -27,6 +28,7 @@ def do(M: T) -> Callable[[Callable], Callable]:
         @wraps(f)
         def wrapper(*args, **kwargs) -> Any:
             it = f(*args, **kwargs)
+            assert isgenerator(it), "Function is not a generator"
 
             def send(val: Any) -> Any:
                 try:
