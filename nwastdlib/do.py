@@ -15,6 +15,7 @@ Some 'Hello, World!'
 Nothing
 """
 from functools import wraps
+from inspect import isgenerator
 from typing import TypeVar, Callable, NoReturn, Any
 
 from nwastdlib import Maybe, Either
@@ -26,6 +27,7 @@ def do(M: T) -> Callable[[Callable], Callable]:
     def decorate(f: Callable) -> Callable:
         @wraps(f)
         def wrapper(*args, **kwargs) -> Any:
+            assert isgenerator(f), "Function must be a Generator"
             it = f(*args, **kwargs)
 
             def send(val: Any) -> Any:
