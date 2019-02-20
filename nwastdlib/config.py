@@ -14,7 +14,7 @@ def get_config(var, default=None, parse=identity, secret=None, secret_base_locat
                 return Either.Left(f"Missing config for {var}")
             return Either.Right(x)
         except ValueError:
-            return Either.Left("Invalid value for {var}: {mx}")
+            return Either.Left(f"Invalid value for {var}: {mx}")
 
     def from_file(filename):
         if not os.path.isfile(filename):
