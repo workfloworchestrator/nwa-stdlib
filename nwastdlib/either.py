@@ -90,6 +90,19 @@ class Either(Generic[α, β], metaclass=ABCMeta):
         """
         raise NotImplementedError("Abstract function `either` must be implemented by the type constructor")
 
+    @abstractmethod
+    def unwrap(self) -> γ:
+        """
+        >>> Either.Left("error").unwrap()
+        Traceback (most recent call last):
+           ...
+        TypeError: error
+
+        >>> Either.Right('right').unwrap()
+        'right'
+        """
+        raise NotImplementedError("Abstract function `unwrap` must be implemented by the type constructor")
+
     def bimap(self, f: Callable[[α], γ], g: Callable[[β], δ]) -> 'Either[γ, δ]':
         """
         Map over both Left and Right at the same time
@@ -227,6 +240,9 @@ class __Left(Either):
     def either(self, f, g):
         return f(self.value)
 
+    def unwrap(self):
+        raise TypeError(self.value)
+
 
 class __Right(Either):
     def __init__(self, b: β) -> None:
@@ -249,6 +265,9 @@ class __Right(Either):
 
     def either(self, f, g):
         return g(self.value)
+
+    def unwrap(self):
+        return self.value
 
 
 Either.Left = __Left
