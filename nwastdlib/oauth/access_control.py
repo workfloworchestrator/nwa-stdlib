@@ -288,8 +288,8 @@ class AccessControl(object):
                     message = f"Missing option {exc}."
                     raise InvalidRuleDefinition(message, counter, definition)
                 except AssertionError as exc:
-                        message = str(exc)
-                        raise InvalidRuleDefinition(message, counter, definition)
+                    message = str(exc)
+                    raise InvalidRuleDefinition(message, counter, definition)
             else:
                 # loop will only run once
                 for name, options in conditions.items():

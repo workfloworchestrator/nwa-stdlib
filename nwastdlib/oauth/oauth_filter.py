@@ -56,17 +56,17 @@ class OAuthFilter(object):
 
     @cached_result(expiry=30)
     def check_token(self, token):
-            try:
-                with requests.Session() as s:
-                    s.auth = self.auth
-                    token_request = s.get(self.token_check_url, params={"token": token}, timeout=5)
-            except requests.exceptions.Timeout as e:
-                print(show_ex(e))
-                raise RequestTimeout(description='RequestTimeout from authorization server')
+        try:
+            with requests.Session() as s:
+                s.auth = self.auth
+                token_request = s.get(self.token_check_url, params={"token": token}, timeout=5)
+        except requests.exceptions.Timeout as e:
+            print(show_ex(e))
+            raise RequestTimeout(description='RequestTimeout from authorization server')
 
-            if not token_request.ok:
-                raise Unauthorized(description="Provided oauth token is not valid: {}".format(token))
-            return token_request.json()
+        if not token_request.ok:
+            raise Unauthorized(description="Provided oauth token is not valid: {}".format(token))
+        return token_request.json()
 
     @classmethod
     def current_user(cls):
