@@ -96,7 +96,16 @@ class Either(Generic[α, β], metaclass=ABCMeta):
         >>> Either.Left("error").unwrap()
         Traceback (most recent call last):
            ...
-        TypeError: error
+        TypeError: Unwrapping Either Left with error: error
+
+        >>> Either.Left(ValueError('a')).unwrap()  # doctest: +SKIP
+        ValueError: a
+
+        The above exception was the direct cause of the following exception:
+
+        Traceback (most recent call last):
+           ...
+        TypeError: Unwrapping Either Left
 
         >>> Either.Right('right').unwrap()
         'right'
@@ -241,7 +250,10 @@ class __Left(Either):
         return f(self.value)
 
     def unwrap(self):
-        raise TypeError(self.value)
+        if isinstance(self.value, Exception):
+            raise TypeError("Unwrapping Either Left") from self.value
+        else:
+            raise TypeError(f"Unwrapping Either Left with error: {str(self.value)}")
 
 
 class __Right(Either):
