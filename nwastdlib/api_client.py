@@ -26,11 +26,11 @@ class ApiClientProxy():
         self.request_headers = request_headers
 
     def call_api(self, resource_path, method, path_params=None, query_params=None, header_params=None, body=None,
-                 post_params=None, files=None, response_type=None, auth_settings=None, callback=None,
+                 post_params=None, files=None, response_type=None, auth_settings=None, async_req=None,
                  _return_http_data_only=None, collection_formats=None, _preload_content=True, _request_timeout=None):
         all_headers = {**self.request_headers, **header_params}
         return self.target.call_api(resource_path, method, path_params, query_params, all_headers, body, post_params,
-                                    files, response_type, auth_settings, callback, _return_http_data_only,
+                                    files, response_type, auth_settings, async_req, _return_http_data_only,
                                     collection_formats, _preload_content, _request_timeout)
 
     def __getattr__(self, name):
