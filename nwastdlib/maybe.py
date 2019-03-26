@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from abc import abstractmethod, ABCMeta
 from functools import reduce
 from typing import Any, Callable, Generic, Iterable, Optional, TypeVar, ClassVar, Type
@@ -13,12 +15,12 @@ class Maybe(Generic[α], metaclass=ABCMeta):
     The Maybe data type to represent an optional value.
     """
 
-    Nothing: ClassVar[Type["Maybe"]]
-    Some: ClassVar[Type["Maybe"]]
-    unit: ClassVar[Type["Maybe"]]
+    Nothing: ClassVar[Type[Maybe]]
+    Some: ClassVar[Type[Maybe]]
+    unit: ClassVar[Type[Maybe]]
 
     @staticmethod
-    def of(optional: Optional[α]) -> 'Maybe[α]':
+    def of(optional: Optional[α]) -> Maybe[α]:
         """
         Maybe type constructor from Optional value.
 
@@ -46,7 +48,7 @@ class Maybe(Generic[α], metaclass=ABCMeta):
         """
         raise AssertionError("Maybe is an abstract type; use a specific type constructor")
 
-    def map(self, f: Callable[[α], β]) -> 'Maybe[β]':
+    def map(self, f: Callable[[α], β]) -> Maybe[β]:
         """
         >>> inc = lambda n: n + 1
 
@@ -59,7 +61,7 @@ class Maybe(Generic[α], metaclass=ABCMeta):
         return self.flatmap(lambda a: Maybe.Some(f(a)))
 
     @abstractmethod
-    def flatmap(self, f: Callable[[α], 'Maybe[β]']) -> 'Maybe[β]':
+    def flatmap(self, f: Callable[[α], Maybe[β]]) -> Maybe[β]:
         """
         >>> Maybe.Some(1).flatmap(lambda _: Maybe.Some(2))
         Some 2
@@ -166,7 +168,7 @@ class Maybe(Generic[α], metaclass=ABCMeta):
         '''
         raise NotImplementedError("Abstract function `getSome` must be implemented by the type constructor")
 
-    def filter(self, p: Callable[[α], bool]) -> 'Maybe[β]':
+    def filter(self, p: Callable[[α], bool]) -> Maybe[β]:
         '''
         Filter to a Maybe of the element that satisfies the predicate.
 
@@ -231,7 +233,7 @@ class Maybe(Generic[α], metaclass=ABCMeta):
         )
 
     @staticmethod
-    def sequence(xs: Iterable["Maybe[α]"]) -> "Maybe[Iterable[α]]":
+    def sequence(xs: Iterable[Maybe[α]]) -> Maybe[Iterable[α]]:
         """ Fold an iterable of Maybe to a Maybe of iterable.
 
         The iterable's class must have constructor that returns an empty instance

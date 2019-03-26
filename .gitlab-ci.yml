@@ -3,7 +3,7 @@ stages:
   - lint
 
 lint check:
-    image: python:3.6
+    image: python:3.7
     stage: lint
     script:
       - pip install flake8 flake8-mypy --quiet
