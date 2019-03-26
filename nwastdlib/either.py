@@ -2,7 +2,18 @@ from __future__ import annotations
 
 from abc import abstractmethod, ABCMeta
 from functools import reduce
-from typing import Callable, Generic, Iterable, List, TypeVar, ClassVar, Type, Optional, Tuple
+from typing import (
+    Callable,
+    Generic,
+    Iterable,
+    List,
+    TypeVar,
+    ClassVar,
+    Type,
+    Optional,
+    Tuple,
+    Union
+)
 
 from .f import const, identity
 
@@ -21,6 +32,7 @@ class Either(Generic[α, β], metaclass=ABCMeta):
     Left: ClassVar[Type[Either]]
     Right: ClassVar[Type[Either]]
     unit: ClassVar[Type[Either]]
+    value: Union[α, β]
 
     @abstractmethod
     def __init__(self, value: Optional[α] = None) -> None:
