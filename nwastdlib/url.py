@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Mapping
 from urllib.parse import urlencode
 
@@ -23,7 +25,7 @@ class URL(str):
             print(url) -> http://example.org/api/ip/address?version=4
     """
 
-    def __truediv__(self, path: object) -> "URL":
+    def __truediv__(self, path: object) -> URL:
         """Append path element to the URL object.
 
         It prevents accidental inclusion of too many slashes between the appended path elements should the
@@ -40,7 +42,7 @@ class URL(str):
             path = str(path)
         return URL(self.rstrip("/") + "/" + path.lstrip("/"))
 
-    def __floordiv__(self, query: Mapping) -> "URL":
+    def __floordiv__(self, query: Mapping) -> URL:
         """Append a query string to the URL.
 
         Args:

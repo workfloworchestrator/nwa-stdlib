@@ -21,4 +21,4 @@ def test_url():
 
     # query string properly url encoded?
     url = api_url // dict(query=r' "%-.<>\^_`{|}~')
-    assert "http://example.org/api?query=+%22%25-.%3C%3E%5C%5E_%60%7B%7C%7D%7E" == url
+    assert "http://example.org/api?query=+%22%25-.%3C%3E%5C%5E_%60%7B%7C%7D~" == url

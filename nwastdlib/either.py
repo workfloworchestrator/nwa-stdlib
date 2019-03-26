@@ -1,6 +1,19 @@
+from __future__ import annotations
+
 from abc import abstractmethod, ABCMeta
 from functools import reduce
-from typing import Callable, Generic, Iterable, List, TypeVar, ClassVar, Type, Optional, Tuple
+from typing import (
+    Callable,
+    Generic,
+    Iterable,
+    List,
+    TypeVar,
+    ClassVar,
+    Type,
+    Optional,
+    Tuple,
+    Union
+)
 
 from .f import const, identity
 
@@ -16,16 +29,17 @@ class Either(Generic[α, β], metaclass=ABCMeta):
     ``Either α β`` represents a value two possibilities: ``Left α`` or ``Right β``
     """
 
-    Left: ClassVar[Type["Either"]]
-    Right: ClassVar[Type["Either"]]
-    unit: ClassVar[Type["Either"]]
+    Left: ClassVar[Type[Either]]
+    Right: ClassVar[Type[Either]]
+    unit: ClassVar[Type[Either]]
+    value: Union[α, β]
 
     @abstractmethod
     def __init__(self, value: Optional[α] = None) -> None:
         raise NotImplementedError()
 
     @staticmethod
-    def partition(xs: List['Either[α, β]']) -> Tuple[List[α], List[β]]:
+    def partition(xs: List[Either[α, β]]) -> Tuple[List[α], List[β]]:
         """
         >>> Either.partition([])
         ([], [])
@@ -50,7 +64,7 @@ class Either(Generic[α, β], metaclass=ABCMeta):
 
         return reduce(fold, xs, initializer)
 
-    def map(self, f: Callable[[β], γ]) -> 'Either[α, γ]':
+    def map(self, f: Callable[[β], γ]) -> Either[α, γ]:
         """
         >>> Either.Right(1).map(lambda x: x + 1)
         Right 2
@@ -61,7 +75,7 @@ class Either(Generic[α, β], metaclass=ABCMeta):
         return self.flatmap(lambda b: Either.Right(f(b)))
 
     @abstractmethod
-    def flatmap(self, f: Callable[[β], 'Either[α, γ]']) -> 'Either[α, γ]':
+    def flatmap(self, f: Callable[[β], Either[α, γ]]) -> Either[α, γ]:
         """
         >>> Either.Right(1).flatmap(lambda x: Either.Right(x + 1))
         Right 2
@@ -112,7 +126,7 @@ class Either(Generic[α, β], metaclass=ABCMeta):
         """
         raise NotImplementedError("Abstract function `unwrap` must be implemented by the type constructor")
 
-    def bimap(self, f: Callable[[α], γ], g: Callable[[β], δ]) -> 'Either[γ, δ]':
+    def bimap(self, f: Callable[[α], γ], g: Callable[[β], δ]) -> Either[γ, δ]:
         """
         Map over both Left and Right at the same time
 
@@ -127,7 +141,7 @@ class Either(Generic[α, β], metaclass=ABCMeta):
             lambda d: Either.Right(g(d))
         )
 
-    def first(self, f: Callable[[α], γ]) -> 'Either[γ, β]':
+    def first(self, f: Callable[[α], γ]) -> Either[γ, β]:
         """
         Map over the first argument.
 
@@ -206,7 +220,7 @@ class Either(Generic[α, β], metaclass=ABCMeta):
         )
 
     @staticmethod
-    def sequence(eithers: Iterable["Either[α, β]"]) -> "Either[α, Iterable[β]]":
+    def sequence(eithers: Iterable[Either[α, β]]) -> Either[α, Iterable[β]]:
         """Fold an iterable of Either to an Either of iterable.
 
         The iterable's class must have constructor that returns an empty instance
