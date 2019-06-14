@@ -3,6 +3,6 @@ from .either import Either
 from .f import *
 from .maybe import Maybe
 
-from .do import do, mreturn
+from .do import do
 
 # flake8: noqa

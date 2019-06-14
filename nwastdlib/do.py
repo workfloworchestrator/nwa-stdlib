@@ -6,7 +6,7 @@
 ... def mconcat(msg, name):
 ...     a = yield msg
 ...     b = yield name
-...     mreturn(f"{a}, {b}!")
+...     return Maybe.Some(f"{a}, {b}!")
 
 >>> mconcat(Maybe.Some("Hello"), Maybe.Some("World"))
 Some 'Hello, World!'
@@ -15,7 +15,7 @@ Some 'Hello, World!'
 Nothing
 """
 from functools import wraps
-from typing import TypeVar, Callable, NoReturn, Any
+from typing import TypeVar, Callable, Any
 from inspect import isgenerator
 
 from nwastdlib import Maybe, Either
@@ -35,20 +35,9 @@ def do(M: T) -> Callable[[Callable], Callable]:
                     return it.send(val).flatmap(send)
                 except StopIteration as e:
                     return e.value
-                except ReturnMonadic as e:
-                    return M.unit(e.value)
 
             return send(None)
 
         return wrapper
 
     return decorate
-
-
-def mreturn(value: Any) -> NoReturn:
-    raise ReturnMonadic(value)
-
-
-class ReturnMonadic(Exception):
-    def __init__(self, value):
-        self.value = value
