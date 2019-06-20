@@ -15,15 +15,13 @@ Some 'Hello, World!'
 Nothing
 """
 from functools import wraps
-from typing import TypeVar, Callable, Any
+from typing import Callable, Any, Union, Type
 from inspect import isgenerator
 
 from nwastdlib import Maybe, Either
 
-T = TypeVar('T', Either, Maybe)
 
-
-def do(M: T) -> Callable[[Callable], Callable]:
+def do(M: Type[Union[Either, Maybe]]) -> Callable[[Callable], Callable]:
     def decorate(f: Callable) -> Callable:
         @wraps(f)
         def wrapper(*args, **kwargs) -> Any:
