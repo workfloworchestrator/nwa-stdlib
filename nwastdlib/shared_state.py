@@ -1,8 +1,8 @@
-from typing import Type, Dict, ClassVar
+from typing import ClassVar, Dict, Type
 
 
 class SharedState(type):
-    '''
+    """
     Type to imperatively share object state between modules.
 
     Use `SharedState` as the metaclass of your own imperative state class. Note
@@ -28,7 +28,7 @@ class SharedState(type):
 
     >>> id(MyState()) == id(MyNewState())
     False
-    '''
+    """
 
     __instances: ClassVar[Dict[Type, object]] = {}
 

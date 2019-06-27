@@ -12,7 +12,7 @@ def test_url():
     api_url = base_url / "api"
     assert "http://example.org/api" == api_url
 
-    url = api_url / "ip" / "address" // dict(version=4)
+    url = api_url / "ip" / "address" // {"version": 4}
     assert "http://example.org/api/ip/address?version=4" == url
 
     # paths don't need to be strings
@@ -20,5 +20,5 @@ def test_url():
     assert "http://example.org/api/1/2/3" == url
 
     # query string properly url encoded?
-    url = api_url // dict(query=' "%-.<>\\^_`{|}~')
+    url = api_url // {"query": ' "%-.<>\\^_`{|}~'}
     assert "http://example.org/api?query=+%22%25-.%3C%3E%5C%5E_%60%7B%7C%7D~" == url

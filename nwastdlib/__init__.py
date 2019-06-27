@@ -1,8 +1,7 @@
-from .config import Config, get_config
-from .either import Either
-from .f import *
-from .maybe import Maybe
-
-from .do import do
+from nwastdlib.config import Config, get_config
+from nwastdlib.do import do
+from nwastdlib.either import Either
+from nwastdlib.f import *
+from nwastdlib.maybe import Maybe
 
 # flake8: noqa

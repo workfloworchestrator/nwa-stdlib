@@ -1,19 +1,17 @@
 from __future__ import annotations
 
-from abc import abstractmethod, ABCMeta
+from abc import ABCMeta, abstractmethod
 from functools import reduce
-from typing import Any, Callable, Generic, Iterable, Optional, TypeVar, ClassVar, Type
+from typing import Any, Callable, ClassVar, Generic, Iterable, Optional, Type, TypeVar
 
 from .f import const, identity
 
-α = TypeVar('α')
-β = TypeVar('β')
+α = TypeVar("α")
+β = TypeVar("β")
 
 
 class Maybe(Generic[α], metaclass=ABCMeta):
-    """
-    The Maybe data type to represent an optional value.
-    """
+    """The Maybe data type to represent an optional value."""
 
     Nothing: ClassVar[Type[Maybe]]
     Some: ClassVar[Type[Maybe]]
@@ -34,7 +32,8 @@ class Maybe(Generic[α], metaclass=ABCMeta):
 
     @abstractmethod
     def __init__(self, value: Optional[α] = None) -> None:
-        """ Enforce using specific data type constructors.
+        """
+        Enforce using specific data type constructors.
 
         >>> Maybe()
         Traceback (most recent call last):
@@ -50,6 +49,8 @@ class Maybe(Generic[α], metaclass=ABCMeta):
 
     def map(self, f: Callable[[α], β]) -> Maybe[β]:
         """
+        Map Variable over Callable.
+
         >>> inc = lambda n: n + 1
 
         >>> Maybe.Some(1).map(inc)
@@ -63,6 +64,8 @@ class Maybe(Generic[α], metaclass=ABCMeta):
     @abstractmethod
     def flatmap(self, f: Callable[[α], Maybe[β]]) -> Maybe[β]:
         """
+        Flatmap Variable over Callable returning Maybe.
+
         >>> Maybe.Some(1).flatmap(lambda _: Maybe.Some(2))
         Some 2
 
@@ -102,10 +105,7 @@ class Maybe(Generic[α], metaclass=ABCMeta):
         >>> Maybe.Nothing().isNothing()
         True
         """
-        return self.maybe(
-            True,
-            const(False)
-        )
+        return self.maybe(True, const(False))
 
     def isSome(self) -> bool:
         """
@@ -118,10 +118,7 @@ class Maybe(Generic[α], metaclass=ABCMeta):
         False
         """
 
-        return self.maybe(
-            False,
-            const(True)
-        )
+        return self.maybe(False, const(True))
 
     def orElse(self, a: α) -> α:
         """
@@ -138,8 +135,8 @@ class Maybe(Generic[α], metaclass=ABCMeta):
         return self.maybe(a, identity)
 
     def or_else_throw(self, error):
-        """"
-        Extracts the element of a Some and throws the error if Nothing.
+        """
+        Extract element of a Some and throws the error if Nothing.
 
         >>> Maybe.of(None).or_else_throw(ValueError("Expected some"))
         Traceback (most recent call last):
@@ -155,8 +152,8 @@ class Maybe(Generic[α], metaclass=ABCMeta):
 
     @abstractmethod
     def getSome(self) -> α:
-        '''
-        Extracts the element of a Some and throws a ValueError if Nothing.
+        """
+        Extract element of a Some and throws a ValueError if Nothing.
 
         >>> Maybe.Some(1).getSome()
         1
@@ -165,11 +162,11 @@ class Maybe(Generic[α], metaclass=ABCMeta):
         Traceback (most recent call last):
             ...
         ValueError: Cannot extract Some value from Nothing
-        '''
+        """
         raise NotImplementedError("Abstract function `getSome` must be implemented by the type constructor")
 
     def filter(self, p: Callable[[α], bool]) -> Maybe[β]:
-        '''
+        """
         Filter to a Maybe of the element that satisfies the predicate.
 
         >>> Maybe.Some(1).filter(lambda x: x == 1)
@@ -177,20 +174,20 @@ class Maybe(Generic[α], metaclass=ABCMeta):
 
         >>> Maybe.Some(1).filter(lambda x: x > 1)
         Nothing
-        '''
+        """
         return self.flatmap(lambda x: Maybe.Some(x) if p(x) else Maybe.Nothing())
 
     @abstractmethod
     def __iter__(self):
-        '''
-        Get an iterator over this Maybe
+        """
+        Get an iterator over this Maybe.
 
         >>> [x for x in Maybe.Some(1)]
         [1]
 
         >>> [x for x in Maybe.Nothing()]
         []
-        '''
+        """
         raise NotImplementedError("Abstract function `__iter__` must be implemented by the type constructor")
 
     def __eq__(self, other: Any) -> bool:
@@ -210,10 +207,7 @@ class Maybe(Generic[α], metaclass=ABCMeta):
         True
         """
         if isinstance(other, Maybe):
-            return self.maybe(
-                other.isNothing(),
-                lambda x: other.maybe(False, x.__eq__)
-            )
+            return self.maybe(other.isNothing(), lambda x: other.maybe(False, x.__eq__))
         else:
             return False
 
@@ -227,14 +221,12 @@ class Maybe(Generic[α], metaclass=ABCMeta):
         >>> repr(Maybe.Nothing())
         'Nothing'
         """
-        return self.maybe(
-            "Nothing",
-            lambda a: "Some %s" % repr(a)
-        )
+        return self.maybe("Nothing", lambda a: "Some %s".format(repr(a)))
 
     @staticmethod
     def sequence(xs: Iterable[Maybe[α]]) -> Maybe[Iterable[α]]:
-        """ Fold an iterable of Maybe to a Maybe of iterable.
+        """
+        Fold an iterable of Maybe to a Maybe of iterable.
 
         The iterable's class must have constructor that returns an empty instance
         given no arguments, and a non-empty instance given a singleton tuple.
@@ -277,13 +269,13 @@ class __Nothing(Maybe):
         raise ValueError("Cannot extract Some value from Nothing")
 
     def __iter__(self):
-        return tuple().__iter__()
+        return ().__iter__()
 
 
 class __Some(Maybe):
     def __init__(self, a: α) -> None:
         """
-        Some data constructor
+        Initialise Some object.
 
         >>> Maybe.Some('value')
         Some 'value'

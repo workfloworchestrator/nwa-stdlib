@@ -1,26 +1,15 @@
 from __future__ import annotations
 
-from abc import abstractmethod, ABCMeta
+from abc import ABCMeta, abstractmethod
 from functools import reduce
-from typing import (
-    Callable,
-    Generic,
-    Iterable,
-    List,
-    TypeVar,
-    ClassVar,
-    Type,
-    Optional,
-    Tuple,
-    Union
-)
+from typing import Callable, ClassVar, Generic, Iterable, List, Optional, Tuple, Type, TypeVar, Union
 
 from .f import const, identity
 
-α = TypeVar('α')
-β = TypeVar('β')
-γ = TypeVar('γ')
-δ = TypeVar('δ')
+α = TypeVar("α")
+β = TypeVar("β")
+γ = TypeVar("γ")
+δ = TypeVar("δ")
 
 
 class Either(Generic[α, β], metaclass=ABCMeta):
@@ -41,6 +30,8 @@ class Either(Generic[α, β], metaclass=ABCMeta):
     @staticmethod
     def partition(xs: List[Either[α, β]]) -> Tuple[List[α], List[β]]:
         """
+        Partition the lists.
+
         >>> Either.partition([])
         ([], [])
 
@@ -55,10 +46,7 @@ class Either(Generic[α, β], metaclass=ABCMeta):
         """
 
         def fold(acc, e):
-            return e.either(
-                lambda x: (acc[0] + [x], acc[1]),
-                lambda x: (acc[0], acc[1] + [x])
-            )
+            return e.either(lambda x: (acc[0] + [x], acc[1]), lambda x: (acc[0], acc[1] + [x]))
 
         initializer: Tuple[List[α], List[β]] = ([], [])
 
@@ -66,6 +54,8 @@ class Either(Generic[α, β], metaclass=ABCMeta):
 
     def map(self, f: Callable[[β], γ]) -> Either[α, γ]:
         """
+        Map variable over callable.
+
         >>> Either.Right(1).map(lambda x: x + 1)
         Right 2
 
@@ -77,6 +67,8 @@ class Either(Generic[α, β], metaclass=ABCMeta):
     @abstractmethod
     def flatmap(self, f: Callable[[β], Either[α, γ]]) -> Either[α, γ]:
         """
+        Map variable over callable and return an Either.
+
         >>> Either.Right(1).flatmap(lambda x: Either.Right(x + 1))
         Right 2
 
@@ -96,6 +88,8 @@ class Either(Generic[α, β], metaclass=ABCMeta):
     @abstractmethod
     def either(self, f: Callable[[α], γ], g: Callable[[β], γ]) -> γ:
         """
+        Return contents of Either.
+
         >>> Either.Left(None).either(const('left'), const('right'))
         'left'
 
@@ -107,6 +101,8 @@ class Either(Generic[α, β], metaclass=ABCMeta):
     @abstractmethod
     def unwrap(self) -> γ:
         """
+        Unpack Either.
+
         >>> Either.Left("error").unwrap()
         Traceback (most recent call last):
            ...
@@ -128,7 +124,7 @@ class Either(Generic[α, β], metaclass=ABCMeta):
 
     def bimap(self, f: Callable[[α], γ], g: Callable[[β], δ]) -> Either[γ, δ]:
         """
-        Map over both Left and Right at the same time
+        Map over both Left and Right at the same time.
 
         >>> Either.Right(1).bimap(lambda _: 2, lambda _: 3)
         Right 3
@@ -136,10 +132,7 @@ class Either(Generic[α, β], metaclass=ABCMeta):
         >>> Either.Left(1).bimap(lambda _: 2, lambda _: 3)
         Left 2
         """
-        return self.either(
-            lambda c: Either.Left(f(c)),
-            lambda d: Either.Right(g(d))
-        )
+        return self.either(lambda c: Either.Left(f(c)), lambda d: Either.Right(g(d)))
 
     def first(self, f: Callable[[α], γ]) -> Either[γ, β]:
         """
@@ -180,7 +173,7 @@ class Either(Generic[α, β], metaclass=ABCMeta):
         return self.either(const(False), const(True))
 
     def __eq__(self, other) -> bool:
-        """Test two instances for value equality, such that:
+        """Test two instances for value equality.
 
         >>> Either.Right(1) == Either.Right(1)
         True
@@ -199,14 +192,13 @@ class Either(Generic[α, β], metaclass=ABCMeta):
         """
         if isinstance(other, Either):
             return self.either(
-                lambda x: other.either(x.__eq__, const(False)),
-                lambda x: other.either(const(False), x.__eq__)
+                lambda x: other.either(x.__eq__, const(False)), lambda x: other.either(const(False), x.__eq__)
             )
         else:
             return False
 
     def __repr__(self) -> str:
-        """Show
+        """Show.
 
         >>> repr(Either.Left('error'))
         "Left 'error'"
@@ -214,10 +206,7 @@ class Either(Generic[α, β], metaclass=ABCMeta):
         >>> repr(Either.Right(1))
         'Right 1'
         """
-        return self.either(
-            lambda a: "Left %s" % repr(a),
-            lambda b: "Right %s" % repr(b)
-        )
+        return self.either(lambda a: "Left %s" % repr(a), lambda b: "Right %s" % repr(b))  # noqa: S001
 
     @staticmethod
     def sequence(eithers: Iterable[Either[α, β]]) -> Either[α, Iterable[β]]:
@@ -247,7 +236,7 @@ class Either(Generic[α, β], metaclass=ABCMeta):
 class __Left(Either):
     def __init__(self, a: α) -> None:
         """
-        Left data constructor
+        Left data constructor.
 
         >>> Either.Left(1)
         Left 1
@@ -273,7 +262,7 @@ class __Left(Either):
 class __Right(Either):
     def __init__(self, b: β) -> None:
         """
-        Right data constructor
+        Right data constructor.
 
         >>> Either.Right(1)
         Right 1

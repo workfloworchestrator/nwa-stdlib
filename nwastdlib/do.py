@@ -15,10 +15,10 @@ Some 'Hello, World!'
 Nothing
 """
 from functools import wraps
-from typing import Callable, Any, Union, Type
 from inspect import isgenerator
+from typing import Any, Callable, Type, Union
 
-from nwastdlib import Maybe, Either
+from nwastdlib import Either, Maybe
 
 
 def do(M: Type[Union[Either, Maybe]]) -> Callable[[Callable], Callable]:

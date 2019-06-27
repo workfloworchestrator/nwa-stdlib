@@ -1,10 +1,8 @@
-"""
-Module that contains utility functions for Swagger.
-"""
+"""Module that contains utility functions for Swagger."""
 
 import tempfile
 from pathlib import Path
-from typing import Union, Dict
+from typing import Dict, Union
 
 from ruamel.yaml import YAML
 
@@ -14,10 +12,10 @@ from . import Either
 class SwaggerFile(object):
     def __init__(self, filename: Union[str, Path]) -> None:
         self.filename = Path(filename)
-        self.substitutions: Dict = dict()
+        self.substitutions: Dict = {}
 
     def set_host(self, host):
-        self.substitutions['host'] = host
+        self.substitutions["host"] = host
         return self
 
     def write(self, target=None):
@@ -30,10 +28,10 @@ class SwaggerFile(object):
         """
         target = target or tmpfile()
         try:
-            if self.filename.suffix != '.yaml':
+            if self.filename.suffix != ".yaml":
                 return Either.Left(f"Expected a YAML file. Got a {self.filename.suffix} file instead.")
 
-            yaml = YAML(typ='safe')
+            yaml = YAML(typ="safe")
             swagger_def = yaml.load(self.filename)
             swagger_def.update(self.substitutions)
 
@@ -46,4 +44,4 @@ class SwaggerFile(object):
 
 
 def tmpfile():
-    return tempfile.NamedTemporaryFile(mode='w', prefix='swagger-', suffix='.yaml', delete=False)
+    return tempfile.NamedTemporaryFile(mode="w", prefix="swagger-", suffix=".yaml", delete=False)

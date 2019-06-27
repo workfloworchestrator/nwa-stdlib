@@ -1,31 +1,38 @@
-#!/usr/bin/env python3
+from setuptools import setup
 
-import setuptools
-
-test_dependencies = ['pytest', 'Flask-Testing==0.7.1', 'requests-mock==1.4.0', 'fakeredis==0.10.3']
-setup_params = dict(
-    name='nwastdlib',
-    version='0.9.20',
-    packages=setuptools.find_packages(),
-    include_package_data=True,
-    install_requires=['pytz==2018.5', 'ruamel.yaml~=0.15.66', 'redis==2.10.6', 'hiredis==0.2.0', 'Flask>=1.0.2',
-                      'requests>=2.19.0'],
-    extras_require={
-        "redis": ['redis==2.10.6', 'hiredis==0.2.0'],
-        "test": test_dependencies
-    },
-    setup_requires=['pytest-runner'],
-    tests_require=test_dependencies,
-    description='Network Automation Standard Library',
-    long_description='Network Automation Standard Library',
-    author='SURFNet Automation',
-    author_email='automation-nw@surfnet.nl',
-    url='https://gitlab.surfnet.nl/automation/nwa-stdlib',
-    classifiers=[
-        'Programming Language :: Python :: 3',
-        'Operating System :: OS Independent'
-    ]
+setup(
+    name="nwa-stdlib",
+    version="1.0.0",
+    packages=["nwastdlib"],
+    url="https://gitlab.surfnet.nl/automation/nwa-stdlib",
+    classifiers=["License :: OSI Approved :: MIT License", "Programming Language :: Python :: 3.x"],
+    license="MIT",
+    author="Automation",
+    author_email="automation-nw@surfnet.nl",
+    description="NWA standard library.",
+    install_requires=[
+        "flask==1.0.3",
+        "requests==2.22.0",
+        "redis==3.2.1",
+        "hiredis==1.0.0",
+        "pytz==2019.1",
+        "ruamel.yaml==0.15.97",
+        "structlog==19.1.0",
+    ],
+    tests_require=[
+        "pytest",
+        "flake8",
+        "black",
+        "isort",
+        "flake8-bandit",
+        "flake8-bugbear",
+        "flake8-comprehensions",
+        "flake8-docstrings",
+        "flake8-logging-format",
+        "flake8-pep3101",
+        "flake8-print",
+        "mypy",
+        "mypy_extensions",
+        "fakeredis",
+    ],
 )
-
-if __name__ == "__main__":
-    setuptools.setup(**setup_params)
