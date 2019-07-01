@@ -1,15 +1,14 @@
 ---
 stages:
-  - lint
+  - test
 
 lint check:
     image: python:3.7
-    stage: lint
+    stage: test
     script:
       - pip install flake8 flake8-mypy --quiet
       - flake8
       - mypy -p nwastdlib
-      - python setup.py check
-      - python setup.py test
+      - pytest
     tags:
       - python-lint-ext
