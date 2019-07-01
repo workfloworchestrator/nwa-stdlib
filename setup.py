@@ -34,5 +34,6 @@ setup(
         "mypy",
         "mypy_extensions",
         "fakeredis",
+        "pre-commit",
     ],
 )
