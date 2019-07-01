@@ -16,12 +16,10 @@ Nothing
 """
 from functools import wraps
 from inspect import isgenerator
-from typing import Any, Callable, Type, Union
-
-from nwastdlib import Either, Maybe
+from typing import Any, Callable
 
 
-def do(M: Type[Union[Either, Maybe]]) -> Callable[[Callable], Callable]:
+def do(M) -> Callable[[Callable], Callable]:
     def decorate(f: Callable) -> Callable:
         @wraps(f)
         def wrapper(*args, **kwargs) -> Any:
