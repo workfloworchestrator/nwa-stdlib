@@ -307,6 +307,6 @@ class __Some(Maybe):
         return (self.value,).__iter__()
 
 
-Maybe.Nothing = const(__Nothing())
+Maybe.Nothing = const(__Nothing())  # type: ignore
 Maybe.Some = __Some
 Maybe.unit = __Some
