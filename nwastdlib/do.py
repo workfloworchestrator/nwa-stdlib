@@ -19,7 +19,7 @@ from inspect import isgenerator
 from typing import Any, Callable
 
 
-def do(M) -> Callable[[Callable], Callable]:
+def do(M=None) -> Callable[[Callable], Callable]:
     def decorate(f: Callable) -> Callable:
         @wraps(f)
         def wrapper(*args, **kwargs) -> Any:

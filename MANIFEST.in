@@ -1,3 +1,0 @@
-include README.md
-include tests/oauth/security_definitions.yaml
-include nwastdlib/py.typed
