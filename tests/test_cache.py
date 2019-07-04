@@ -1,11 +1,10 @@
-import fakeredis
+import pickle  # noqa: S403
 import unittest
 from unittest.mock import patch
-import pickle
 
+import fakeredis
 from nwastdlib import Either
-from nwastdlib.cache import write_object, read_object, cached_result
-
+from nwastdlib.cache import cached_result, read_object, write_object
 
 TEST_OBJECT_1 = ("a", 2, 3.0)
 TEST_OBJECT_2 = ("b", 4, 12.9)
@@ -61,7 +60,7 @@ class TestObjectCache(unittest.TestCase):
         request.headers = {}
 
         @cached_result(self.pool)
-        def skipped_args(dict_arg={}):
+        def skipped_args(dict_arg):
             return dict_arg
 
         skipped_args({"a": 1, "b": 2})

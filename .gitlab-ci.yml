@@ -1,15 +1,27 @@
 ---
 stages:
-  - lint
+  - test
 
-lint check:
+testing:
     image: python:3.7
-    stage: lint
+    stage: test
     script:
-      - pip install flake8 flake8-mypy --quiet
-      - flake8
+      - pip install flake8 \
+          black \
+          isort \
+          flake8-bandit \
+          flake8-bugbear \
+          flake8-comprehensions \
+          flake8-docstrings \
+          flake8-logging-format \
+          flake8-pep3101 \
+          flake8-print \
+          mypy \
+          mypy_extensions
+      - black . --check
+      - isort -rc -c
+      - flake8 .
       - mypy -p nwastdlib
-      - python setup.py check
-      - python setup.py test
+      - python setup.py install test
     tags:
       - python-lint-ext

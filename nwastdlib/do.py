@@ -15,13 +15,11 @@ Some 'Hello, World!'
 Nothing
 """
 from functools import wraps
-from typing import Callable, Any, Union, Type
 from inspect import isgenerator
+from typing import Any, Callable
 
-from nwastdlib import Maybe, Either
 
-
-def do(M: Type[Union[Either, Maybe]]) -> Callable[[Callable], Callable]:
+def do(M=None) -> Callable[[Callable], Callable]:
     def decorate(f: Callable) -> Callable:
         @wraps(f)
         def wrapper(*args, **kwargs) -> Any:

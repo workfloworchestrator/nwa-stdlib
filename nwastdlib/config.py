@@ -5,7 +5,7 @@ from .either import Either
 from .f import identity
 
 
-def get_config(var, default=None, parse=identity, secret=None, secret_base_location="/run/secrets"):
+def get_config(var, default=None, parse=identity, secret=None, secret_base_location="/run/secrets"):  # noqa: S107
     def from_environ():
         mx = os.environ.get(var)
         try:
@@ -33,7 +33,7 @@ def get_config(var, default=None, parse=identity, secret=None, secret_base_locat
                 return Either.Right(default)
             return Either.Left(f"Unexpected Error while reading file {filename}: {e}")
 
-    filename = (f"{secret_base_location}/{secret}")
+    filename = f"{secret_base_location}/{secret}"
     if not secret or not os.path.isfile(filename):
         return from_environ()
     return from_file(filename)
@@ -44,15 +44,12 @@ class Config(object):
         self.values = values
 
     def unwrap(self):
-        '''Extract the config values or fail with the first Left'''
+        """Extract the config values or fail with the first Left."""
 
         def invalid_config(err):
             raise InvalidConfigException(err)
 
-        return Either.sequence(self.values).either(
-            invalid_config,
-            identity
-        )
+        return Either.sequence(self.values).either(invalid_config, identity)
 
 
 class InvalidConfigException(Exception):
