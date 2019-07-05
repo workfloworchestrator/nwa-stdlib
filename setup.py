@@ -25,7 +25,7 @@ class PyTest(TestCommand):
 
 setup(
     name="nwa-stdlib",
-    version="1.0.1",
+    version="1.0.2",
     packages=find_packages(),
     cmdclass={"test": PyTest},
     url="https://gitlab.surfnet.nl/automation/nwa-stdlib",
@@ -39,7 +39,6 @@ setup(
         "requests>=2.19.0",
         "redis==3.2.1",
         "hiredis==1.0.0",
-        "pytz>=2019.1",
         "ruamel.yaml>=0.14.00",
         "structlog==19.1.0",
     ],
