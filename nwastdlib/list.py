@@ -27,20 +27,6 @@ def fst(xs: List[α]) -> α:
     return xs[0]
 
 
-def snd(xs: List[α]) -> α:
-    """
-    Get the second element from an indexed iterable data structure (e.g. tuple, list).
-
-    Note: this depends on bounds checking of the iterable data structure. Most
-    iterable data structures in Python raise an IndexError when the index is
-    out of bounds.
-
-    >>> snd([1,2,3])
-    2
-    """
-    return xs[1]
-
-
 def elem(x: α, xs: List[α]) -> bool:
     """
     Get whether `x` is in `xs`.
@@ -146,16 +132,3 @@ def partition(p: Callable[[α], bool], xs: List[α]) -> Tuple[List[α], List[α]
     initializer: Tuple[List[α], List[α]] = ([], [])
 
     return reduce(it, xs, initializer)
-
-
-def join(x: List[List[α]]) -> List[α]:
-    """
-    Remove one level of list.
-
-    >>> join([])
-    []
-
-    >>> join([[1], [2]])
-    [1, 2]
-    """
-    return reduce(lambda xs, ys: xs + ys, x, [])
