@@ -13,7 +13,7 @@ def format_ex(ex, stacklimit=None):
     """
     key = "".join(random.choices(string.ascii_letters + string.digits, k=6))
     s = show_ex(ex, stacklimit)
-    return key, "[%s] %s".format(key, s)
+    return key, "[{}] {}".format(key, s)
 
 
 def show_ex(ex, stacklimit=None):
@@ -28,4 +28,4 @@ def show_ex(ex, stacklimit=None):
     ...
     """
     tbfmt = "".join(traceback.format_tb(ex.__traceback__, stacklimit))
-    return "%s: %s\n%s".format(type(ex).__name__, ex, tbfmt)
+    return "{}: {}\n{}".format(type(ex).__name__, ex, tbfmt)

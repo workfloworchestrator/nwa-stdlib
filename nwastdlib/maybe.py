@@ -221,7 +221,7 @@ class Maybe(Generic[α], metaclass=ABCMeta):
         >>> repr(Maybe.Nothing())
         'Nothing'
         """
-        return self.maybe("Nothing", lambda a: "Some %s".format(repr(a)))
+        return self.maybe("Nothing", lambda a: "Some {!r}".format(a))
 
     @staticmethod
     def sequence(xs: Iterable[Maybe[α]]) -> Maybe[Iterable[α]]:

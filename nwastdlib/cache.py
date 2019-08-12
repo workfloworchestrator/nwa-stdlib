@@ -25,7 +25,7 @@ def create_pool(host, port=6379, db=0):
         return Either.Right(r)
     except Exception as e:
         format_ex(e)
-        return Either.Left(Error(500, e, "Cache not available due to: %s".format(str(e))))
+        return Either.Left(Error(500, e, "Cache not available due to: {}".format(e)))
 
 
 def handle_query(pool):
@@ -50,7 +50,7 @@ def handle_setter(pool, payload):
             else:
                 return Either.Left("Nothing to set")
         except Exception as e:
-            return Either.Left("Not able to to set the payload due to: %s".format(str(e)))
+            return Either.Left("Not able to to set the payload due to: {}".format(e))
 
     return set_val(pool, payload)
 
@@ -62,7 +62,7 @@ def flush_all(pool):
 
     except Exception as e:
         format_ex(e)
-        return Either.Left(Error(500, e, "Problem while flushing the cache: %s".format(str(e))))
+        return Either.Left(Error(500, e, "Problem while flushing the cache: {}".format(e)))
 
 
 def flush_selected(pool, key):
@@ -80,7 +80,7 @@ def flush_selected(pool, key):
         return pool.map(lambda p: p.keys(key)).map(lambda keys: [del_key(k) for k in keys]).flatmap(check_res)
     except Exception as e:
         format_ex(e)
-        return Either.Left(Error(500, e, "Flush unsuccesfull: %s".format(str(e))))
+        return Either.Left(Error(500, e, "Flush unsuccesfull: {}".format(e)))
 
 
 def write_object(pool: Any, key: str, obj: Any, exp: int) -> Any:
@@ -94,7 +94,7 @@ def write_object(pool: Any, key: str, obj: Any, exp: int) -> Any:
             else:
                 return Either.Left("Nothing to set")
         except Exception as e:
-            return Either.Left("Not able to set the payload due to: %s".format(str(e)))
+            return Either.Left("Not able to set the payload due to: {}".format(e))
 
     return pool.flatmap(lambda x: write(x, key, obj, exp)).either(const(obj), const(obj))
 
