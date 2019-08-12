@@ -65,7 +65,7 @@ class ApiClientProxy:
         return getattr(self.target, name)
 
     def __repr__(self):
-        return "[ApiClientProxy] %s".format(repr(self.target))
+        return "[ApiClientProxy] {!r}".format(self.target)
 
 
 Error = namedtuple("Error", ["status", "key", "message"])
@@ -99,7 +99,7 @@ def run_api_call(name, get_client):
             return Either.Left(
                 Error(e.status, key, f"Received server error {e.status} from {name} with payload: {e.body}")
             )
-        return Either.Left(Error(e.status, key, "Error while accessing %s".format(name)))
+        return Either.Left(Error(e.status, key, "Error while accessing {}".format(name)))
 
     def iter(f):
         try:
@@ -107,7 +107,7 @@ def run_api_call(name, get_client):
             return Either.Right(f(client))
         except MaxRetryError as e:
             key = log_error(e)
-            return Either.Left(Error(503, key, "Failed to establish a connection to %s".format(name)))
+            return Either.Left(Error(503, key, "Failed to establish a connection to {}".format(name)))
         except Exception as e:
             key = log_error(e)
             # Each swagger-generated client uses its own 'ApiException' class.
@@ -116,7 +116,7 @@ def run_api_call(name, get_client):
                 return handle_api_ex(key, e)
             else:
                 return Either.Left(
-                    Error(500, key, "%s: %s\nThis is most likely a programming error".format(e.__class__.__name__, e))
+                    Error(500, key, "{}: {}\nThis is most likely a programming error".format(e.__class__.__name__, e))
                 )
 
     return iter
