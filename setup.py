@@ -25,12 +25,12 @@ class PyTest(TestCommand):
 
 setup(
     name="nwa-stdlib",
-    version="1.0.5",
+    version="1.0.6",
     packages=find_packages(),
     cmdclass={"test": PyTest},
     url="https://gitlab.surfnet.nl/automation/nwa-stdlib",
-    classifiers=["License :: OSI Approved :: MIT License", "Programming Language :: Python :: 3.x"],
-    license="MIT",
+    classifiers=["License :: OSI Approved :: Apache2 License", "Programming Language :: Python :: 3.x"],
+    license="Apache2",
     author="Automation",
     author_email="automation-nw@surfnet.nl",
     description="NWA standard library.",
@@ -39,7 +39,7 @@ setup(
         "requests>=2.19.0",
         "redis==3.2.1",
         "hiredis==1.0.0",
-        "ruamel.yaml>=0.14.00",
+        "ruamel.yaml~=0.15.97",
         "structlog==19.1.0",
     ],
     tests_require=[
