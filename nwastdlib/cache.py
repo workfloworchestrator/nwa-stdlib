@@ -88,7 +88,7 @@ def flush_selected(pool, key):
             if len(list(filter(lambda x: x == 0, res))) > 0:
                 return Either.Left(Error(400, "Some Deletions not done", "Some Deletions not done"))
             else:
-                return Either.Right("Delete of keys for: %s completely succesful".format(key))
+                return Either.Right("Delete of keys for: %s completely succesful".format(key))  # type: ignore
 
         return pool.map(lambda p: p.keys(key)).map(lambda keys: [del_key(k) for k in keys]).flatmap(check_res)
     except Exception as e:
