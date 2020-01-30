@@ -17,50 +17,50 @@ import os
 import structlog
 from structlog.threadlocal import wrap_dict
 
+pre_chain = [
+    # Add the log level and a timestamp to the event_dict if the log entry
+    # is not from structlog.
+    structlog.stdlib.add_log_level,
+    structlog.stdlib.add_logger_name,
+    structlog.processors.TimeStamper(fmt="%Y-%m-%d %H:%M:%S"),
+    structlog.stdlib.PositionalArgumentsFormatter(),
+    structlog.processors.StackInfoRenderer(),
+    structlog.processors.format_exc_info,
+]
+
+LOG_LEVEL = os.getenv("LOG_LEVEL", "DEBUG")
+LOG_OUTPUT = os.getenv("LOG_OUTPUT", "colored")
+
+# Must be called like so due to the gunicorn config do not rename
+logconfig_dict = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "plain": {
+            "()": structlog.stdlib.ProcessorFormatter,
+            "processor": structlog.dev.ConsoleRenderer(colors=False),
+            "foreign_pre_chain": pre_chain,
+        },
+        "colored": {
+            "()": structlog.stdlib.ProcessorFormatter,
+            "processor": structlog.dev.ConsoleRenderer(colors=True),
+            "foreign_pre_chain": pre_chain,
+        },
+        "json": {
+            "()": structlog.stdlib.ProcessorFormatter,
+            "processor": structlog.processors.JSONRenderer(sort_keys=True),
+            "foreign_pre_chain": pre_chain,
+        },
+    },
+    "handlers": {
+        "default": {"class": "logging.StreamHandler", "formatter": LOG_OUTPUT},
+        "error_console": {"class": "logging.StreamHandler", "formatter": LOG_OUTPUT},
+        "console": {"class": "logging.StreamHandler", "formatter": LOG_OUTPUT},
+    },
+}
+
 
 def initialise_logging():
-    pre_chain = [
-        # Add the log level and a timestamp to the event_dict if the log entry
-        # is not from structlog.
-        structlog.stdlib.add_log_level,
-        structlog.stdlib.add_logger_name,
-        structlog.processors.TimeStamper(fmt="%Y-%m-%d %H:%M:%S"),
-        structlog.stdlib.PositionalArgumentsFormatter(),
-        structlog.processors.StackInfoRenderer(),
-        structlog.processors.format_exc_info,
-    ]
-
-    LOG_LEVEL = os.getenv("LOG_LEVEL", "DEBUG")
-    LOG_OUTPUT = os.getenv("LOG_OUTPUT", "colored")
-
-    # Must be called like so due to the gunicorn config do not rename
-    logconfig_dict = {
-        "version": 1,
-        "disable_existing_loggers": False,
-        "formatters": {
-            "plain": {
-                "()": structlog.stdlib.ProcessorFormatter,
-                "processor": structlog.dev.ConsoleRenderer(colors=False),
-                "foreign_pre_chain": pre_chain,
-            },
-            "colored": {
-                "()": structlog.stdlib.ProcessorFormatter,
-                "processor": structlog.dev.ConsoleRenderer(colors=True),
-                "foreign_pre_chain": pre_chain,
-            },
-            "json": {
-                "()": structlog.stdlib.ProcessorFormatter,
-                "processor": structlog.processors.JSONRenderer(sort_keys=True),
-                "foreign_pre_chain": pre_chain,
-            },
-        },
-        "handlers": {
-            "default": {"class": "logging.StreamHandler", "formatter": LOG_OUTPUT},
-            "error_console": {"class": "logging.StreamHandler", "formatter": LOG_OUTPUT},
-            "console": {"class": "logging.StreamHandler", "formatter": LOG_OUTPUT},
-        },
-    }
-
     logging.config.dictConfig(
         {"loggers": {"": {"handlers": ["default"], "level": f"{LOG_LEVEL}", "propagate": True}}, **logconfig_dict}
     )
