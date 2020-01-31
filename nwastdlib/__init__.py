@@ -15,7 +15,7 @@
 from nwastdlib.config import Config, get_config
 from nwastdlib.do import do
 from nwastdlib.either import Either
-from nwastdlib.f import *
+from nwastdlib.f import *  # noqa: F403
 from nwastdlib.maybe import Maybe
 
-# flake8: noqa
+__all__ = ["Config", "get_config", "do", "Either", "Maybe", "const", "identity", "pair", "unargs"]  # noqa: F405
