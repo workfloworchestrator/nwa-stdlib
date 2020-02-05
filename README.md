@@ -43,7 +43,7 @@ flake8 nwastdlib
 
 ## OAuth2
 
-The package oauth contains OAuth2 supporting functionality. For the usage see the integration tests or the 
+The package oauth contains OAuth2 supporting functionality. For the usage see the integration tests or the
 core-db and core-admin projects:
 
 * [Enable ResourceServer acces-token checks](https://gitlab.surfnet.nl/automation/coredb/blob/master/coredb/__main__.py)

@@ -52,21 +52,44 @@ logconfig_dict = {
             "foreign_pre_chain": pre_chain,
         },
     },
-    "handlers": {
-        "default": {"class": "logging.StreamHandler", "formatter": LOG_OUTPUT},
-        "error_console": {"class": "logging.StreamHandler", "formatter": LOG_OUTPUT},
-        "console": {"class": "logging.StreamHandler", "formatter": LOG_OUTPUT},
-    },
+    "handlers": {"default": {"class": "logging.StreamHandler", "formatter": LOG_OUTPUT},},
 }
 
 
-def initialise_logging(additional_logconfig_dict=None):
-    # if additional_logconfig_dict is None:
-    #     additional_logconfig_dict = {}
-    # logconfig_dict = {**logconfig_dict, **additional_logconfig_dict}
+def initialise_logging(additional_loggers=None):
+    """
+    Initialise the StructLog logging setup.
+
+    An example of the additional_loggers format:
+
+    additional_logging = {
+        "zeep.transports": {  # set to debug to see XML in loggging
+            "level": os.environ.get("ZEEP_TRANSPORT_LOGLEVEL", "INFO").upper(),
+            "propagate": True,
+            "handlers": ["default"],
+        },
+        "ims.ims_client": {  # set to debug to see more messages from IMS client
+            "level": os.environ.get("IMSCLIENT_LOGLEVEL", "INFO").upper(),
+            "propagate": False,
+            "handlers": ["default"],
+        },
+    }
+
+    Args:
+        additional_loggers: if you need additional loggers for specific log requirements of libraries you can add a
+        dict with the additional config.
+
+    """
+    if additional_loggers is None:
+        additional_loggers = {}
     logging.config.dictConfig(
-        {"loggers": {"": {"handlers": ["default"], "level": f"{LOG_LEVEL}", "propagate": True}}, **logconfig_dict,
-         **additional_logconfig_dict}
+        {
+            "loggers": {
+                "": {"handlers": ["default"], "level": f"{LOG_LEVEL}", "propagate": True},
+                **additional_loggers,
+            },
+            **logconfig_dict,
+        }
     )
 
     structlog.configure(

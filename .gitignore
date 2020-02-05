@@ -76,4 +76,3 @@ ENV/
 .pytest_cache/
 .mypy_cache/
 type_info.json
-
