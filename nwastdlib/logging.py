@@ -60,9 +60,13 @@ logconfig_dict = {
 }
 
 
-def initialise_logging():
+def initialise_logging(additional_logconfig_dict=None):
+    # if additional_logconfig_dict is None:
+    #     additional_logconfig_dict = {}
+    # logconfig_dict = {**logconfig_dict, **additional_logconfig_dict}
     logging.config.dictConfig(
-        {"loggers": {"": {"handlers": ["default"], "level": f"{LOG_LEVEL}", "propagate": True}}, **logconfig_dict}
+        {"loggers": {"": {"handlers": ["default"], "level": f"{LOG_LEVEL}", "propagate": True}}, **logconfig_dict,
+         **additional_logconfig_dict}
     )
 
     structlog.configure(
