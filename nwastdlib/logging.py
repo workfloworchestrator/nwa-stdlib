@@ -52,7 +52,7 @@ logconfig_dict = {
             "foreign_pre_chain": pre_chain,
         },
     },
-    "handlers": {"default": {"class": "logging.StreamHandler", "formatter": LOG_OUTPUT},},
+    "handlers": {"default": {"class": "logging.StreamHandler", "formatter": LOG_OUTPUT}},
 }
 
 
