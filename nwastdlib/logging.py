@@ -54,10 +54,10 @@ logconfig_dict = {
     },
     "handlers": {
         "default": {"class": "logging.StreamHandler", "formatter": LOG_OUTPUT},
-        # This stuff is needed by some gunicorn configuration, it is needed before logging is inited:
-        "console": {"class": "logging.StreamHandler", "level": "WARNING", "formatter": LOG_OUTPUT,},
-        "error_console": {"class": "logging.StreamHandler", "level": "WARNING", "formatter": LOG_OUTPUT,},
-        "gunicorn.error": {"class": "logging.StreamHandler", "level": "WARNING", "formatter": LOG_OUTPUT,},
+        # These handlers are needed by some gunicorn configurations, it is needed before logging is inited:
+        "console": {"class": "logging.StreamHandler", "level": "WARNING", "formatter": LOG_OUTPUT},
+        "error_console": {"class": "logging.StreamHandler", "level": "WARNING", "formatter": LOG_OUTPUT},
+        "gunicorn.error": {"class": "logging.StreamHandler", "level": "WARNING", "formatter": LOG_OUTPUT},
     },
 }
 
