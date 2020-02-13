@@ -52,7 +52,25 @@ logconfig_dict = {
             "foreign_pre_chain": pre_chain,
         },
     },
-    "handlers": {"default": {"class": "logging.StreamHandler", "formatter": LOG_OUTPUT}},
+    "handlers": {"default": {"class": "logging.StreamHandler", "formatter": LOG_OUTPUT},
+                 # This stuff is needed by some gunicorn configuration, it is needed before logging is inited:
+                 "console": {
+                     "class": "logging.StreamHandler",
+                     "level": "WARNING",
+                     "formatter": LOG_OUTPUT,
+                 },
+                 "error_console": {
+                     "class": "logging.StreamHandler",
+                     "level": "WARNING",
+                     "formatter": LOG_OUTPUT,
+                 },
+                 "gunicorn.error": {
+                     "class": "logging.StreamHandler",
+                     "level": "WARNING",
+                     "formatter": LOG_OUTPUT,
+                 }
+
+                 },
 }
 
 
@@ -82,6 +100,7 @@ def initialise_logging(additional_loggers=None):
     """
     if additional_loggers is None:
         additional_loggers = {}
+
     logging.config.dictConfig(
         {
             "loggers": {
