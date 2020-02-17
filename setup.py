@@ -25,7 +25,7 @@ class PyTest(TestCommand):
 
 setup(
     name="nwa-stdlib",
-    version="1.0.7",
+    version="1.0.9",
     packages=find_packages(),
     cmdclass={"test": PyTest},
     url="https://gitlab.surfnet.nl/automation/nwa-stdlib",
