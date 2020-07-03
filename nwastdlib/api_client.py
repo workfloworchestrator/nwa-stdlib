@@ -55,6 +55,7 @@ class ApiClientProxy:
         collection_formats=None,
         _preload_content=True,
         _request_timeout=None,
+        _request_auth=None,
     ):
         all_headers = {**self.request_headers, **header_params}
         return self.target.call_api(
@@ -73,6 +74,7 @@ class ApiClientProxy:
             collection_formats,
             _preload_content,
             _request_timeout,
+            _request_auth,
         )
 
     def __getattr__(self, name):
