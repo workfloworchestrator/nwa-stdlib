@@ -22,13 +22,13 @@ class TestObjectCache(unittest.TestCase):
         write_object(self.pool, key1, TEST_OBJECT_1, 300)
         self.assertTrue(self.redis.exists(key1))
 
-    @patch("nwastdlib.cache.request")
+    @patch("nwastdlib.cache.request", spec={})  # Spec because of https://github.com/testing-cabal/mock/issues/490
     def test_read_object(self, request):
         request.headers = {}
         obj = read_object(self.pool, "test_read_1")
         self.assertTupleEqual(obj, TEST_OBJECT_1)
 
-    @patch("nwastdlib.cache.request")
+    @patch("nwastdlib.cache.request", spec={})  # Spec because of https://github.com/testing-cabal/mock/issues/490
     def test_cached_result(self, request):
         request.headers = {}
 
@@ -44,7 +44,7 @@ class TestObjectCache(unittest.TestCase):
         self.assertTrue(ttl_lower_than_500)
         self.assertTupleEqual(read_object(self.pool, "test_func:myid"), test_func("myid"))
 
-    @patch("nwastdlib.cache.request")
+    @patch("nwastdlib.cache.request", spec={})  # Spec because of https://github.com/testing-cabal/mock/issues/490
     def test_cached_result_prefix(self, request):
         request.headers = {}
 
@@ -55,7 +55,7 @@ class TestObjectCache(unittest.TestCase):
         not_this_prefix()
         self.assertTrue(self.redis.exists("my_prefix"))
 
-    @patch("nwastdlib.cache.request")
+    @patch("nwastdlib.cache.request", spec={})  # Spec because of https://github.com/testing-cabal/mock/issues/490
     def test_cached_result_skipped_args(self, request):
         request.headers = {}
 
