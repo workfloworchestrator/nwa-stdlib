@@ -8,7 +8,7 @@ testing:
     script:
       - pip install -r requirements/test.txt
       - black . --check
-      - isort -rc -c
+      - isort -c .
       - flake8 .
       - mypy -p nwastdlib
       - pytest

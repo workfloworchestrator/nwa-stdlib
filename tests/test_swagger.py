@@ -1,8 +1,9 @@
 from itertools import dropwhile
 from pathlib import Path
 
-from nwastdlib.swagger import SwaggerFile
 from ruamel.yaml import YAML
+
+from nwastdlib.swagger import SwaggerFile
 
 tests_base_path = next(dropwhile(lambda p: p.name != "tests", Path(__file__).parents))
 

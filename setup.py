@@ -2,7 +2,7 @@ from setuptools import find_packages, setup
 
 setup(
     name="nwa-stdlib",
-    version="1.0.11",
+    version="1.0.12",
     packages=find_packages(),
     url="https://gitlab.surfnet.nl/automation/nwa-stdlib",
     classifiers=["License :: OSI Approved :: Apache2 License", "Programming Language :: Python :: 3.x"],
