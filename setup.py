@@ -2,7 +2,7 @@ from setuptools import find_packages, setup
 
 setup(
     name="nwa-stdlib",
-    version="1.0.11",
+    version="1.0.12",
     packages=find_packages(),
     url="https://gitlab.surfnet.nl/automation/nwa-stdlib",
     classifiers=["License :: OSI Approved :: Apache2 License", "Programming Language :: Python :: 3.x"],
@@ -15,7 +15,7 @@ setup(
         "requests>=2.19.0",
         "redis==3.5.3",
         "hiredis>=1.0.1",
-        "ruamel.yaml~=0.15.97",
+        "ruamel.yaml~=0.16.10",
         "structlog==20.1.0",
     ],
     tests_require=[

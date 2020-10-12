@@ -3,6 +3,7 @@ import unittest
 from unittest.mock import patch
 
 import fakeredis
+
 from nwastdlib import Either
 from nwastdlib.cache import cached_result, read_object, write_object
 
