@@ -13,6 +13,7 @@
 
 import logging.config
 import os
+from typing import Any, Dict, Optional
 
 import structlog
 from structlog.threadlocal import wrap_dict
@@ -62,7 +63,7 @@ logconfig_dict = {
 }
 
 
-def initialise_logging(additional_loggers=None):
+def initialise_logging(additional_loggers: Optional[Dict[str, Dict[str, Any]]] = None) -> None:
     """
     Initialise the StructLog logging setup.
 
