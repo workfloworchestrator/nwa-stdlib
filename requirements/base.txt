@@ -1,5 +1,3 @@
-Flask~=1.0.2
-hiredis~=1.0.1
-redis~=3.5.3
-requests~=2.19.1
-structlog~=20.1.0
+aioredis
+starlette
+structlog~=20.2.0

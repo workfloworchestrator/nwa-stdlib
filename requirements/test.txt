@@ -1,6 +1,5 @@
 -r base.txt
 black
-fakeredis
 flake8
 flake8-bandit
 flake8-bugbear
@@ -9,10 +8,9 @@ flake8-docstrings
 flake8-logging-format
 flake8-pep3101
 flake8-print
-Flask-Testing
 isort
 mypy
 mypy_extensions
 pytest
+pytest-asyncio
 requests-mock
-ruamel.yaml
