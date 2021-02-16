@@ -101,8 +101,8 @@ def initialise_logging(additional_loggers: Optional[Dict[str, Dict[str, Any]]] =
     )
 
     structlog.configure(
-        processors=pre_chain + [structlog.stdlib.ProcessorFormatter.wrap_for_formatter],
-        context_class=wrap_dict(dict),
+        processors=pre_chain + [structlog.stdlib.ProcessorFormatter.wrap_for_formatter],  # type: ignore
+        context_class=wrap_dict(dict),  # type: ignore
         logger_factory=structlog.stdlib.LoggerFactory(),
         wrapper_class=structlog.stdlib.BoundLogger,
         cache_logger_on_first_use=True,

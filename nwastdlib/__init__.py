@@ -11,11 +11,10 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 #
+"""The NWA-stdlib module."""
 
-from nwastdlib.config import Config, get_config
-from nwastdlib.do import do
-from nwastdlib.either import Either
-from nwastdlib.f import *  # noqa: F403
-from nwastdlib.maybe import Maybe
+__version__ = "1.0.0"
 
-__all__ = ["Config", "get_config", "do", "Either", "Maybe", "const", "identity", "pair", "unargs"]  # noqa: F405
+from nwastdlib.f import const, identity
+
+__all__ = ["const", "identity"]

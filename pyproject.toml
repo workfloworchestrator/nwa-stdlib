@@ -1,3 +1,64 @@
+[build-system]
+requires = ["flit"]
+build-backend = "flit.buildapi"
+
+[tool.flit.metadata]
+module = "nwastdlib"
+dist-name = "nwa-stdlib"
+author = "SURF"
+author-email = "automation-beheer@surf.nl"
+home-page = "https://github.com/workfloworchestrator/nwa-stdlib"
+classifiers = [
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: System Administrators",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python",
+    "Topic :: Internet",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Software Development",
+    "Typing :: Typed",
+    "Development Status :: 3 - Alpha",
+    "Environment :: Web Environment",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Telecommunications Industry",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+]
+requires = [
+    "structlog~=20.2.0"
+]
+description-file = "README.md"
+requires-python = ">3.6,<3.9"
+
+[tool.flit.metadata.urls]
+Documentation = "https://workfloworchestrator.org/"
+
+[tool.flit.metadata.requires-extra]
+test = [
+    "black",
+    "flake8",
+    "flake8-bandit",
+    "flake8-bugbear",
+    "flake8-comprehensions",
+    "flake8-docstrings",
+    "flake8-logging-format",
+    "flake8-pep3101",
+    "flake8-print",
+    "isort",
+    "mypy==0.790",
+    "mypy_extensions",
+    "pytest",
+]
+dev = [
+    "bumpversion",
+    "pre-commit",
+]
+
 [tool.isort]
 profile="black"
 line_length = 120
