@@ -30,7 +30,7 @@ jobs:
         black . --check
         isort -c .
         flake8 .
-        mypy -p nwastdlib
+        mypy .
     - name: Test with pytest
       run: |
         pytest
