@@ -1,5 +1,3 @@
-"""Module containing functions to deal with `Exception`s."""
-
 #  Copyright 2019 SURF.
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -14,23 +12,14 @@
 #  limitations under the License.
 #
 
-import random
-import string
+"""Module containing functions to deal with `Exception`s."""
+
+
 import traceback
+from typing import Optional
 
 
-def format_ex(ex, stacklimit=None):
-    """
-    Format an exception with a pseudo-random key and the shown exception.
-
-    Returns a tuple of the exception string and key.
-    """
-    key = "".join(random.choices(string.ascii_letters + string.digits, k=6))
-    s = show_ex(ex, stacklimit)
-    return key, "[{}] {}".format(key, s)
-
-
-def show_ex(ex, stacklimit=None):
+def show_ex(ex: Exception, stacklimit: Optional[int] = None) -> str:
     """
     Show an exception, including its class name, message and (limited) stacktrace.
 

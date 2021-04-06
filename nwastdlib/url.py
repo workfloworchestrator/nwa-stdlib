@@ -19,7 +19,8 @@ from urllib.parse import urlencode
 
 
 class URL(str):
-    """Helper class for conveniently constructing URLs.
+    r"""
+    Helper class for conveniently constructing URLs.
 
     To that end the `/` operator has been overloaded to append path elements. Similarly the `//` operator has
     been overloaded to easily add a query string to the URL.
@@ -31,12 +32,36 @@ class URL(str):
     URL instance leading to an improperly formatted URL.
 
     Example::
+            >>> base_url = URL("http://example.org/")
 
-            base_url = URL("http://example.org/")
-            api_url = base_url / "api"
-            url = api_url / "ip" / "address" // dict(version=4)
+            >>> str(base_url)
+            'http://example.org/'
+            >>> repr(base_url)
+            "URL('http://example.org/')"
 
-            print(url) -> http://example.org/api/ip/address?version=4
+            >>> base_url / "/api"  == base_url / "api"
+            True
+
+            >>> api_url = base_url / "api"
+            >>> str(api_url)
+            'http://example.org/api'
+
+            >>> url = api_url / "ip" / "address" // {"version": 4}
+            >>> str(url)
+            'http://example.org/api/ip/address?version=4'
+
+            >>> # paths don't need to be strings
+            >>> url = api_url / 1 / 2 / 3
+            >>> str(url)
+            'http://example.org/api/1/2/3'
+
+            >>> # query string properly url encoded?
+            >>> url = api_url // {"query": ' "%-.<>\\^_`{|}~'}
+            >>> str(url)
+            'http://example.org/api?query=+%22%25-.%3C%3E%5C%5E_%60%7B%7C%7D~'
+
+
+
     """
 
     def __truediv__(self, path: object) -> URL:
@@ -69,5 +94,5 @@ class URL(str):
         params = urlencode(query)
         return URL(self + f"?{params}")
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"URL('{self}')"
