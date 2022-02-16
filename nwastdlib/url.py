@@ -92,7 +92,7 @@ class URL(str):
 
         """
         params = urlencode(query)
-        return URL(self + f"?{params}")
+        return URL(f'{self}?{params}')
 
     def __repr__(self) -> str:
         return f"URL('{self}')"

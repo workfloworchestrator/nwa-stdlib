@@ -34,11 +34,10 @@ def __getattr__(name: str) -> Optional[str]:
     Returns: current GIT commit SHA if any.
 
     """
-    if name == "GIT_COMMIT_HASH":
-        try:
-            return check_output(["/usr/bin/env", "git", "rev-parse", "HEAD"]).decode().strip()  # noqa: S603
-        except Exception:
-            logger.exception("Could not get git commit hash")
-            return None
-    else:
+    if name != "GIT_COMMIT_HASH":
         raise AttributeError(name)
+    try:
+        return check_output(["/usr/bin/env", "git", "rev-parse", "HEAD"]).decode().strip()  # noqa: S603
+    except Exception:
+        logger.exception("Could not get git commit hash")
+        return None
