@@ -13,7 +13,7 @@
 
 import logging.config
 import os
-from typing import Any, Dict
+from typing import Any
 
 import structlog
 from structlog.threadlocal import wrap_dict
