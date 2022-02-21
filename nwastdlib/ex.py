@@ -17,6 +17,7 @@
 
 import traceback
 
+
 def show_ex(ex: Exception, stacklimit: int | None = None) -> str:
     """
     Show an exception, including its class name, message and (limited) stacktrace.

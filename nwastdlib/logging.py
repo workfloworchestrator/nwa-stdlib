@@ -63,7 +63,7 @@ logconfig_dict = {
 }
 
 
-def initialise_logging(additional_loggers: dict[str | dict[str, Any]] | None = None) -> None:
+def initialise_logging(additional_loggers: dict[str, dict[str, Any]] | None = None) -> None:
     """
     Initialise the StructLog logging setup.
 

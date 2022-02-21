@@ -12,6 +12,7 @@
 # limitations under the License.
 
 from subprocess import check_output  # noqa: S404
+
 import structlog
 
 logger = structlog.getLogger(__name__)
