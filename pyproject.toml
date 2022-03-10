@@ -25,22 +25,22 @@ classifiers = [
     "Intended Audience :: Telecommunications Industry",
     "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.6",
-    "Programming Language :: Python :: 3.7",
-    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
 ]
 requires = [
     "structlog~=20.2.0",
     "colorama~=0.4.3",
 ]
 description-file = "README.md"
-requires-python = ">3.6"
+requires-python = ">3.8"
 
 [tool.flit.metadata.urls]
 Documentation = "https://workfloworchestrator.org/"
 
 [tool.flit.metadata.requires-extra]
 test = [
+    "bandit==1.7.2",  # until new flake8-bandit release for https://github.com/tylerwince/flake8-bandit/issues/21
     "black",
     "flake8",
     "flake8-bandit",
