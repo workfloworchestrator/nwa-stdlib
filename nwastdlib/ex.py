@@ -16,10 +16,9 @@
 
 
 import traceback
-from typing import Optional
 
 
-def show_ex(ex: Exception, stacklimit: Optional[int] = None) -> str:
+def show_ex(ex: Exception, stacklimit: int | None = None) -> str:
     """
     Show an exception, including its class name, message and (limited) stacktrace.
 

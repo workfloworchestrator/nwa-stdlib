@@ -12,14 +12,13 @@
 # limitations under the License.
 
 from subprocess import check_output  # noqa: S404
-from typing import Optional
 
 import structlog
 
 logger = structlog.getLogger(__name__)
 
 
-def __getattr__(name: str) -> Optional[str]:
+def __getattr__(name: str) -> str | None:
     """
     Return the GIT_COMMIT_HASH.
 
@@ -34,11 +33,10 @@ def __getattr__(name: str) -> Optional[str]:
     Returns: current GIT commit SHA if any.
 
     """
-    if name == "GIT_COMMIT_HASH":
-        try:
-            return check_output(["/usr/bin/env", "git", "rev-parse", "HEAD"]).decode().strip()  # noqa: S603
-        except Exception:
-            logger.exception("Could not get git commit hash")
-            return None
-    else:
+    if name != "GIT_COMMIT_HASH":
         raise AttributeError(name)
+    try:
+        return check_output(["/usr/bin/env", "git", "rev-parse", "HEAD"]).decode().strip()  # noqa: S603
+    except Exception:
+        logger.exception("Could not get git commit hash")
+        return None

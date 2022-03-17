@@ -25,16 +25,14 @@ classifiers = [
     "Intended Audience :: Telecommunications Industry",
     "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.6",
-    "Programming Language :: Python :: 3.7",
-    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.10",
 ]
 requires = [
     "structlog~=20.2.0",
     "colorama~=0.4.3",
 ]
 description-file = "README.md"
-requires-python = ">3.6"
+requires-python = ">3.9"
 
 [tool.flit.metadata.urls]
 Documentation = "https://workfloworchestrator.org/"
@@ -67,7 +65,7 @@ skip = ["src", "venv"]
 
 [tool.black]
 line-length = 120
-target-version = ["py39"]
+target-version = ["py310"]
 exclude = '''
 (
   /(
@@ -85,4 +83,4 @@ exclude = '''
 '''
 
 [tool.nitpick]
-style="github://workfloworchestrator/nitpick-style@main/nitpick-style.toml"
+style="github://workfloworchestrator/nitpick-style@1335-upgrade-to-python3.10/nitpick-style-fastapi.toml"
