@@ -83,4 +83,4 @@ exclude = '''
 '''
 
 [tool.nitpick]
-style="github://workfloworchestrator/nitpick-style@1335-upgrade-to-python3.10/nitpick-style-fastapi.toml"
+style = "github://workfloworchestrator/nitpick-style@main/nitpick-style-fastapi.toml"
