@@ -16,9 +16,9 @@ import os
 from typing import Any
 
 import structlog
-from structlog.threadlocal import wrap_dict
 
 pre_chain = [
+    structlog.contextvars.merge_contextvars,
     # Add the log level and a timestamp to the event_dict if the log entry
     # is not from structlog.
     structlog.stdlib.add_log_level,
@@ -102,8 +102,19 @@ def initialise_logging(additional_loggers: dict[str, dict[str, Any]] | None = No
 
     structlog.configure(
         processors=pre_chain + [structlog.stdlib.ProcessorFormatter.wrap_for_formatter],  # type: ignore
-        context_class=wrap_dict(dict),  # type: ignore
         logger_factory=structlog.stdlib.LoggerFactory(),
         wrapper_class=structlog.stdlib.BoundLogger,
         cache_logger_on_first_use=True,
     )
+
+
+class ClearStructlogContextASGIMiddleware:
+    """ASGI Style middleware for clearing structlog contextvars."""
+
+    def __init__(self, app):  # type: ignore
+        """Store app."""
+        self.app = app
+
+    async def __call__(self, scope, receive, send):  # type: ignore
+        structlog.contextvars.clear_contextvars()
+        await self.app(scope, receive, send)
