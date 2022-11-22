@@ -12,7 +12,7 @@ pip install flit
 ```
 And then run the following commands:
 
-If you want to enhance of develop bug fixes for `nwastdlib` it's easiest to run the following commands:
+If you want to enhance or develop bug fixes for `nwastdlib` it's easiest to run the following commands:
 ```bash
 flit install --deps develop --symlink
 ```
