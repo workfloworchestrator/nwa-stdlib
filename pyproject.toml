@@ -39,6 +39,7 @@ Documentation = "https://workfloworchestrator.org/"
 
 [tool.flit.metadata.requires-extra]
 test = [
+    "anyio",
     "black",
     "flake8",
     "flake8-bandit",
@@ -52,6 +53,7 @@ test = [
     "mypy",
     "mypy_extensions",
     "pytest",
+    "pytest-asyncio",
 ]
 dev = [
     "bumpversion",
