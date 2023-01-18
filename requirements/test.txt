@@ -17,5 +17,6 @@ isort
 mypy
 mypy_extensions
 pytest
+pytest-aiohttp
 pytest-cov
 pytest-xdist
