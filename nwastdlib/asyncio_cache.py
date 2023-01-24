@@ -13,7 +13,8 @@
 #
 import hashlib
 import hmac
-import pickle
+import pickle  # noqa S403
+import sys
 from functools import wraps
 from typing import Any, Callable
 
@@ -23,23 +24,32 @@ from redis.asyncio import Redis as AIORedis
 logger = structlog.get_logger(__name__)
 
 
-def get_hmac_checksum(secret, message):
-    # Todo: check if the current secret is good enough for sha512, it might be better to use a new SECRET just for this
+def deserialize(data: Any) -> Any:
+    return pickle.loads(data)  # noqa S403
+
+
+def serialize(data: Any) -> Any:
+    return pickle.dumps(data)  # noqa S403
+
+
+def get_hmac_checksum(secret: str, message: bytearray) -> str:
     h = hmac.new(secret.encode(), message, hashlib.sha512)
     return h.hexdigest()
 
 
-async def set_signed_cache_value(pool: AIORedis, secret: str, cache_key: str, value: Any, expiry: int):
-    pickled_value = pickle.dumps(value)
+async def set_signed_cache_value(pool: AIORedis, secret: str, cache_key: str, value: Any, expiry_seconds: int) -> None:
+    pickled_value = serialize(value)
     checksum = get_hmac_checksum(secret, pickled_value)
     pipeline = pool.pipeline()
-    pipeline.setex(cache_key, expiry, pickle.dumps(value)).setex(f"{cache_key}-checksum", expiry, checksum.encode())
+    pipeline.setex(cache_key, expiry_seconds, pickle.dumps(value)).setex(
+        f"{cache_key}-checksum", expiry_seconds, checksum.encode()
+    )
     result1, result2 = await pipeline.execute()
     if not result1 or not result2:
         logger.warning("Cache not set", cache_key=cache_key, value_ok=result1, checksum_ok=result2)
 
 
-async def get_signed_cache_value(pool: AIORedis, secret: str, cache_key: str):
+async def get_signed_cache_value(pool: AIORedis, secret: str, cache_key: str) -> Any:
     pipeline = pool.pipeline()
     pipeline.get(cache_key).get(f"{cache_key}-checksum")
     pickled_value, cache_checksum = await pipeline.execute()
@@ -55,10 +65,19 @@ async def get_signed_cache_value(pool: AIORedis, secret: str, cache_key: str):
         )
         return None
 
-    return pickle.loads(pickled_value)
+    try:
+        data = deserialize(pickled_value)
+    except Exception as e:
+        logger.error(
+            "Cache deserialization failed, returning None, so cache will be overwritten with a new value", error=e
+        )
+        return None
+    return data
 
 
-def cached_result(pool: AIORedis, prefix: str, secret: str, key_name: str | None, expiry: int = 120) -> Callable:
+def cached_result(
+    pool: AIORedis, prefix: str, secret: str, key_name: str | None = None, expiry_seconds: int = 120
+) -> Callable:
     """Pass returned result objects from a function call into redis.
 
     Returns a decorator function that will cache every result of a function to redis. This only works
@@ -66,7 +85,6 @@ def cached_result(pool: AIORedis, prefix: str, secret: str, key_name: str | None
     python pickle library.
 
     Example:
-        Todo: switch to cPickle?
         Decorate a suitable function with all the default settings like this:::
             @cached_result(pool, "your_app_name", "SECRET_KEY_FOR_HMAC_CHECKSUM")
             def my_cached_function(uuid_arg, string_arg, int_kwarg=1):
@@ -81,7 +99,7 @@ def cached_result(pool: AIORedis, prefix: str, secret: str, key_name: str | None
         secret: used to generate a checksum too ensure cache tampering is not possible.
         prefix: Prefix for the cache keys generated.
         key_name: When specified the total redis key_name will be "prefix:key_name".
-        expiry: expiration in seconds. Defaults to two minutes (120s).
+        expiry_seconds: expiration in seconds. Defaults to two minutes (120s).
 
     Returns:
         decorator function
@@ -89,81 +107,28 @@ def cached_result(pool: AIORedis, prefix: str, secret: str, key_name: str | None
     """
 
     def cache_decorator(func: Callable) -> Callable:
-
-        # Todo: write a sync implementation?
-
         @wraps(func)
-        async def func_wrapper(*args, **kwargs):
+        async def func_wrapper(*args: tuple[Any], **kwargs: dict[str, Any]) -> Callable:
+            python_major, python_minor = sys.version_info[:2]
             if key_name:
-                cache_key = f"{prefix}:{key_name}"
+                cache_key = f"{prefix}:{python_major}.{python_minor}:{key_name}"
             else:
                 # Auto generate a cache key name based on function_name and a hash of the arguments
                 # Note: this makes no attempt to handle non-hashable values like lists and sets or other complex objects
-                # Todo: log/warning about key problems for unsupported kwargs argument types?
-                kwd_mark = object()  # sentinel for separating args from kwargs
-                cache_key = f"{prefix}:" + args + (kwd_mark,) + tuple(sorted(kwargs.items()))
+                args_and_kwargs_string = (args, frozenset(kwargs.items()))
+                cache_key = f"{prefix}:{python_major}.{python_minor}:{func.__name__}{args_and_kwargs_string}"
+                logger.info("CACHE KEY", cache_key=cache_key)
 
-            logger.debug(f"Cache called with wrapper func: {func.__name__}", cache_key=cache_key)
+            logger.debug("Cache called with wrapper func", func_name=func.__name__, cache_key=cache_key)
             if (cached_val := await get_signed_cache_value(pool, secret, cache_key)) is not None:
                 logger.info("Cache contains key, serving from cache", cache_key=cache_key)
                 return cached_val
 
             logger.info("Cache doesn't contain key, calling real function", cache_key=cache_key)
             result = await func(*args, **kwargs)
-            await set_signed_cache_value(pool, secret, cache_key, result, expiry)
+            await set_signed_cache_value(pool, secret, cache_key, result, expiry_seconds)
             return result
 
         return func_wrapper
 
     return cache_decorator
-
-
-# def cached_json_endpoint(pool: Any = None, expiry: int = 3600) -> Callable:
-#     """Handle cache for flask json_endpoints."""
-#
-#     def cache_decorator(func: Callable) -> Callable:
-#         @wraps(func)
-#         def func_wrapper(*args, **kwargs):
-#             nonlocal pool, expiry
-#             if pool is None:
-#                 if has_app_context() and hasattr(current_app, "cache"):
-#                     pool = current_app.cache
-#                 else:
-#                     return func(*args, **kwargs)
-#
-#             if pool.isleft():
-#                 logger.error(pool.value.message)
-#                 body, status = func(*args, **kwargs)
-#                 return make_response(jsonify(body), status)
-#
-#             cache_key = request.full_path
-#
-#             if request.headers.get("nwa-stdlib-no-cache"):
-#                 logger.info(
-#                     "@cached_json_endpoint %s nwa-stdlib-no-cache header detected for %s", func.__name__, cache_key
-#                 )
-#                 result = None
-#             else:
-#                 result = pool.either(const(None), lambda p: p.get(cache_key))
-#
-#             if result:
-#                 logger.info("@cached_json_endpoint %s cache hit on %s", func.__name__, cache_key)
-#                 response = make_response(result, 200)
-#                 response.mimetype = "application/json"
-#                 return response
-#             else:
-#                 logger.info("@cached_json_endpoint %s cache miss on %s", func.__name__, cache_key)
-#                 body, status = func(*args, **kwargs)
-#                 logger.info("@cached_json_endpoint %s status is %s", func.__name__, status)
-#                 result = jsonify(body)
-#                 if status == 200:
-#                     cache_success = pool.either(const(False), lambda p: p.set(cache_key, result.get_data(), ex=expiry))
-#                     if cache_success:
-#                         logger.info("@cached_json_endpoint %s set success: %s", func.__name__, cache_key)
-#                     else:
-#                         logger.info("@cached_json_endpoint %s set failed: %s", func.__name__, cache_key)
-#                 return make_response(result, status)
-#
-#         return func_wrapper
-#
-#     return cache_decorator
