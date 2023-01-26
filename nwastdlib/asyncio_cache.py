@@ -108,7 +108,7 @@ def cached_result(
 
     def cache_decorator(func: Callable) -> Callable:
         @wraps(func)
-        async def func_wrapper(*args: tuple[Any], **kwargs: dict[str, Any]) -> Callable:
+        async def func_wrapper(*args: tuple[Any], **kwargs: dict[str, Any]):
             python_major, python_minor = sys.version_info[:2]
             if key_name:
                 cache_key = f"{prefix}:{python_major}.{python_minor}:{key_name}"
