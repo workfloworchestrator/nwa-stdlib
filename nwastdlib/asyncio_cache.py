@@ -24,6 +24,22 @@ from redis.asyncio import Redis as AIORedis
 logger = structlog.get_logger(__name__)
 
 
+class SerializerInterface:
+    def deserialize(self, data: Any) -> Any:
+        pass
+
+    def serialize(self, data: Any) -> Any:
+        pass
+
+
+class DefaultSerializer(SerializerInterface):
+    def deserialize(self, data: Any) -> Any:
+        return pickle.loads(data)  # noqa S403
+
+    def serialize(self, data: Any) -> Any:
+        return pickle.dumps(data)  # noqa S403
+
+
 def deserialize(data: Any) -> Any:
     return pickle.loads(data)  # noqa S403
 
@@ -76,7 +92,7 @@ async def get_signed_cache_value(pool: AIORedis, secret: str, cache_key: str) ->
 
 
 def cached_result(
-    pool: AIORedis, prefix: str, secret: str, key_name: str | None = None, expiry_seconds: int = 120
+    pool: AIORedis, prefix: str, secret: str, key_name: str | None = None, expiry_seconds: int = 120, serializer: SerializerInterface = DefaultSerializer
 ) -> Callable:
     """Pass returned result objects from a function call into redis.
 
