@@ -15,6 +15,7 @@ import hashlib
 import hmac
 import pickle  # noqa S403
 import sys
+from abc import abstractmethod
 from functools import wraps
 from typing import Any, Callable
 
@@ -25,18 +26,23 @@ logger = structlog.get_logger(__name__)
 
 
 class SerializerInterface:
-    def deserialize(self, data: Any) -> Any:
+
+    @classmethod
+    @abstractmethod
+    def deserialize(data: Any) -> Any:
         pass
 
-    def serialize(self, data: Any) -> Any:
+    @classmethod
+    @abstractmethod
+    def serialize(data: Any) -> Any:
         pass
 
 
 class DefaultSerializer(SerializerInterface):
-    def deserialize(self, data: Any) -> Any:
+    def deserialize(data: Any) -> Any:
         return pickle.loads(data)  # noqa S403
 
-    def serialize(self, data: Any) -> Any:
+    def serialize(data: Any) -> Any:
         return pickle.dumps(data)  # noqa S403
 
 
@@ -53,11 +59,11 @@ def get_hmac_checksum(secret: str, message: bytearray) -> str:
     return h.hexdigest()
 
 
-async def set_signed_cache_value(pool: AIORedis, secret: str, cache_key: str, value: Any, expiry_seconds: int) -> None:
-    pickled_value = serialize(value)
+async def set_signed_cache_value(pool: AIORedis, secret: str, cache_key: str, value: Any, expiry_seconds: int, serializer: SerializerInterface) -> None:
+    pickled_value = serializer.serialize(value)
     checksum = get_hmac_checksum(secret, pickled_value)
     pipeline = pool.pipeline()
-    pipeline.setex(cache_key, expiry_seconds, pickle.dumps(value)).setex(
+    pipeline.setex(cache_key, expiry_seconds, pickled_value).setex(
         f"{cache_key}-checksum", expiry_seconds, checksum.encode()
     )
     result1, result2 = await pipeline.execute()
@@ -65,7 +71,7 @@ async def set_signed_cache_value(pool: AIORedis, secret: str, cache_key: str, va
         logger.warning("Cache not set", cache_key=cache_key, value_ok=result1, checksum_ok=result2)
 
 
-async def get_signed_cache_value(pool: AIORedis, secret: str, cache_key: str) -> Any:
+async def get_signed_cache_value(pool: AIORedis, secret: str, cache_key: str, serializer: SerializerInterface) -> Any:
     pipeline = pool.pipeline()
     pipeline.get(cache_key).get(f"{cache_key}-checksum")
     pickled_value, cache_checksum = await pipeline.execute()
@@ -82,7 +88,7 @@ async def get_signed_cache_value(pool: AIORedis, secret: str, cache_key: str) ->
         return None
 
     try:
-        data = deserialize(pickled_value)
+        data = serializer.deserialize(pickled_value)
     except Exception as e:
         logger.error(
             "Cache deserialization failed, returning None, so cache will be overwritten with a new value", error=e
@@ -136,13 +142,13 @@ def cached_result(
                 logger.info("CACHE KEY", cache_key=cache_key)
 
             logger.debug("Cache called with wrapper func", func_name=func.__name__, cache_key=cache_key)
-            if (cached_val := await get_signed_cache_value(pool, secret, cache_key)) is not None:
+            if (cached_val := await get_signed_cache_value(pool, secret, cache_key, serializer)) is not None:
                 logger.info("Cache contains key, serving from cache", cache_key=cache_key)
                 return cached_val
 
             logger.info("Cache doesn't contain key, calling real function", cache_key=cache_key)
             result = await func(*args, **kwargs)
-            await set_signed_cache_value(pool, secret, cache_key, result, expiry_seconds)
+            await set_signed_cache_value(pool, secret, cache_key, result, expiry_seconds, serializer)
             return result
 
         return func_wrapper
