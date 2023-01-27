@@ -26,37 +26,52 @@ logger = structlog.get_logger(__name__)
 
 
 class SerializerInterface:
-
-    @classmethod
+    @staticmethod
     @abstractmethod
     def deserialize(data: Any) -> Any:
         pass
 
-    @classmethod
+    @staticmethod
     @abstractmethod
     def serialize(data: Any) -> Any:
         pass
 
 
 class DefaultSerializer(SerializerInterface):
+    @staticmethod
     def deserialize(data: Any) -> Any:
         return pickle.loads(data)  # noqa S403
 
+    @staticmethod
     def serialize(data: Any) -> Any:
         return pickle.dumps(data)  # noqa S403
 
 
-def deserialize(data: Any) -> Any:
-    return pickle.loads(data)  # noqa S403
+def _deserialize(data, serializer: SerializerInterface):
+    try:
+        data = serializer.deserialize(data)
+    except Exception as e:
+        logger.error(
+            "Cache deserialization failed, returning None, so cache will be overwritten with a new value", error=e
+        )
+        return None
+    return data
 
 
-def serialize(data: Any) -> Any:
-    return pickle.dumps(data)  # noqa S403
-
-
-def get_hmac_checksum(secret: str, message: bytearray) -> str:
+def get_hmac_checksum(secret: str, message: bytearray | str) -> str:
+    if isinstance(message, str):
+        message = message.encode()
     h = hmac.new(secret.encode(), message, hashlib.sha512)
     return h.hexdigest()
+
+
+async def set_cache_value(pool: AIORedis, cache_key: str, value: Any, expiry_seconds: int, serializer: SerializerInterface):
+    await pool.setex(cache_key, expiry_seconds, serializer.serialize(value))
+
+
+async def get_cache_value(pool: AIORedis, cache_key: str, serializer: SerializerInterface):
+    serialized_value = await pool.get(cache_key)
+    return _deserialize(serialized_value, serializer)
 
 
 async def set_signed_cache_value(pool: AIORedis, secret: str, cache_key: str, value: Any, expiry_seconds: int, serializer: SerializerInterface) -> None:
@@ -86,25 +101,25 @@ async def get_signed_cache_value(pool: AIORedis, secret: str, cache_key: str, se
             recalculated_checksum=checksum,
         )
         return None
-
-    try:
-        data = serializer.deserialize(pickled_value)
-    except Exception as e:
-        logger.error(
-            "Cache deserialization failed, returning None, so cache will be overwritten with a new value", error=e
-        )
-        return None
-    return data
+    return _deserialize(pickled_value, serializer)
 
 
 def cached_result(
-    pool: AIORedis, prefix: str, secret: str, key_name: str | None = None, expiry_seconds: int = 120, serializer: SerializerInterface = DefaultSerializer
+    pool: AIORedis, prefix: str, secret: str | None, key_name: str | None = None, expiry_seconds: int = 120, serializer: SerializerInterface = DefaultSerializer
 ) -> Callable:
     """Pass returned result objects from a function call into redis.
 
     Returns a decorator function that will cache every result of a function to redis. This only works
     for functions with string, int or UUID arguments and result objects that can be serialized by the
-    python pickle library.
+    python pickle library. When you provide a `secret` a second key will be stored, containing a checksum.
+    That adds another layer of security to prevent malicious code from being executed when trying yo unpickle
+    data that an attacker may have tampered with in Redis.
+
+    When the result can be serialized to JSON, and you're using a fast JSON library, like `orjson` you should
+    provide your own serializer. In that case you can also disable the hmac signing by providing `secret=None`.
+
+    Note: Serialization errors will raise an Exception but deserialization will fail silently with only a logged error.
+
 
     Example:
         Decorate a suitable function with all the default settings like this:::
@@ -113,15 +128,16 @@ def cached_result(
                 return do_stuff(uuid_arg, string_arg, kwarg)
 
         The first call is cached and reused for 120s. If the defaults are inadequate use:::
-            @cached_result(pool, "your_app_name", "SECRET_KEY_FOR_HMAC_CHECKSUM", "desired_cache_key_name", 120)
+            @cached_result(pool, "your_app_name", "SECRET_KEY_FOR_HMAC_CHECKSUM", "desired_cache_key_name", 1800)
             def my_other_function...
 
     Args:
         pool: A async redis cache pool.
-        secret: used to generate a checksum too ensure cache tampering is not possible.
+        secret: used to generate a checksum too ensure cache tampering is not possible. Set to `None` to disable.
         prefix: Prefix for the cache keys generated.
         key_name: When specified the total redis key_name will be "prefix:key_name".
         expiry_seconds: expiration in seconds. Defaults to two minutes (120s).
+        serializer: Provide your own Serializer class or use the default pickle.
 
     Returns:
         decorator function
@@ -142,13 +158,21 @@ def cached_result(
                 logger.info("CACHE KEY", cache_key=cache_key)
 
             logger.debug("Cache called with wrapper func", func_name=func.__name__, cache_key=cache_key)
-            if (cached_val := await get_signed_cache_value(pool, secret, cache_key, serializer)) is not None:
-                logger.info("Cache contains key, serving from cache", cache_key=cache_key)
-                return cached_val
+            if secret:
+                if (cached_val := await get_signed_cache_value(pool, secret, cache_key, serializer)) is not None:
+                    logger.info("Cache contains secure key, serving from cache", cache_key=cache_key)
+                    return cached_val
+            else:
+                if (cached_val := await get_cache_value(pool, cache_key, serializer)) is not None:
+                    logger.info("Cache contains key, serving from cache", cache_key=cache_key)
+                    return cached_val
 
             logger.info("Cache doesn't contain key, calling real function", cache_key=cache_key)
             result = await func(*args, **kwargs)
-            await set_signed_cache_value(pool, secret, cache_key, result, expiry_seconds, serializer)
+            if secret:
+                await set_signed_cache_value(pool, secret, cache_key, result, expiry_seconds, serializer)
+            else:
+                await set_cache_value(pool, cache_key, result, expiry_seconds, serializer)
             return result
 
         return func_wrapper

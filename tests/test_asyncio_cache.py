@@ -1,11 +1,23 @@
+import json
 import sys
+from copy import copy
 
 from fakeredis.aioredis import FakeRedis
 
-from nwastdlib.asyncio_cache import cached_result
+from nwastdlib.asyncio_cache import cached_result, SerializerInterface
 
 
-async def test_cache_decorator_with_predefined_key(caplog):
+class JsonSerializer(SerializerInterface):
+    @staticmethod
+    def deserialize(data):
+        return json.loads(data)
+
+    @staticmethod
+    def serialize(data):
+        return json.dumps(data)
+
+
+async def test_cache_decorator_with_predefined_key():
     redis = FakeRedis()
     value = 0
 
@@ -116,3 +128,42 @@ async def test_cache_decorator_wrong_data():
     # A new call should return 1: due to the checksum error the function is called again
     result = await slow_function()
     assert result == 1
+
+
+async def test_cache_decorator_without_hmac():
+    redis = FakeRedis()
+    value = 0
+
+    @cached_result(redis, "test-suite", None, "keyname")
+    async def slow_function():
+        return value
+
+    result = await slow_function()
+    assert result == 0
+
+    # change the value so we can verify that the function was not called
+    value = 1
+
+    # A new call should still serve 0: as it is cached now
+    result = await slow_function()
+    assert result == 0
+
+
+async def test_cache_decorator_with_json_serializer():
+    redis = FakeRedis()
+    original_value = {"a": 1, "b": {"c": "string"}, "c": [1, 2, 3]}
+    value = copy(original_value)
+
+    @cached_result(redis, "test-suite", None, "keyname", 10, JsonSerializer)
+    async def slow_function():
+        return value
+
+    result = await slow_function()
+    assert result == original_value
+
+    # change the value so we can verify that the function was not called
+    value = {"a": 1}
+    #
+    # # A new call should still serve 0: as it is cached now
+    result = await slow_function()
+    assert result == original_value
