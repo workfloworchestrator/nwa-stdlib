@@ -47,7 +47,7 @@ class DefaultSerializer(SerializerInterface):
         return pickle.dumps(data)  # noqa S403
 
 
-def _deserialize(data, serializer: SerializerInterface):
+def _deserialize(data: Any, serializer: SerializerInterface) -> Any:
     try:
         data = serializer.deserialize(data)
     except Exception as e:
@@ -58,23 +58,27 @@ def _deserialize(data, serializer: SerializerInterface):
     return data
 
 
-def get_hmac_checksum(secret: str, message: bytearray | str) -> str:
+def get_hmac_checksum(secret: str, message: bytes | bytearray | str) -> str:
     if isinstance(message, str):
         message = message.encode()
     h = hmac.new(secret.encode(), message, hashlib.sha512)
     return h.hexdigest()
 
 
-async def set_cache_value(pool: AIORedis, cache_key: str, value: Any, expiry_seconds: int, serializer: SerializerInterface):
+async def set_cache_value(
+    pool: AIORedis, cache_key: str, value: Any, expiry_seconds: int, serializer: SerializerInterface
+) -> None:
     await pool.setex(cache_key, expiry_seconds, serializer.serialize(value))
 
 
-async def get_cache_value(pool: AIORedis, cache_key: str, serializer: SerializerInterface):
+async def get_cache_value(pool: AIORedis, cache_key: str, serializer: SerializerInterface) -> Any:
     serialized_value = await pool.get(cache_key)
     return _deserialize(serialized_value, serializer)
 
 
-async def set_signed_cache_value(pool: AIORedis, secret: str, cache_key: str, value: Any, expiry_seconds: int, serializer: SerializerInterface) -> None:
+async def set_signed_cache_value(
+    pool: AIORedis, secret: str, cache_key: str, value: Any, expiry_seconds: int, serializer: SerializerInterface
+) -> None:
     pickled_value = serializer.serialize(value)
     checksum = get_hmac_checksum(secret, pickled_value)
     pipeline = pool.pipeline()
@@ -105,7 +109,12 @@ async def get_signed_cache_value(pool: AIORedis, secret: str, cache_key: str, se
 
 
 def cached_result(
-    pool: AIORedis, prefix: str, secret: str | None, key_name: str | None = None, expiry_seconds: int = 120, serializer: SerializerInterface = DefaultSerializer
+    pool: AIORedis,
+    prefix: str,
+    secret: str | None,
+    key_name: str | None = None,
+    expiry_seconds: int = 120,
+    serializer: SerializerInterface = DefaultSerializer,  # type: ignore
 ) -> Callable:
     """Pass returned result objects from a function call into redis.
 
@@ -146,7 +155,7 @@ def cached_result(
 
     def cache_decorator(func: Callable) -> Callable:
         @wraps(func)
-        async def func_wrapper(*args: tuple[Any], **kwargs: dict[str, Any]):
+        async def func_wrapper(*args: tuple[Any], **kwargs: dict[str, Any]) -> Any:
             python_major, python_minor = sys.version_info[:2]
             if key_name:
                 cache_key = f"{prefix}:{python_major}.{python_minor}:{key_name}"
