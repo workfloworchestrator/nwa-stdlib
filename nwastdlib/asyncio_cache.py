@@ -26,6 +26,8 @@ logger = structlog.get_logger(__name__)
 
 
 class SerializerInterface:
+    """Abstract base class to specifies how to build yur own serializer."""
+
     @staticmethod
     @abstractmethod
     def deserialize(data: Any) -> Any:
@@ -38,6 +40,8 @@ class SerializerInterface:
 
 
 class DefaultSerializer(SerializerInterface):
+    """Implementation of the default serializer that uses pickle."""
+
     @staticmethod
     def deserialize(data: Any) -> Any:
         return pickle.loads(data)  # noqa S403

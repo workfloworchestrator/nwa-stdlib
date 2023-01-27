@@ -8,6 +8,8 @@ from nwastdlib.asyncio_cache import SerializerInterface, cached_result
 
 
 class JsonSerializer(SerializerInterface):
+    """A class that implements a simple JSON serializer/deserializer."""
+
     @staticmethod
     def deserialize(data):
         return json.loads(data)
