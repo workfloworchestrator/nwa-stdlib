@@ -5,10 +5,10 @@ try:
 except Exception as e:
     print(f"You'll need orjson to execute this. Error: {e}")  # noqa: T201
 import logging
-import structlog
 
+import structlog
 from redis.asyncio import Redis as AIORedis
-from shared import timeit, get_big_dict, REPEAT
+from shared import REPEAT, get_big_dict, timeit
 
 from nwastdlib.asyncio_cache import cached_result
 
