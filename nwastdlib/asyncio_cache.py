@@ -15,9 +15,8 @@ import hashlib
 import hmac
 import pickle  # noqa S403
 import sys
-from abc import abstractmethod
 from functools import wraps
-from typing import Any, Callable
+from typing import Any, Callable, Protocol, runtime_checkable
 
 import structlog
 from redis.asyncio import Redis as AIORedis
@@ -25,22 +24,21 @@ from redis.asyncio import Redis as AIORedis
 logger = structlog.get_logger(__name__)
 
 
-class SerializerInterface:
+@runtime_checkable
+class SerializerProtocol(Protocol):
     """Abstract base class to specifies how to build yur own serializer."""
 
     @staticmethod
-    @abstractmethod
     def deserialize(data: Any) -> Any:
-        pass
+        ...
 
     @staticmethod
-    @abstractmethod
     def serialize(data: Any) -> Any:
-        pass
+        ...
 
 
-class DefaultSerializer(SerializerInterface):
-    """Implementation of the default serializer that uses pickle."""
+class DefaultSerializer:
+    """Implementation of the default protocol that uses pickle."""
 
     @staticmethod
     def deserialize(data: Any) -> Any:
@@ -51,7 +49,7 @@ class DefaultSerializer(SerializerInterface):
         return pickle.dumps(data)  # noqa S403
 
 
-def _deserialize(data: Any, serializer: SerializerInterface) -> Any:
+def _deserialize(data: Any, serializer: SerializerProtocol) -> Any:
     try:
         data = serializer.deserialize(data)
     except Exception as e:
@@ -70,18 +68,18 @@ def get_hmac_checksum(secret: str, message: bytes | bytearray | str) -> str:
 
 
 async def set_cache_value(
-    pool: AIORedis, cache_key: str, value: Any, expiry_seconds: int, serializer: SerializerInterface
+    pool: AIORedis, cache_key: str, value: Any, expiry_seconds: int, serializer: SerializerProtocol
 ) -> None:
     await pool.setex(cache_key, expiry_seconds, serializer.serialize(value))
 
 
-async def get_cache_value(pool: AIORedis, cache_key: str, serializer: SerializerInterface) -> Any:
+async def get_cache_value(pool: AIORedis, cache_key: str, serializer: SerializerProtocol) -> Any:
     serialized_value = await pool.get(cache_key)
     return _deserialize(serialized_value, serializer)
 
 
 async def set_signed_cache_value(
-    pool: AIORedis, secret: str, cache_key: str, value: Any, expiry_seconds: int, serializer: SerializerInterface
+    pool: AIORedis, secret: str, cache_key: str, value: Any, expiry_seconds: int, serializer: SerializerProtocol
 ) -> None:
     pickled_value = serializer.serialize(value)
     checksum = get_hmac_checksum(secret, pickled_value)
@@ -89,12 +87,14 @@ async def set_signed_cache_value(
     pipeline.setex(cache_key, expiry_seconds, pickled_value).setex(
         f"{cache_key}-checksum", expiry_seconds, checksum.encode()
     )
-    result1, result2 = await pipeline.execute()
-    if not result1 or not result2:
-        logger.warning("Cache not set", cache_key=cache_key, value_ok=result1, checksum_ok=result2)
+    result_set_cache_value, result_set_cache_checksum = await pipeline.execute()
+    if not result_set_cache_value or not result_set_cache_checksum:
+        logger.warning(
+            "Cache not set", cache_key=cache_key, value_ok=result_set_cache_value, checksum_ok=result_set_cache_checksum
+        )
 
 
-async def get_signed_cache_value(pool: AIORedis, secret: str, cache_key: str, serializer: SerializerInterface) -> Any:
+async def get_signed_cache_value(pool: AIORedis, secret: str, cache_key: str, serializer: SerializerProtocol) -> Any:
     pipeline = pool.pipeline()
     pipeline.get(cache_key).get(f"{cache_key}-checksum")
     pickled_value, cache_checksum = await pipeline.execute()
@@ -118,9 +118,9 @@ def cached_result(
     secret: str | None,
     key_name: str | None = None,
     expiry_seconds: int = 120,
-    serializer: SerializerInterface = DefaultSerializer,  # type: ignore
+    serializer: SerializerProtocol = DefaultSerializer,
 ) -> Callable:
-    """Pass returned result objects from a function call into redis.
+    """Pass returned result objects from a async function call into redis.
 
     Returns a decorator function that will cache every result of a function to redis. This only works
     for functions with string, int or UUID arguments and result objects that can be serialized by the

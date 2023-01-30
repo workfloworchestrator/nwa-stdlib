@@ -4,10 +4,10 @@ from copy import copy
 
 from fakeredis.aioredis import FakeRedis
 
-from nwastdlib.asyncio_cache import SerializerInterface, cached_result
+from nwastdlib.asyncio_cache import cached_result
 
 
-class JsonSerializer(SerializerInterface):
+class JsonSerializer:
     """A class that implements a simple JSON serializer/deserializer."""
 
     @staticmethod
