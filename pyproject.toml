@@ -30,6 +30,7 @@ classifiers = [
 requires = [
     "structlog~=22.1.0",
     "colorama~=0.4.3",
+    "redis~=4.4.2"
 ]
 description-file = "README.md"
 requires-python = ">3.9"
@@ -41,6 +42,7 @@ Documentation = "https://workfloworchestrator.org/"
 test = [
     "anyio",
     "black",
+    "fakeredis",
     "flake8",
     "flake8-bandit",
     "flake8-bugbear",
@@ -54,10 +56,12 @@ test = [
     "mypy_extensions",
     "pytest",
     "pytest-asyncio",
+    "redis",
 ]
 dev = [
     "bumpversion",
     "pre-commit",
+    "types-redis"
 ]
 
 [tool.isort]

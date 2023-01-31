@@ -1,6 +1,7 @@
 -r base.txt
 apache-license-check
 black
+fakeredis
 flake8
 flake8-bandit
 flake8-bugbear
