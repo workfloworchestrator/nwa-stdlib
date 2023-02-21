@@ -21,7 +21,7 @@ R = TypeVar("R")
 try:
     from anyio import CapacityLimiter, to_thread
 except ImportError:
-    warnings.warn("anyio is required for gather_nice_sync()")
+    warnings.warn("anyio is required for gather_nice_sync()", stacklevel=1)
 else:
 
     async def gather_nice_sync(

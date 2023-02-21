@@ -75,7 +75,7 @@ async def set_cache_value(
 
 async def get_cache_value(pool: AIORedis, cache_key: str, serializer: SerializerProtocol) -> Any:
     serialized_value = await pool.get(cache_key)
-    return _deserialize(serialized_value, serializer)
+    return None if serialized_value is None else _deserialize(serialized_value, serializer)
 
 
 async def set_signed_cache_value(
