@@ -25,10 +25,24 @@ You should see the log statement `[info     ] Debug client connected` after whic
 
 **Option 1: remote interpreter**
 
-* Requires PyCharm Professional
+Requires PyCharm Professional and `okteto up` should be running.
 
-TODO: not working yet
+Initial setup (as of PyCharm 2022.3) from the Settings menu:
+* Go to [`Deployment > Options`](https://www.jetbrains.com/help/pycharm/settings-deployment-options.html)
+  * To "Exclude items by name" append `;.*cache;*venv*;.code;.vscode` (extend as needed per project; the more you exclude the better)
+* Go to [`Tools > SSH Configurations`](https://www.jetbrains.com/help/pycharm/settings-tools-ssh-configurations.html)
+  * Click Add
+  * Change **Authentication type** to `OpenSSH config and authentication agent`
+  * Set **Host** to `ims.okteto`, replace `ims` with the container name from okteto.yaml
+    * You should see **Port** fill automatically. If not, something's wrong..
+  * Set **Username** to your system user (`whoami` in terminal)
+  * Test Connection
+* Go to [`Project > Python Interpreter`](https://www.jetbrains.com/help/pycharm/configuring-remote-interpreters-via-ssh.html)
+  * Click **Add Interpreter** and select `On SSH`
+  * Choose `Existing` connection and select `ims.okteto`
+  * Click **Next** until you can select Interpreter, then choose `System interpreter`
 
+Enable the remote interpreter as project default and let PyCharm sync files to the okteto dev container. You may need to restart the IDE once.
 
 **Option 2: pydevd**
 
