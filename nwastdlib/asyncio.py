@@ -13,7 +13,7 @@
 import asyncio
 import warnings
 from collections.abc import Awaitable, Callable, Iterable
-from typing import TypeVar
+from typing import TypeVar, Union
 
 A = TypeVar("A")
 R = TypeVar("R")
@@ -45,7 +45,7 @@ else:
 
         """
 
-        def make_args(func_args: Iterable | object) -> Iterable:
+        def make_args(func_args: Union[Iterable, object]) -> Iterable:
             # When one argument is passed, wrap it in a list so run_sync can unpack it again
             if not isinstance(func_args, (tuple, list, set)):
                 return [func_args]

@@ -2,9 +2,16 @@ import json
 import sys
 from copy import copy
 
+import pytest
 from fakeredis.aioredis import FakeRedis
 
 from nwastdlib.asyncio_cache import cached_result
+
+
+@pytest.fixture(autouse=True)
+async def clear_fake_redis():
+    redis = FakeRedis()
+    await redis.flushdb()
 
 
 class JsonSerializer:

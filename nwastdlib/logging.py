@@ -13,7 +13,7 @@
 
 import logging.config
 import os
-from typing import Any
+from typing import Any, Union
 
 import structlog
 
@@ -63,7 +63,7 @@ logconfig_dict = {
 }
 
 
-def initialise_logging(additional_loggers: dict[str, dict[str, Any]] | None = None) -> None:
+def initialise_logging(additional_loggers: Union[dict[str, dict[str, Any]], None] = None) -> None:
     """
     Initialise the StructLog logging setup.
 
