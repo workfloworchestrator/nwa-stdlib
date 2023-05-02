@@ -32,7 +32,8 @@ classifiers = [
 requires = [
     "structlog~=22.1.0",
     "colorama~=0.4.3",
-    "redis~=4.4.2"
+    "redis~=4.4.2",
+    "strawberry-graphql==0.171.1",
 ]
 description-file = "README.md"
 requires-python = ">=3.9"
