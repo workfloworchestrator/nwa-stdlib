@@ -25,15 +25,18 @@ classifiers = [
     "Intended Audience :: Telecommunications Industry",
     "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.9",
 ]
 requires = [
     "structlog~=22.1.0",
     "colorama~=0.4.3",
-    "redis~=4.4.2"
+    "redis>=4.5.3, <4.6.0",  # Required for anyio 3.7 https://github.com/redis/redis-py/issues/2633
+    "anyio>=3.7.0",
 ]
 description-file = "README.md"
-requires-python = ">3.9"
+requires-python = ">=3.9"
 
 [tool.flit.metadata.urls]
 Documentation = "https://workfloworchestrator.org/"
