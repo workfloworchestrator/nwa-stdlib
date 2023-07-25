@@ -32,7 +32,7 @@ classifiers = [
 requires = [
     "structlog~=22.1.0",
     "colorama~=0.4.3",
-    "redis>=4.5.3, <4.6.0",  # Required for anyio 3.7 https://github.com/redis/redis-py/issues/2633
+    "redis>=4.6, <4.7.0",
     "anyio>=3.7.0",
 ]
 description-file = "README.md"
