@@ -30,10 +30,11 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
 ]
 requires = [
-    "structlog~=22.1.0",
-    "colorama~=0.4.3",
-    "redis>=4.6, <4.7.0",
     "anyio>=3.7.0",
+    "colorama~=0.4.3",
+    "pydantic",
+    "redis>=4.6, <4.7.0",
+    "structlog~=22.1.0",
 ]
 description-file = "README.md"
 requires-python = ">=3.9"
