@@ -75,6 +75,7 @@ ENV/
 .idea
 .pytest_cache/
 .mypy_cache/
+.*_cache
 type_info.json
 # VSCode
 .vscode

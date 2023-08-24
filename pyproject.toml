@@ -47,31 +47,18 @@ test = [
     "anyio",
     "black",
     "fakeredis",
-    "flake8",
-    "flake8-bandit",
-    "flake8-bugbear",
-    "flake8-comprehensions",
-    "flake8-docstrings",
-    "flake8-logging-format",
-    "flake8-pep3101",
-    "flake8-print",
-    "isort",
     "mypy",
     "mypy_extensions",
     "pytest",
     "pytest-asyncio",
     "redis",
+    "ruff",
 ]
 dev = [
     "bumpversion",
     "pre-commit",
     "types-redis"
 ]
-
-[tool.isort]
-profile="black"
-line_length = 120
-skip = ["src", "venv"]
 
 [tool.black]
 line-length = 120
@@ -94,3 +81,53 @@ exclude = '''
 
 [tool.nitpick]
 style = "github://workfloworchestrator/nitpick-style@main/nitpick-style-fastapi.toml"
+
+[tool.ruff]
+exclude = [
+    ".git",
+    ".cache",
+    ".eggs",
+    "__pycache__",
+    "dist",
+    "src",
+    "crypt.py",
+    "venv",
+    "build",
+    ".venv",
+]
+ignore = [
+    "B008",
+    "D100",
+    "D101",
+    "D102",
+    "D103",
+    "D104",
+    "D105",
+    "D107",
+    "D202",
+    "E501",
+    "S101",
+    "N806",
+    "B904",
+    "N802",
+    "N801",
+    "N818"
+]
+line-length = 120
+select = [
+    "B",
+    "C",
+    "D",
+    "E",
+    "F",
+    "I",
+    "N",
+    "RET",
+    "S",
+    "T",
+    "W",
+]
+target-version = "py310"
+
+[tool.ruff.pydocstyle]
+convention = "google"

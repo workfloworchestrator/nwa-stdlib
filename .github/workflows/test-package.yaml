@@ -31,11 +31,13 @@ jobs:
         if [ "${{ matrix.pydantic-version }}" != "lockfile" ]; then
           pip install "pydantic==${{ matrix.pydantic-version }}"
         fi
-    - name: Lint, Black, Isort and MyPy
+    - name: Linting (oldest python version only)
       run: |
         black . --check
-        isort -c .
-        flake8 .
+        ruff .
+      if: ${{ matrix.python-version == '3.9' }} && {{ matrix.pydantic-version == "lockfile" }}
+    - name: MyPy
+      run: |
         mypy .
     - name: Test with pytest
       run: |
