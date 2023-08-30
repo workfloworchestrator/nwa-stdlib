@@ -10,7 +10,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from pydantic import BaseSettings
+from pydantic import VERSION
+
+if VERSION > "2.0":
+    from pydantic_settings import BaseSettings
+else:
+    from pydantic import BaseSettings
 
 
 class NwaSettings(BaseSettings):
