@@ -96,8 +96,8 @@ def initialise_logging(additional_loggers: Union[dict[str, dict[str, Any]], None
                 "": {"handlers": ["default"], "level": f"{LOG_LEVEL}", "propagate": True},
                 **additional_loggers,
             },
-            **logconfig_dict,
         )
+        | logconfig_dict
     )
 
     structlog.configure(
