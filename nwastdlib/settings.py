@@ -15,7 +15,7 @@ from pydantic import VERSION
 if VERSION > "2.0":
     from pydantic_settings import BaseSettings
 else:
-    from pydantic import BaseSettings
+    from pydantic import BaseSettings  # type: ignore[no-redef]
 
 
 class NwaSettings(BaseSettings):
