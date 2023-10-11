@@ -19,7 +19,7 @@ import operator
 from collections import abc
 from collections.abc import Iterable, Iterator, Sequence
 from functools import reduce, total_ordering
-from typing import AbstractSet, Annotated, Any, cast
+from typing import AbstractSet, Annotated, Any, cast, Optional, Union
 
 from pydantic import PlainValidator
 
@@ -119,7 +119,9 @@ class _VlanRanges(abc.Set):
 
     _vlan_ranges: tuple[range, ...]
 
-    def __init__(self, val: str | int | Iterable[int] | Sequence[Sequence[int]] | None = None) -> None:  # noqa: C901
+    def __init__(  # noqa: C901
+        self, val: Optional[Union[str, int, Iterable[int], Sequence[Sequence[int]]]] = None
+    ) -> None:
         # The idea is to bring all acceptable values to one canonical intermediate format: the `Sequence[Sequence[
         # int]]`. Where the inner sequence is either a one or two element sequence. The one element sequence
         # represents a single VLAN, the two element sequence represents a VLAN range.
@@ -141,7 +143,7 @@ class _VlanRanges(abc.Set):
             if val.strip() != "":
                 # This might look complex, but it does handle strings such as `"  3, 4, 6-9, 4, 8 - 10"`
                 try:
-                    vlans = list(map(lambda s: list(map(int, s.strip().split("-"))), val.split(",")))
+                    vlans = [[int(n) for n in s.strip().split("-")] for s in val.split(",")]
                 except ValueError:
                     raise ValueError(f"{val} could not be converted to a {self.__class__.__name__} object.")
         elif isinstance(val, int):
@@ -149,11 +151,11 @@ class _VlanRanges(abc.Set):
         elif isinstance(val, abc.Sequence):
             if len(val) > 0:
                 if isinstance(val[0], int):
-                    vlans = list(map(lambda x: [x], val))
+                    vlans = [[x] for x in val]
                 elif isinstance(val[0], abc.Sequence):
                     vlans = cast(Sequence[Sequence[int]], val)
         elif isinstance(val, abc.Iterable):
-            vlans = list(map(lambda x: [x], val))  # type: ignore
+            vlans = [[x] for x in val]
         else:
             raise ValueError(f"{val} could not be converted to a {self.__class__.__name__} object.")
 
@@ -180,7 +182,7 @@ class _VlanRanges(abc.Set):
         return [(vr.start, vr.stop - 1) for vr in self._vlan_ranges]
 
     def __contains__(self, key: object) -> bool:
-        return any(map(lambda range_from_self: key in range_from_self, self._vlan_ranges))
+        return any(key in range_from_self for range_from_self in self._vlan_ranges)
 
     def __iter__(self) -> Iterator[int]:
         # The power of choosing proper abstractions: `range` objects already define an __iter__ method. Hence all we
@@ -218,7 +220,7 @@ class _VlanRanges(abc.Set):
     def __hash__(self) -> int:
         return hash(self._vlan_ranges)
 
-    def __sub__(self, other: int | AbstractSet[Any]) -> VlanRanges:
+    def __sub__(self, other: Union[int, AbstractSet[Any]]) -> VlanRanges:
         if isinstance(other, int):
             new_set = set(self)
             new_set.remove(other)
