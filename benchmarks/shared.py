@@ -20,7 +20,7 @@ def timeit(func):
         start = time.time()
         result = await process(func, *args, **params)
         total_time = time.time() - start
-        print(f"Total time (seconds)={total_time}, time per read (seconds)={total_time/REPEAT}")  # noqa: T201
+        print(f"Total time (seconds)={total_time}, time per read (seconds)={total_time / REPEAT}")  # noqa: T201
         return result
 
     return helper

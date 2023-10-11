@@ -1,5 +1,5 @@
-colorama~=0.4.3
-more-itertools~=8.7.0
+colorama~=0.4.6
+more-itertools~=10.1.0
 pydantic
 pydantic-settings
 structlog~=22.1.0
