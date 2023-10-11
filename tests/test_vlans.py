@@ -3,7 +3,6 @@ from pydantic.dataclasses import dataclass
 
 from nwastdlib.vlans import VlanRanges
 
-
 # TODO: lots of these tests can/should be parameterized
 
 

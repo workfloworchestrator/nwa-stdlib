@@ -19,7 +19,7 @@ import operator
 from collections import abc
 from collections.abc import Iterable, Iterator, Sequence
 from functools import reduce, total_ordering
-from typing import AbstractSet, Annotated, Any, cast, Optional, Union
+from typing import AbstractSet, Annotated, Any, Optional, Union, cast
 
 from pydantic import PlainValidator
 
@@ -151,11 +151,11 @@ class _VlanRanges(abc.Set):
         elif isinstance(val, abc.Sequence):
             if len(val) > 0:
                 if isinstance(val[0], int):
-                    vlans = [[x] for x in val]
+                    vlans = [[x] for x in val]  # type: ignore
                 elif isinstance(val[0], abc.Sequence):
                     vlans = cast(Sequence[Sequence[int]], val)
         elif isinstance(val, abc.Iterable):
-            vlans = [[x] for x in val]
+            vlans = [[x] for x in val]  # type: ignore
         else:
             raise ValueError(f"{val} could not be converted to a {self.__class__.__name__} object.")
 
@@ -251,7 +251,7 @@ class _VlanRanges(abc.Set):
             return False
 
 
-def validate_vlan(v):
+def validate_vlan(v: Any) -> Any:
     # The constructor of VlanRanges performs the validations.
     return v if isinstance(v, _VlanRanges) else VlanRanges(v)
 
