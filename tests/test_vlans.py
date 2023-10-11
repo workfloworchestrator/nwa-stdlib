@@ -3,8 +3,6 @@ from pydantic.dataclasses import dataclass
 
 from nwastdlib.vlans import VlanRanges
 
-# TODO: lots of these tests can/should be parameterized
-
 
 def test_vlan_ranges_instantiation():
     assert VlanRanges() == VlanRanges([])
@@ -38,69 +36,95 @@ def test_vlan_ranges_str_repr():
     assert vr_from_repr == vr
 
 
-def test_vlan_ranges_in():
+@pytest.mark.parametrize(
+    "vlan, expected",
+    [
+        (10, True),
+        (20, True),
+        (9, False),
+        (21, False),
+        (0, False),
+    ],
+)
+def test_vlan_ranges_in(vlan, expected):
     vr = VlanRanges("10-20")
-    assert 10 in vr
-    assert 20 in vr
-    assert 9 not in vr
-    assert 21 not in vr
-    assert 0 not in vr
+    assert bool(vlan in vr) is expected
 
 
-def test_vlan_ranges_intersects():
+@pytest.mark.parametrize(
+    "vlans, expected",
+    [
+        ("8-9", False),
+        ("9-10", True),
+        ("21-23", False),
+        ("20-23", True),
+        ("10-20", True),
+        ("11-19", True),
+        ("0-3,10,20,21-28", True),
+        ("0-3,20", True),
+        ("0-3,9,21,22-30", False),
+    ],
+)
+def test_vlan_ranges_intersects(vlans, expected):
     vr = VlanRanges("10-20")
-    assert not vr & VlanRanges("8-9")
-    assert vr & VlanRanges("9-10")
-    assert not vr & VlanRanges("21-23")
-    assert vr & VlanRanges("20-23")
-    assert vr & VlanRanges("10-20")
-    assert vr & VlanRanges("11-19")
-
-    assert vr & VlanRanges("0-3,10,20,21-28")
-    assert vr & VlanRanges("0-3,20")
-    assert not vr & VlanRanges("0-3,9,21,22-30")
+    assert bool(vr & VlanRanges(vlans)) is expected
 
 
-def test_vlan_ranges_sub():
+@pytest.mark.parametrize(
+    "vlans, expected",
+    [
+        ("8-9", "10-20"),
+        ("9-10", "11-20"),
+        ("21-23", "10-20"),
+        ("20-23", "10-19"),
+        ("10-20", ""),
+        ("11-19", "10,20"),
+        ("0-3,10,20,21-28", "11-19"),
+        ("0-3,20", "10-19"),
+        ("0-3,9,21,22-30", "10-20"),
+    ],
+)
+def test_vlan_ranges_sub(vlans, expected):
     vr = VlanRanges("10-20")
-    assert vr - VlanRanges("8-9") == VlanRanges("10-20")
-    assert vr - VlanRanges("9-10") == VlanRanges("11-20")
-    assert vr - VlanRanges("21-23") == VlanRanges("10-20")
-    assert vr - VlanRanges("20-23") == VlanRanges("10-19")
-    assert vr - VlanRanges("10-20") == VlanRanges("")
-    assert vr - VlanRanges("11-19") == VlanRanges("10,20")
-
-    assert vr - VlanRanges("0-3,10,20,21-28") == VlanRanges("11-19")
-    assert vr - VlanRanges("0-3,20") == VlanRanges("10-19")
-    assert vr - VlanRanges("0-3,9,21,22-30") == VlanRanges("10-20")
+    assert vr - VlanRanges(vlans) == VlanRanges(expected)
 
 
-def test_vlan_ranges_and():
+@pytest.mark.parametrize(
+    "vlans, expected",
+    [
+        ("8-9", ""),
+        ("9-10", "10"),
+        ("21-23", ""),
+        ("20-23", "20"),
+        ("10-20", "10-20"),
+        ("11-19", "11-19"),
+        ("0-3,10,20,21-28", "10,20"),
+        ("0-3,20", "20"),
+        ("0-3,9,21,22-30", ""),
+    ],
+)
+def test_vlan_ranges_and(vlans, expected):
     vr = VlanRanges("10-20")
-    assert vr & VlanRanges("8-9") == VlanRanges("")
-    assert vr & VlanRanges("9-10") == VlanRanges("10")
-    assert vr & VlanRanges("21-23") == VlanRanges("")
-    assert vr & VlanRanges("20-23") == VlanRanges("20")
-    assert vr & VlanRanges("10-20") == VlanRanges("10-20")
-    assert vr & VlanRanges("11-19") == VlanRanges("11-19")
-
-    assert vr & VlanRanges("0-3,10,20,21-28") == VlanRanges("10,20")
-    assert vr & VlanRanges("0-3,20") == VlanRanges("20")
-    assert vr & VlanRanges("0-3,9,21,22-30") == VlanRanges("")
+    assert vr & VlanRanges(vlans) == VlanRanges(expected)
 
 
-def test_vlan_ranges_or():
+@pytest.mark.parametrize(
+    "vlans, expected",
+    [
+        ("8-9", "8-20"),
+        ("9-10", "9-20"),
+        ("21-23", "10-23"),
+        ("20-23", "10-23"),
+        ("10-20", "10-20"),
+        ("11-19", "10-20"),
+        ("0-3,10,20,21-28", "0-3,10-28"),
+        ("0-3,20", "0-3,10-20"),
+        ("0-3,9,21,22-30", "0-3,9-30"),
+    ],
+)
+def test_vlan_ranges_or(vlans, expected):
     vr = VlanRanges("10-20")
-    assert vr | VlanRanges("8-9") == VlanRanges("8-20")
-    assert vr | VlanRanges("9-10") == VlanRanges("9-20")
-    assert vr | VlanRanges("21-23") == VlanRanges("10-23")
-    assert vr | VlanRanges("20-23") == VlanRanges("10-23")
-    assert vr | VlanRanges("10-20") == VlanRanges("10-20")
-    assert vr | VlanRanges("11-19") == VlanRanges("10-20")
-
-    assert vr | VlanRanges("0-3,10,20,21-28") == VlanRanges("0-3,10-28")
-    assert vr | VlanRanges("0-3,20") == VlanRanges("0-3,10-20")
-    assert vr | VlanRanges("0-3,9,21,22-30") == VlanRanges("0-3,9-30")
+    assert vr | VlanRanges(vlans) == VlanRanges(expected)
 
 
 def test_vlan_ranges_union():
@@ -112,32 +136,42 @@ def test_vlan_ranges_union():
     assert vr == VlanRanges("10-19").union(VlanRanges(20))
 
 
-def test_vlan_ranges_xor():
+@pytest.mark.parametrize(
+    "vlans, expected",
+    [
+        ("8-9", "8-20"),
+        ("9-10", "9,11-20"),
+        ("21-23", "10-23"),
+        ("20-23", "10-19,21-23"),
+        ("10-20", ""),
+        ("11-19", "10,20"),
+        ("0-3,10,20,21-28", "0-3,11-19,21-28"),
+        ("0-3,20", "0-3,10-19"),
+        ("0-3,9,21,22-30", "0-3,9-30"),
+    ],
+)
+def test_vlan_ranges_xor(vlans, expected):
     vr = VlanRanges("10-20")
-    assert vr ^ VlanRanges("8-9") == VlanRanges("8-20")
-    assert vr ^ VlanRanges("9-10") == VlanRanges("9,11-20")
-    assert vr ^ VlanRanges("21-23") == VlanRanges("10-23")
-    assert vr ^ VlanRanges("20-23") == VlanRanges("10-19,21-23")
-    assert vr ^ VlanRanges("10-20") == VlanRanges("")
-    assert vr ^ VlanRanges("11-19") == VlanRanges("10,20")
-
-    assert vr ^ VlanRanges("0-3,10,20,21-28") == VlanRanges("0-3,11-19,21-28")
-    assert vr ^ VlanRanges("0-3,20") == VlanRanges("0-3,10-19")
-    assert vr ^ VlanRanges("0-3,9,21,22-30") == VlanRanges("0-3,9-30")
+    assert vr ^ VlanRanges(vlans) == VlanRanges(expected)
 
 
-def test_vlan_ranges_lt():
+@pytest.mark.parametrize(
+    "vlans, expected",
+    [
+        ("8-9", False),
+        ("9-10", False),
+        ("21-23", False),
+        ("20-23", False),
+        ("10-20", False),
+        ("11-19", True),
+        ("0-3,10,20,21-28", False),
+        ("0-3,20", False),
+        ("0-3,9,21,22-30", False),
+    ],
+)
+def test_vlan_ranges_lt(vlans, expected):
     vr = VlanRanges("10-20")
-    assert not VlanRanges("8-9") < vr
-    assert not VlanRanges("9-10") < vr
-    assert not VlanRanges("21-23") < vr
-    assert not VlanRanges("20-23") < vr
-    assert not VlanRanges("10-20") < vr
-    assert VlanRanges("11-19") < vr
-
-    assert not VlanRanges("0-3,10,20,21-28") < vr
-    assert not VlanRanges("0-3,20") < vr
-    assert not VlanRanges("0-3,9,21,22-30") < vr
+    assert (VlanRanges(vlans) < vr) is expected
 
 
 def test_vlan_ranges_hash():
