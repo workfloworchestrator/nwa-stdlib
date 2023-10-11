@@ -59,6 +59,7 @@ test = [
     "mypy_extensions",
     "pytest",
     "pytest-asyncio",
+    "pydantic",
     "redis",
 ]
 dev = [
