@@ -14,13 +14,12 @@
 
 from __future__ import annotations
 
-from typing import Mapping
+from collections.abc import Mapping
 from urllib.parse import urlencode
 
 
 class URL(str):
-    r"""
-    Helper class for conveniently constructing URLs.
+    r"""Helper class for conveniently constructing URLs.
 
     To that end the `/` operator has been overloaded to append path elements. Similarly the `//` operator has
     been overloaded to easily add a query string to the URL.
