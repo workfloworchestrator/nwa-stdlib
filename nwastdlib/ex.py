@@ -20,8 +20,7 @@ from typing import Union
 
 
 def show_ex(ex: Exception, stacklimit: Union[int, None] = None) -> str:
-    """
-    Show an exception, including its class name, message and (limited) stacktrace.
+    """Show an exception, including its class name, message and (limited) stacktrace.
 
     >>> try:
     ...     raise Exception("Something went wrong")
@@ -31,4 +30,4 @@ def show_ex(ex: Exception, stacklimit: Union[int, None] = None) -> str:
     ...
     """
     tbfmt = "".join(traceback.format_tb(ex.__traceback__, stacklimit))
-    return "{}: {}\n{}".format(type(ex).__name__, ex, tbfmt)
+    return f"{type(ex).__name__}: {ex}\n{tbfmt}"

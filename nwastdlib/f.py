@@ -20,8 +20,7 @@ from typing import Any, Callable, TypeVar
 
 
 def identity(x: α) -> α:
-    """
-    Return the first argument.
+    """Return the first argument.
 
     This is usefull in function that accept an function
 
@@ -32,8 +31,7 @@ def identity(x: α) -> α:
 
 
 def const(x: α) -> Callable[[Any], α]:
-    """
-    Convert a value `x` to a function that always results in `x`.
+    """Convert a value `x` to a function that always results in `x`.
 
     >>> const(1)(2)
     1

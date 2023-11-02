@@ -27,12 +27,11 @@ jobs:
         python -m pip install --upgrade pip
         pip install flit
         flit install --deps develop --symlink
-    - name: Lint, Black, Isort and MyPy
-      run: |
-        black . --check
-        isort -c .
-        flake8 .
-        mypy .
+    - name: Ruff
+      run: ruff .
+    - name: Black
+      run: black . --check
+    - name: Mypy
+      run: mypy .
     - name: Test with pytest
-      run: |
-        pytest
+      run: pytest

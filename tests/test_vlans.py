@@ -1,4 +1,5 @@
 import pytest
+from pydantic import BaseModel
 from pydantic.dataclasses import dataclass
 
 from nwastdlib.vlans import VlanRanges
@@ -216,3 +217,33 @@ def test_vlan_ranges_dataclass_validations_nok(value):
 
     with pytest.raises(ValueError):
         TestVlanRanges(vlanrange=value)
+
+
+@pytest.mark.parametrize(
+    "vrange,expectedlist",
+    [("3", [3]), ("3-5,10", [3, 4, 5, 10])],
+)
+def test_vlan_ranges_schema_generation(vrange, expectedlist):
+    """Test that schema generation works."""
+
+    class MyModel(BaseModel):
+        vlanranges: VlanRanges  # type: ignore[annotation-unchecked]
+
+    model = MyModel(vlanranges=f"{vrange}")
+    assert model.model_dump() == {"vlanranges": f"{vrange}"}
+    assert model.model_dump_json() == '{"vlanranges":"%s"}' % (vrange,)
+    assert model.model_json_schema() == {
+        "properties": {
+            "vlanranges": {
+                "title": "Vlanranges",
+                "type": "string",
+                "format": "vlanrange",
+                "pattern": "^([1-4][0-9]{0,3}(-[1-4][0-9]{0,3})?,?)+$",
+                "examples": ["345", "20-23,45,50-100"],
+            },
+        },
+        "required": ["vlanranges"],
+        "title": "MyModel",
+        "type": "object",
+    }
+    assert list(model.vlanranges) == expectedlist

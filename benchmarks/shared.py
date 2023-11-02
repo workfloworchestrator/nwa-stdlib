@@ -11,9 +11,9 @@ def timeit(func):
         if asyncio.iscoroutinefunction(func):
             # print('this function is a coroutine: {}'.format(func.__name__))
             return await func(*args, **params)
-        else:
-            # print('this is not a coroutine')
-            return func(*args, **params)
+
+        # print('this is not a coroutine')
+        return func(*args, **params)
 
     async def helper(*args, **params):
         print(f"Repeat {func.__name__} {REPEAT} times:")  # noqa: T201

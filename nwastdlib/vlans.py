@@ -19,9 +19,11 @@ import operator
 from collections import abc
 from collections.abc import Iterable, Iterator, Sequence
 from functools import reduce, total_ordering
-from typing import AbstractSet, Annotated, Any, Optional, Union, cast
+from typing import AbstractSet, Any, Optional, Union, cast
 
-from pydantic import PlainValidator
+from pydantic import GetCoreSchemaHandler, GetJsonSchemaHandler
+from pydantic.json_schema import JsonSchemaValue
+from pydantic_core import CoreSchema, core_schema
 
 
 def to_ranges(i: Iterable[int]) -> Iterable[range]:
@@ -94,7 +96,7 @@ def expand_ranges(ranges: Sequence[Sequence[int]], inclusive: bool = False) -> l
 
 
 @total_ordering
-class _VlanRanges(abc.Set):
+class VlanRanges(abc.Set):
     """Represent VLAN ranges.
 
     This class is quite liberal in what it accepts as valid VLAN ranges. All of:
@@ -250,10 +252,36 @@ class _VlanRanges(abc.Set):
         except ValueError:
             return False
 
+    @classmethod
+    def __get_pydantic_core_schema__(cls, _source_type: Any, _handler: GetCoreSchemaHandler) -> CoreSchema:
+        return core_schema.no_info_after_validator_function(
+            cls._validate,
+            core_schema.str_schema(),
+            serialization=core_schema.plain_serializer_function_ser_schema(
+                cls._serialize,
+                info_arg=False,
+                return_schema=core_schema.str_schema(),
+            ),
+        )
 
-def validate_vlan(v: Any) -> Any:
-    # The constructor of VlanRanges performs the validations.
-    return v if isinstance(v, _VlanRanges) else VlanRanges(v)
+    @classmethod
+    def __get_pydantic_json_schema__(cls, core_schema_: CoreSchema, handler: GetJsonSchemaHandler) -> JsonSchemaValue:
+        json_schema = handler(core_schema_)
+        json_schema_resolved = handler.resolve_ref_schema(json_schema)
+        schema_override = {
+            "type": "string",
+            "format": "vlanrange",
+            "pattern": "^([1-4][0-9]{0,3}(-[1-4][0-9]{0,3})?,?)+$",
+            "examples": ["345", "20-23,45,50-100"],
+        }
+        return json_schema_resolved | schema_override
 
+    @staticmethod
+    def _validate(input_value: Union[str, VlanRanges]) -> VlanRanges:
+        if isinstance(input_value, VlanRanges):
+            return input_value
+        return VlanRanges(input_value)
 
-VlanRanges = Annotated[_VlanRanges, PlainValidator(validate_vlan)]
+    @staticmethod
+    def _serialize(value: VlanRanges) -> str:
+        return str(value)
