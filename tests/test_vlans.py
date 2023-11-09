@@ -1,8 +1,7 @@
 import pytest
 from pydantic import BaseModel
-from pydantic.dataclasses import dataclass
 
-from nwastdlib.vlans import VlanRanges
+from nwastdlib.vlans import VlanRanges, VlanRangesValidator
 
 
 def test_vlan_ranges_instantiation():
@@ -201,19 +200,17 @@ def test_vlan_ranges_validations(value):
         VlanRanges(value)
 
 
-def test_vlan_ranges_dataclass_validations_ok():
-    @dataclass
-    class TestVlanRanges:
-        vlanrange: VlanRanges  # type: ignore
+def test_vlan_ranges_basemodel_validations_ok():
+    class TestVlanRanges(BaseModel):
+        vlanrange: VlanRangesValidator
 
     assert TestVlanRanges(vlanrange="12").vlanrange == VlanRanges(12)
 
 
 @pytest.mark.parametrize("value", ["-30", "bla", "5000"])  # Negative values, however, are an error
-def test_vlan_ranges_dataclass_validations_nok(value):
-    @dataclass
-    class TestVlanRanges:
-        vlanrange: VlanRanges  # type: ignore
+def test_vlan_ranges_basemodel_validations_nok(value):
+    class TestVlanRanges(BaseModel):
+        vlanrange: VlanRangesValidator
 
     with pytest.raises(ValueError):
         TestVlanRanges(vlanrange=value)
@@ -227,10 +224,10 @@ def test_vlan_ranges_schema_generation(vrange, expectedlist):
     """Test that schema generation works."""
 
     class MyModel(BaseModel):
-        vlanranges: VlanRanges  # type: ignore[annotation-unchecked]
+        vlanranges: VlanRangesValidator
 
     model = MyModel(vlanranges=f"{vrange}")
-    assert model.model_dump() == {"vlanranges": f"{vrange}"}
+    assert isinstance(model.model_dump()["vlanranges"], VlanRanges)
     assert model.model_dump_json() == '{"vlanranges":"%s"}' % (vrange,)
     assert model.model_json_schema() == {
         "properties": {
