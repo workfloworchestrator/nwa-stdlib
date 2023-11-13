@@ -21,7 +21,8 @@ from collections.abc import Iterable, Iterator, Sequence
 from functools import reduce, total_ordering
 from typing import AbstractSet, Annotated, Any, Optional, Union, cast
 
-from pydantic import AfterValidator, Field, PlainSerializer
+from pydantic import Field, GetPydanticSchema, PlainSerializer
+from pydantic_core import core_schema
 
 
 def to_ranges(i: Iterable[int]) -> Iterable[range]:
@@ -274,10 +275,15 @@ def vlan_ranges_validator(json_schema_extra: dict | None = None) -> Any:
         "examples": ["345", "20-23,45,50-100"],
     } | (json_schema_extra or {})
 
+    # The type origin cannot be 'Any', this causes errors when using the type in strawberry-graphql.
+    # Instead we define a union with all possible types (including VlanRanges) and tell Pydantic to use the Any schema.
     return Annotated[
-        Any,
-        VlanRanges,
-        AfterValidator(_validate_vlanranges),
+        Union[Sequence[Sequence[int]], Sequence[int], int, VlanRanges, str],
+        GetPydanticSchema(
+            lambda tp, handler: core_schema.no_info_after_validator_function(
+                _validate_vlanranges, core_schema.any_schema()
+            )
+        ),
         PlainSerializer(_serialize_vlanranges, when_used="json"),
         Field(json_schema_extra=json_schema_extra),
     ]

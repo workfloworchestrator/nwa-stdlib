@@ -1,5 +1,5 @@
 import pytest
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 
 from nwastdlib.vlans import VlanRanges, VlanRangesValidator
 
@@ -249,13 +249,32 @@ def test_vlan_ranges_schema_generation(vrange, expectedlist):
 @pytest.mark.parametrize(
     "value",
     [
-        1,
-        "1",
-        VlanRanges(1),
+        10,
+        "11",
+        VlanRanges(12),
+        [13, 14],
+        {15, 16},
+        [[17], (18, 19)],
     ],
 )
-def test_vlan_ranges_validator(value):
+def test_vlan_ranges_validator_ok(value):
     class MyModel(BaseModel):
         vr: VlanRangesValidator
 
     assert isinstance(MyModel(vr=value).vr, VlanRanges)
+
+
+@pytest.mark.parametrize(
+    "value,exc",
+    [
+        ("foo", ValidationError),
+        (["bar"], ValidationError),
+        ([1, "a"], TypeError),
+    ],
+)
+def test_vlan_ranges_validator_error(value, exc):
+    class MyModel(BaseModel):
+        vr: VlanRangesValidator
+
+    with pytest.raises(exc):
+        MyModel(vr=value)
