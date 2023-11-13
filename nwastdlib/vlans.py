@@ -255,7 +255,7 @@ def _serialize_vlanranges(value: VlanRanges) -> str:
     return str(value)
 
 
-def _validate_vlanranges(input_value: Union[str, VlanRanges]) -> VlanRanges:
+def _validate_vlanranges(input_value: Any) -> VlanRanges:
     if isinstance(input_value, VlanRanges):
         return input_value
     return VlanRanges(input_value)
@@ -275,7 +275,7 @@ def vlan_ranges_validator(json_schema_extra: dict | None = None) -> Any:
     } | (json_schema_extra or {})
 
     return Annotated[
-        str,
+        Any,
         VlanRanges,
         AfterValidator(_validate_vlanranges),
         PlainSerializer(_serialize_vlanranges, when_used="json"),
