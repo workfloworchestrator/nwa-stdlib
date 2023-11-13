@@ -244,3 +244,18 @@ def test_vlan_ranges_schema_generation(vrange, expectedlist):
         "type": "object",
     }
     assert list(model.vlanranges) == expectedlist
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        1,
+        "1",
+        VlanRanges(1),
+    ],
+)
+def test_vlan_ranges_validator(value):
+    class MyModel(BaseModel):
+        vr: VlanRangesValidator
+
+    assert isinstance(MyModel(vr=value).vr, VlanRanges)
