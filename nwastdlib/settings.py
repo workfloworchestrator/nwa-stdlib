@@ -22,7 +22,9 @@ class NwaSettings(BaseSettings):
     """Common settings for applications depending on nwa-stdlib."""
 
     DEBUG_VSCODE: bool = False
+    DEBUG_VSCODE_PORT: int = 5678
     DEBUG_PYCHARM: bool = False
+    DEBUG_PYCHARM_PORT: int = 12345
 
 
 nwa_settings = NwaSettings()
