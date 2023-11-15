@@ -25,7 +25,7 @@ def start_debugger() -> None:
     if nwa_settings.DEBUG_VSCODE:
         import debugpy
 
-        debugpy_kwargs = ("127.0.0.1", 5678)
+        debugpy_kwargs = ("127.0.0.1", nwa_settings.DEBUG_VSCODE_PORT)
         logger.info("Starting debugpy", debugpy_kwargs=debugpy_kwargs)
         debugpy.listen(debugpy_kwargs)
         logger.info("Waiting for debug client to connect")
@@ -35,7 +35,8 @@ def start_debugger() -> None:
         # trick to get around debug-statements pre-commit error: pydevd_pycharm imported
         pydevd_pycharm = __import__("pydevd_pycharm")
 
-        pydevd_kwargs = {"host": "127.0.0.1", "port": 12345, "stdoutToServer": True, "stderrToServer": True}
+        port = nwa_settings.DEBUG_PYCHARM_PORT
+        pydevd_kwargs = {"host": "127.0.0.1", "port": port, "stdoutToServer": True, "stderrToServer": True}
         logger.info("Connecting to pydevd server (choose 'Resume Program' in PyCharm)", pydevd_kwargs=pydevd_kwargs)
         pydevd_pycharm.settrace(**pydevd_kwargs)
         logger.info("Connected to pydevd server")
