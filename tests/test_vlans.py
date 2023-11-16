@@ -234,7 +234,7 @@ def test_vlan_ranges_schema_generation(vrange, expectedlist):
             "vlanranges": {
                 "title": "Vlanranges",
                 "type": "string",
-                "format": "vlanrange",
+                "format": "vlan",
                 "pattern": "^([1-4][0-9]{0,3}(-[1-4][0-9]{0,3})?,?)+$",
                 "examples": ["345", "20-23,45,50-100"],
             },
