@@ -270,7 +270,7 @@ def vlan_ranges_validator(json_schema_extra: dict | None = None) -> Any:
     """
     json_schema_extra = {
         "type": "string",
-        "format": "vlanrange",
+        "format": "vlan",
         "pattern": "^([1-4][0-9]{0,3}(-[1-4][0-9]{0,3})?,?)+$",
         "examples": ["345", "20-23,45,50-100"],
     } | (json_schema_extra or {})
