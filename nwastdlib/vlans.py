@@ -275,10 +275,8 @@ def vlan_ranges_validator(json_schema_extra: dict | None = None) -> Any:
         "examples": ["345", "20-23,45,50-100"],
     } | (json_schema_extra or {})
 
-    # The type origin cannot be 'Any', this causes errors when using the type in strawberry-graphql.
-    # Instead we define a union with all possible types (including VlanRanges) and tell Pydantic to use the Any schema.
     return Annotated[
-        Union[Sequence[Sequence[int]], Sequence[int], int, VlanRanges, str],
+        VlanRanges,
         GetPydanticSchema(
             lambda tp, handler: core_schema.no_info_after_validator_function(
                 _validate_vlanranges, core_schema.any_schema()
