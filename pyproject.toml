@@ -49,6 +49,8 @@ test = [
     "anyio",
     "black",
     "fakeredis",
+    "fastapi",
+    "httpx",
     "mypy==1.6.1",
     "mypy_extensions",
     "pytest",

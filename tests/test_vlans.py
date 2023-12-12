@@ -1,7 +1,9 @@
 import pytest
 from pydantic import BaseModel, ValidationError
+from pydantic import ConfigDict
 
 from nwastdlib.vlans import VlanRanges, VlanRangesValidator
+from tests.conftest import fastapi_test_client
 
 
 def test_vlan_ranges_instantiation():
@@ -278,3 +280,18 @@ def test_vlan_ranges_validator_error(value, exc):
 
     with pytest.raises(exc):
         MyModel(vr=value)
+
+
+def test_fastapi_serialization_dynamic_model(fastapi_test_client):
+    """Test serializing VlanRanges in a dynamic FastAPI response model."""
+
+    class DynamicModel(BaseModel):
+        name: str
+        model_config = ConfigDict(extra="allow")
+
+    @fastapi_test_client.app.get("/dynamic_model", response_model=DynamicModel)
+    def get_dummy_model() -> dict:
+        return {"name": "DummyModel", "vlanrange": VlanRanges(10)}
+
+    response = fastapi_test_client.get("/dynamic_model")
+    assert response.json() == {}
