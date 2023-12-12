@@ -2,7 +2,7 @@ import pytest
 from pydantic import BaseModel, ValidationError
 from pydantic import ConfigDict
 
-from nwastdlib.vlans import VlanRanges, VlanRangesValidator
+from nwastdlib.vlans import VlanRanges
 from tests.conftest import fastapi_test_client
 
 
@@ -204,7 +204,7 @@ def test_vlan_ranges_validations(value):
 
 def test_vlan_ranges_basemodel_validations_ok():
     class TestVlanRanges(BaseModel):
-        vlanrange: VlanRangesValidator
+        vlanrange: VlanRanges
 
     assert TestVlanRanges(vlanrange="12").vlanrange == VlanRanges(12)
 
@@ -212,7 +212,7 @@ def test_vlan_ranges_basemodel_validations_ok():
 @pytest.mark.parametrize("value", ["-30", "bla", "5000"])  # Negative values, however, are an error
 def test_vlan_ranges_basemodel_validations_nok(value):
     class TestVlanRanges(BaseModel):
-        vlanrange: VlanRangesValidator
+        vlanrange: VlanRanges
 
     with pytest.raises(ValueError):
         TestVlanRanges(vlanrange=value)
@@ -226,7 +226,7 @@ def test_vlan_ranges_schema_generation(vrange, expectedlist):
     """Test that schema generation works."""
 
     class MyModel(BaseModel):
-        vlanranges: VlanRangesValidator
+        vlanranges: VlanRanges
 
     model = MyModel(vlanranges=f"{vrange}")
     assert isinstance(model.model_dump()["vlanranges"], VlanRanges)
@@ -261,7 +261,7 @@ def test_vlan_ranges_schema_generation(vrange, expectedlist):
 )
 def test_vlan_ranges_validator_ok(value):
     class MyModel(BaseModel):
-        vr: VlanRangesValidator
+        vr: VlanRanges
 
     assert isinstance(MyModel(vr=value).vr, VlanRanges)
 
@@ -276,7 +276,7 @@ def test_vlan_ranges_validator_ok(value):
 )
 def test_vlan_ranges_validator_error(value, exc):
     class MyModel(BaseModel):
-        vr: VlanRangesValidator
+        vr: VlanRanges
 
     with pytest.raises(exc):
         MyModel(vr=value)
@@ -290,8 +290,8 @@ def test_fastapi_serialization_dynamic_model(fastapi_test_client):
         model_config = ConfigDict(extra="allow")
 
     @fastapi_test_client.app.get("/dynamic_model", response_model=DynamicModel)
-    def get_dummy_model() -> dict:
+    def get_dummy_model():
         return {"name": "DummyModel", "vlanrange": VlanRanges(10)}
 
     response = fastapi_test_client.get("/dynamic_model")
-    assert response.json() == {}
+    assert response.json() == {"name": "DummyModel", "vlanrange": "10"}
