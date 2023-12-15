@@ -1,9 +1,7 @@
 import pytest
-from pydantic import BaseModel, ValidationError
-from pydantic import ConfigDict
+from pydantic import BaseModel, ConfigDict, ValidationError
 
 from nwastdlib.vlans import VlanRanges
-from tests.conftest import fastapi_test_client
 
 
 def test_vlan_ranges_instantiation():

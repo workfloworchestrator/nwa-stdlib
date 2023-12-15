@@ -19,11 +19,11 @@ import operator
 from collections import abc
 from collections.abc import Iterable, Iterator, Sequence
 from functools import reduce, total_ordering
-from typing import AbstractSet, Any, Optional, Union, cast, ClassVar
+from typing import AbstractSet, Any, ClassVar, Optional, Union, cast
 
 from pydantic import GetCoreSchemaHandler, GetJsonSchemaHandler
 from pydantic.json_schema import JsonSchemaValue
-from pydantic_core import CoreSchema, core_schema, SchemaSerializer
+from pydantic_core import CoreSchema, SchemaSerializer, core_schema
 
 
 def to_ranges(i: Iterable[int]) -> Iterable[range]:
