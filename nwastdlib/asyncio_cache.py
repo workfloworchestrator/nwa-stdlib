@@ -29,12 +29,10 @@ class SerializerProtocol(Protocol):
     """Abstract base class to specifies how to build yur own serializer."""
 
     @staticmethod
-    def deserialize(data: Any) -> Any:
-        ...
+    def deserialize(data: Any) -> Any: ...
 
     @staticmethod
-    def serialize(data: Any) -> Any:
-        ...
+    def serialize(data: Any) -> Any: ...
 
 
 class DefaultSerializer:
