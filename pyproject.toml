@@ -37,7 +37,6 @@ requires = [
     "pydantic_settings",
     "redis>=4.6, <4.7.0",
     "structlog~=22.1.0",
-    "strawberry-graphql==0.214.0",
 ]
 description-file = "README.md"
 requires-python = ">=3.9"

@@ -56,9 +56,6 @@ def _is_http_error(exception: Exception, *statuses: HTTPStatus) -> bool:
 
 
 def _to_error_type(exception: Exception | None) -> ErrorType:
-    # For https://git.ia.surfsara.nl/netdev/automation/projects/orchestrator/-/issues/1892 when we move this extension
-    # to a library, we could make it possible to initialize the ErrorHandlerExtension with an additional (custom)
-    # ErrorType mapper. Because each GraphQL project will have different exceptions
     match exception:
         case PermissionError():
             return ErrorType.NOT_AUTHORIZED

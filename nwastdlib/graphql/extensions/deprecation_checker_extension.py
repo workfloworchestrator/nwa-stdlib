@@ -15,7 +15,6 @@ from typing import Any
 import structlog
 from graphql import GraphQLField, GraphQLResolveInfo
 from graphql.pyutils import Path
-from orchestrator.utils.helpers import to_camel
 from strawberry.extensions import SchemaExtension
 from strawberry.field import StrawberryField
 from strawberry.types.types import StrawberryObjectDefinition
@@ -24,6 +23,11 @@ logger = structlog.get_logger()
 
 
 DeprecatedPaths = dict[str, str]
+
+
+def to_camel(s: str) -> str:
+    first, *rest = s.split("_")
+    return first + "".join(word.title() for word in rest)
 
 
 def get_path_as_string(path: Path) -> str:
