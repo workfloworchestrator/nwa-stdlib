@@ -1,4 +1,4 @@
-# Copyright 2022-2023 SURF.
+# Copyright 2022-2024 SURF.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -103,8 +103,6 @@ def make_deprecation_checker_extension(
         type_def: StrawberryObjectDefinition | None = (
             getattr(_type, "__strawberry_definition__", None) if _type else None
         )
-        if not type_def:
-            return {}
         return get_deprecated_paths(type_def) if type_def else {}
 
     deprecated_queries = deprecations_for(query)

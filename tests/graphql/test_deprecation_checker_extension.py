@@ -55,7 +55,7 @@ async def test_deprecation_checker_extension_with_deprecated_query():
         deprecated_query: list[str] = strawberry.field(
             resolver=resolve_deprecated_query,
             description="Returns some info",
-            deprecation_reason="This query has been replaced!"
+            deprecation_reason="This query has been replaced!",
         )
 
     extensions = [make_deprecation_checker_extension(query=Query)]
@@ -96,8 +96,7 @@ async def test_deprecation_checker_extension_with_deprecated_fields():
     @strawberry.type(description="No deprecated queries")
     class Query:
         latest_query: TypeWithDeprecatedFields = strawberry.field(
-            resolver=resolve_deprecated_query,
-            description="Returns some info"
+            resolver=resolve_deprecated_query, description="Returns some info"
         )
 
     extensions = [make_deprecation_checker_extension(query=Query)]
@@ -124,5 +123,3 @@ async def test_deprecation_checker_extension_with_deprecated_fields():
     deprecation_extension = extensions[0]
     assert deprecation_extension.deprecated_queries == {"latestQuery/outdated": "Please use 'replacement'"}
     assert not deprecation_extension.deprecated_mutations
-
-
