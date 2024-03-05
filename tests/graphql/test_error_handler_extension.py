@@ -61,7 +61,7 @@ async def test_error_handler_extension_with_error(exception_class, message, erro
     def resolve_some_query(info: Info):
         if exception_class:
             raise exception_class(message)
-        return None
+        return
 
     @strawberry.type(description="No deprecated queries")
     class Query:
@@ -116,7 +116,7 @@ async def test_error_handler_extension_with_http_error(status_code, message, err
                 request=Request(method="GET", url="surf.nl"),
                 response=Response(status_code=status_code),
             )
-        return None
+        return
 
     @strawberry.type(description="No deprecated queries")
     class Query:
