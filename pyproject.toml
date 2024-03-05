@@ -35,6 +35,7 @@ requires = [
     "colorama~=0.4.3",
     "pydantic>=2.4.0",
     "pydantic_settings",
+    "strawberry-graphql",
     "redis>=4.6, <4.7.0",
     "structlog~=22.1.0",
 ]
