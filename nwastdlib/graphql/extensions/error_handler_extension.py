@@ -55,7 +55,7 @@ def _is_http_error(exception: Exception, *statuses: HTTPStatus) -> bool:
     return False
 
 
-def _to_error_type(exception: Exception | None) -> ErrorType:
+def default_to_error_type(exception: Exception | None) -> ErrorType:
     match exception:
         case PermissionError():
             return ErrorType.NOT_AUTHORIZED
@@ -105,7 +105,7 @@ class ErrorHandlerExtension(SchemaExtension):
     More details: https://spec.graphql.org/October2021/#sec-Errors.Error-result-format
     """
 
-    to_error_type = staticmethod(_to_error_type)
+    to_error_type = staticmethod(default_to_error_type)
 
     def __init__(self, to_error_type: Callable[[Exception | None], ErrorType] | None = None, **kwargs) -> None:  # type: ignore
         if to_error_type:
@@ -145,7 +145,7 @@ def register_error(message: str, info: Info, error_type: ErrorType = ErrorType.I
 
 
 def register_exception(
-    exception: Exception, info: Info, to_error_type: Callable[[Exception | None], ErrorType] = _to_error_type
+    exception: Exception, info: Info, to_error_type: Callable[[Exception | None], ErrorType] = default_to_error_type
 ) -> None:
     """Register an exception encountered during the query execution.
 
