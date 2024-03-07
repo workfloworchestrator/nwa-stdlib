@@ -1,4 +1,4 @@
-# Copyright 2019-2023 SURF.
+# Copyright 2019-2024 SURF.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -52,7 +52,7 @@ else:
             return func_args
 
         limiter = CapacityLimiter(limit)
-        tasks = [to_thread.run_sync(function, *make_args(arg), limiter=limiter) for arg in args]
+        tasks = [to_thread.run_sync(function, *make_args(arg), limiter=limiter) for arg in args]  # type: ignore
         return await asyncio.gather(*tasks, return_exceptions=return_exceptions)
 
 

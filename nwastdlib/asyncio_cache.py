@@ -1,4 +1,4 @@
-#  Copyright 2019 SURF.
+#  Copyright 2019-2024 SURF.
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
 #  You may obtain a copy of the License at
@@ -29,12 +29,10 @@ class SerializerProtocol(Protocol):
     """Abstract base class to specifies how to build yur own serializer."""
 
     @staticmethod
-    def deserialize(data: Any) -> Any:
-        ...
+    def deserialize(data: Any) -> Any: ...
 
     @staticmethod
-    def serialize(data: Any) -> Any:
-        ...
+    def serialize(data: Any) -> Any: ...
 
 
 class DefaultSerializer:

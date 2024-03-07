@@ -1,6 +1,7 @@
 colorama~=0.4.6
-more-itertools~=10.1.0
+more-itertools~=10.2.0
 pydantic
 pydantic-settings
+strawberry-graphql
 structlog~=22.1.0
 redis~=4.4.2
