@@ -23,13 +23,13 @@ def start_debugger() -> None:
     For usage see https://github.com/workfloworchestrator/nwa-stdlib/blob/master/docs/debugging.md
     """
     if nwa_settings.DEBUG_VSCODE:
-        import debugpy
+        import debugpy  # noqa: T100
 
         debugpy_kwargs = ("127.0.0.1", nwa_settings.DEBUG_VSCODE_PORT)
         logger.info("Starting debugpy", debugpy_kwargs=debugpy_kwargs)
-        debugpy.listen(debugpy_kwargs)
+        debugpy.listen(debugpy_kwargs)  # noqa: T100
         logger.info("Waiting for debug client to connect")
-        debugpy.wait_for_client()
+        debugpy.wait_for_client()  # noqa: T100
         logger.info("Debug client connected")
     elif nwa_settings.DEBUG_PYCHARM:
         # trick to get around debug-statements pre-commit error: pydevd_pycharm imported
