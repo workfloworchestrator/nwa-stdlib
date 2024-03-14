@@ -53,6 +53,7 @@ test = [
     "mypy==1.6.1",
     "mypy_extensions",
     "pytest",
+    "pytest-cov",
     "pytest-asyncio",
     "redis",
     "ruff",
