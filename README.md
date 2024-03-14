@@ -2,6 +2,7 @@
 
 [![pypi_version](https://img.shields.io/pypi/v/nwa-stdlib?color=%2334D058&label=pypi%20package)](https://pypi.org/project/nwa-stdlib)
 [![Supported python versions](https://img.shields.io/pypi/pyversions/nwa-stdlib.svg?color=%2334D058)](https://pypi.org/project/nwa-stdlib)
+[![codecov](https://codecov.io/github/workfloworchestrator/nwa-stdlib/graph/badge.svg?token=9XWVHKKF06)](https://codecov.io/github/workfloworchestrator/nwa-stdlib)
 
 This library contains the functions and utilities that are shared by most
 Network Automation projects built at SURF.
