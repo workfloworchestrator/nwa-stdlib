@@ -3,5 +3,5 @@ more-itertools~=10.2.0
 pydantic
 pydantic-settings
 strawberry-graphql
-structlog~=22.1.0
+structlog~=24.1.0
 redis~=4.4.2
