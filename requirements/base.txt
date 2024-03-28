@@ -4,4 +4,4 @@ pydantic
 pydantic-settings
 strawberry-graphql
 structlog~=24.1.0
-redis~=4.4.2
+redis~=5.0.3
