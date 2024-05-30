@@ -13,6 +13,7 @@
 
 import logging.config
 import os
+import sys
 from typing import Any, Union
 
 import structlog
@@ -23,7 +24,7 @@ pre_chain = [
     # is not from structlog.
     structlog.stdlib.add_log_level,
     structlog.stdlib.add_logger_name,
-    structlog.processors.TimeStamper(fmt="%Y-%m-%d %H:%M:%S"),
+    structlog.processors.TimeStamper(fmt="%Y-%m-%d %H:%M:%S", utc=False),
     structlog.stdlib.PositionalArgumentsFormatter(),
     structlog.processors.StackInfoRenderer(),
     structlog.processors.format_exc_info,
@@ -54,11 +55,11 @@ logconfig_dict = {
         },
     },
     "handlers": {
-        "default": {"class": "logging.StreamHandler", "formatter": LOG_OUTPUT},
+        "default": {"class": "logging.StreamHandler", "stream": sys.stdout, "formatter": LOG_OUTPUT},
         # These handlers are needed by gunicorn
-        "error_console": {"class": "logging.StreamHandler", "formatter": LOG_OUTPUT},
-        "console": {"class": "logging.StreamHandler", "formatter": LOG_OUTPUT},
-        "gunicorn.error": {"class": "logging.StreamHandler", "formatter": LOG_OUTPUT},
+        "error_console": {"class": "logging.StreamHandler", "stream": sys.stdout, "formatter": LOG_OUTPUT},
+        "console": {"class": "logging.StreamHandler", "stream": sys.stdout, "formatter": LOG_OUTPUT},
+        "gunicorn.error": {"class": "logging.StreamHandler", "stream": sys.stdout, "formatter": LOG_OUTPUT},
     },
 }
 
