@@ -13,7 +13,6 @@
 
 import logging.config
 import os
-import sys
 from typing import Any, Union
 
 import structlog
@@ -32,6 +31,8 @@ pre_chain = [
 
 LOG_LEVEL = os.getenv("LOG_LEVEL", "DEBUG")
 LOG_OUTPUT = os.getenv("LOG_OUTPUT", "colored")
+
+default_out_stream = "ext::sys.stderr"
 
 # Must be called like so due to the gunicorn config do not rename
 logconfig_dict = {
@@ -55,11 +56,11 @@ logconfig_dict = {
         },
     },
     "handlers": {
-        "default": {"class": "logging.StreamHandler", "stream": sys.stdout, "formatter": LOG_OUTPUT},
+        "default": {"class": "logging.StreamHandler", "stream": default_out_stream, "formatter": LOG_OUTPUT},
         # These handlers are needed by gunicorn
-        "error_console": {"class": "logging.StreamHandler", "stream": sys.stdout, "formatter": LOG_OUTPUT},
-        "console": {"class": "logging.StreamHandler", "stream": sys.stdout, "formatter": LOG_OUTPUT},
-        "gunicorn.error": {"class": "logging.StreamHandler", "stream": sys.stdout, "formatter": LOG_OUTPUT},
+        "error_console": {"class": "logging.StreamHandler", "stream": default_out_stream, "formatter": LOG_OUTPUT},
+        "console": {"class": "logging.StreamHandler", "stream": default_out_stream, "formatter": LOG_OUTPUT},
+        "gunicorn.error": {"class": "logging.StreamHandler", "stream": default_out_stream, "formatter": LOG_OUTPUT},
     },
 }
 
