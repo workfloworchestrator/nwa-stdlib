@@ -32,7 +32,7 @@ pre_chain = [
 LOG_LEVEL = os.getenv("LOG_LEVEL", "DEBUG")
 LOG_OUTPUT = os.getenv("LOG_OUTPUT", "colored")
 
-default_out_stream = "ext::sys.stderr"
+default_out_stream = "ext://sys.stdout"
 
 # Must be called like so due to the gunicorn config do not rename
 logconfig_dict = {
