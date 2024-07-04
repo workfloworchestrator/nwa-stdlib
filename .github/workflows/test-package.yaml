@@ -28,7 +28,7 @@ jobs:
         pip install flit
         flit install --deps develop --symlink
     - name: Ruff
-      run: ruff .
+      run: ruff check .
     - name: Black
       run: black . --check
     - name: Mypy
