@@ -37,11 +37,13 @@ class ErrorType(StrEnum):
     https://engineering.zalando.com/posts/2021/04/modeling-errors-in-graphql.html
 
     We currently distinguish 3 categories that are meaningful to the frontend/user:
-     - NOT_AUTHORIZED: user not allowed to access, may be solved by renewing token or a different entitlement
+     - NOT_AUTHENTICATED: unauthenticated user or expired token, user should authenticate
+     - NOT_AUTHORIZED: user not allowed to perform operation on this resource
      - NOT_FOUND: a resource wasn't found, data inconsistency or wrong identifier
      - INTERNAL_ERROR: all other errors on the graphql server and/or backend systems. User may retry later
     """
 
+    NOT_AUTHENTICATED = auto()
     NOT_AUTHORIZED = auto()
     NOT_FOUND = auto()
     INTERNAL_ERROR = auto()
@@ -59,7 +61,9 @@ def default_to_error_type(exception: Exception | None) -> ErrorType:
     match exception:
         case PermissionError():
             return ErrorType.NOT_AUTHORIZED
-        case Exception() if _is_http_error(exception, HTTPStatus.FORBIDDEN, HTTPStatus.UNAUTHORIZED):
+        case Exception() if _is_http_error(exception, HTTPStatus.UNAUTHORIZED):
+            return ErrorType.NOT_AUTHENTICATED
+        case Exception() if _is_http_error(exception, HTTPStatus.FORBIDDEN):
             return ErrorType.NOT_AUTHORIZED
         case Exception() if _is_http_error(exception, HTTPStatus.NOT_FOUND):
             return ErrorType.NOT_FOUND
