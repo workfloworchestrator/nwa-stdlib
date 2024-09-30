@@ -20,7 +20,7 @@ logger = structlog.get_logger()
 def start_debugger() -> None:
     """Start a debug server for VSCode/PyCharm to attach to, if configured.
 
-    For usage see https://github.com/workfloworchestrator/nwa-stdlib/blob/master/docs/debugging.md
+    For usage see https://github.com/workfloworchestrator/nwa-stdlib/blob/main/docs/debugging.md
     """
     if nwa_settings.DEBUG_VSCODE:
         import debugpy  # noqa: T100
