@@ -16,8 +16,8 @@ import structlog
 from graphql import GraphQLField, GraphQLResolveInfo
 from graphql.pyutils import Path
 from strawberry.extensions import SchemaExtension
-from strawberry.field import StrawberryField
-from strawberry.types.types import StrawberryObjectDefinition
+from strawberry.types.base import StrawberryObjectDefinition
+from strawberry.types.field import StrawberryField
 
 logger = structlog.get_logger()
 

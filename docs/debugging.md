@@ -7,14 +7,14 @@ Below examples are written for IMS but should apply to any other gitlab project.
 ### VSCODE
 
 Initial setup:
-* Add configuration from `okteto/launch.json` to `.vscode/launch.json` 
+* Add configuration from `okteto/launch.json` to `.vscode/launch.json`
 
 Steps to take every time you want to debug:
 * In your `.env` set `DEBUG_VSCODE=true`
 * Choose how you want to debug:
   * To run IMS in debugging mode: `okteto up`
   * To run unit tests in debugging mode: `okteto up ims --command=pytest  --command="tests/unit_tests" --command="-v"`
-  * (note: you cannot debug acceptance tests this way, unless you run them against an IMS instance) 
+  * (note: you cannot debug acceptance tests this way, unless you run them against an IMS instance)
 * Wait until you see this log statement `[info     ] Waiting for debug client to connect`
 * In VScode go to `Run & Debug` and run configuration "Attach to IMS okteto"
 
@@ -45,7 +45,7 @@ Steps to take every time you want to debug:
 * Choose how you want to debug:
   * To run IMS in debugging mode: `okteto up`
   * To run unit tests in debugging mode: `okteto up ims --command=pytest  --command="tests/unit_tests" --command="-v"`
-  * (note: you cannot debug acceptance tests this way, unless you run them against an IMS instance) 
+  * (note: you cannot debug acceptance tests this way, unless you run them against an IMS instance)
 * Wait until you see this log statement `[info     ] Connecting to pydevd server (choose 'Resume Program' in PyCharm)`
 * Go back to PyCharm and click `Resume Program` in the Debug window
 
