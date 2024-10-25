@@ -25,6 +25,8 @@ from pydantic import GetCoreSchemaHandler, GetJsonSchemaHandler
 from pydantic.json_schema import JsonSchemaValue
 from pydantic_core import CoreSchema, SchemaSerializer, core_schema
 
+VLAN_RANGE_JSON_SCHEMA_REGEX = r"^(?:([1-9]|[1-9]\d{1,2}|[1-4]\d{3})(?:-(?:[1-9]|[1-9]\d{1,2}|[1-4]\d{3}))?)$"
+
 
 def to_ranges(i: Iterable[int]) -> Iterable[range]:
     """Convert a sorted iterable of ints to an iterable of range objects.
@@ -277,7 +279,7 @@ class VlanRanges(abc.Set):
         schema_override = {
             "type": "string",
             "format": "vlan",
-            "pattern": "^([1-4][0-9]{0,3}(-[1-4][0-9]{0,3})?,?)+$",
+            "pattern": VLAN_RANGE_JSON_SCHEMA_REGEX,
             "examples": ["345", "20-23,45,50-100"],
         }
         return json_schema_resolved | schema_override

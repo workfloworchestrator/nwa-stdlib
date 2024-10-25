@@ -60,6 +60,7 @@ test = [
 ]
 dev = [
     "bumpversion",
+    "jsonschema",
     "pre-commit",
     "types-redis"
 ]

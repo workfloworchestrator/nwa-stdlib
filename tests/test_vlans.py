@@ -1,7 +1,8 @@
+import jsonschema
 import pytest
 from pydantic import BaseModel, ConfigDict, ValidationError
 
-from nwastdlib.vlans import VlanRanges
+from nwastdlib.vlans import VLAN_RANGE_JSON_SCHEMA_REGEX, VlanRanges
 
 
 def test_vlan_ranges_instantiation():
@@ -235,7 +236,7 @@ def test_vlan_ranges_schema_generation(vrange, expectedlist):
                 "title": "Vlanranges",
                 "type": "string",
                 "format": "vlan",
-                "pattern": "^([1-4][0-9]{0,3}(-[1-4][0-9]{0,3})?,?)+$",
+                "pattern": VLAN_RANGE_JSON_SCHEMA_REGEX,
                 "examples": ["345", "20-23,45,50-100"],
             },
         },
@@ -293,3 +294,37 @@ def test_fastapi_serialization_dynamic_model(fastapi_test_client):
 
     response = fastapi_test_client.get("/dynamic_model")
     assert response.json() == {"name": "DummyModel", "vlanrange": "10"}
+
+
+@pytest.fixture(scope="module")
+def vr_schema():
+    class MyModel(BaseModel):
+        vr: VlanRanges
+
+    return MyModel.model_json_schema()
+
+
+@pytest.mark.parametrize("vlan", [1, 9, 10, 49, 50, 99, 100, 101, 499, 500, 999, 1000, 3999, 4000, 4999])
+def test_vlan_allowed_by_schema(vlan, vr_schema):
+    """Test vlans which should be allowed by the JSON Schema."""
+    assert jsonschema.validate({"vr": str(vlan)}, vr_schema) is None
+
+
+@pytest.mark.parametrize("vlan", [-5000, -50, -1, 0, 5000, 5001, 9999, 10000, 14999])
+def test_vlan_rejected_by_schema(vlan, vr_schema):
+    """Test vlans which should be rejected by the JSON Schema."""
+    with pytest.raises(jsonschema.ValidationError):
+        jsonschema.validate({"vr": str(vlan)}, vr_schema)
+
+
+@pytest.mark.parametrize("vlanrange", ["1-1", "9-9", "49-59", "99-300", "999-1001", "3999-4999"])
+def test_vlan_ranges_allowed_by_schema(vlanrange, vr_schema):
+    """Test vlan ranges which should be allowed by the JSON Schema."""
+    assert jsonschema.validate({"vr": vlanrange}, vr_schema) is None
+
+
+@pytest.mark.parametrize("vlanrange", ["-1", "-10-0", "0-1", "4999-5000", "5000-5002"])
+def test_vlan_ranges_rejected_by_schema(vlanrange, vr_schema):
+    """Test vlan ranges which should be rejected by the JSON Schema."""
+    with pytest.raises(jsonschema.ValidationError):
+        jsonschema.validate({"vr": vlanrange}, vr_schema)
