@@ -101,7 +101,7 @@ def _process(error: GraphQLError, to_error_type: Callable[[Exception | None], Er
     if not _has_extension(error, EXTENSION_ERROR_TYPE):
         _add_extension(error, EXTENSION_ERROR_TYPE, str(to_error_type(exc)))
 
-    if error_type == ErrorType.INTERNAL_ERROR and not (nwa_settings.DEBUG_PYCHARM or nwa_settings.DEBUG_PYCHARM):
+    if error_type == ErrorType.INTERNAL_ERROR and not nwa_settings.DEBUG:
         error.message = "Internal Server Error"
 
     return error

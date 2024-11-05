@@ -51,7 +51,7 @@ async def test_error_handler_extension_no_errors():
 @pytest.mark.parametrize(
     "exception_class, message, error_type",
     [
-        (ValueError, "There was a value error", ErrorType.INTERNAL_ERROR),
+        (ValueError, "Internal Server Error", ErrorType.INTERNAL_ERROR),
         (PermissionError, "There was a permission error", ErrorType.NOT_AUTHORIZED),
     ],
 )
