@@ -16,6 +16,15 @@ import os
 from typing import Any, Union
 
 import structlog
+from fastapi import Request
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
+from starlette import status
+
+from nwastdlib.settings import nwa_settings
+
+logger = structlog.get_logger(__name__)
+
 
 pre_chain = [
     structlog.contextvars.merge_contextvars,
@@ -119,3 +128,12 @@ class ClearStructlogContextASGIMiddleware:
     async def __call__(self, scope, receive, send):  # type: ignore
         structlog.contextvars.clear_contextvars()
         await self.app(scope, receive, send)
+
+
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    exc_str = f"{exc}".replace("\n", " ").replace("   ", " ")
+    if nwa_settings.DEBUG:
+        method, url, headers, body = request.method, request.url, request.headers, await request.json()
+        logger.debug("Validation error in endpoint", method=method, url=url, headers=headers, body=body, error=exc_str)
+    content = {"status_code": 422, "message": exc_str, "data": None}
+    return JSONResponse(content=content, status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
