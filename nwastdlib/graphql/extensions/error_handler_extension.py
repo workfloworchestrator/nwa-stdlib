@@ -38,17 +38,19 @@ class ErrorType(StrEnum):
     https://productionreadygraphql.com/2020-08-01-guide-to-graphql-errors
     https://engineering.zalando.com/posts/2021/04/modeling-errors-in-graphql.html
 
-    We currently distinguish 3 categories that are meaningful to the frontend/user:
+    We currently distinguish the following categories that are meaningful to the frontend/user:
      - NOT_AUTHENTICATED: unauthenticated user or expired token, user should authenticate
      - NOT_AUTHORIZED: user not allowed to perform operation on this resource
      - NOT_FOUND: a resource wasn't found, data inconsistency or wrong identifier
      - INTERNAL_ERROR: all other errors on the graphql server and/or backend systems. User may retry later
+     - BAD_REQUEST: one or more query input parameters are not valid (i.e. dynamic sort/filter params)
     """
 
     NOT_AUTHENTICATED = auto()
     NOT_AUTHORIZED = auto()
     NOT_FOUND = auto()
     INTERNAL_ERROR = auto()
+    BAD_REQUEST = auto()
 
 
 def _is_http_error(exception: Exception, *statuses: HTTPStatus) -> bool:
@@ -93,14 +95,20 @@ def _add_extension(error: GraphQLError, key: str, value: Any) -> None:
     error.extensions[key] = value
 
 
+def _get_extension(error: GraphQLError, key: str) -> Any | None:
+    if error.extensions:
+        return error.extensions.get(key, None)
+    return None
+
+
 def _process(error: GraphQLError, to_error_type: Callable[[Exception | None], ErrorType]) -> GraphQLError:
     exc = error.original_error
-    error_type = to_error_type(exc)
     if isinstance(exc, HTTPStatusError):
         _add_extension(error, EXTENSION_HTTP_STATUS_CODE, {f"{exc.request.url}": exc.response.status_code})
     if not _has_extension(error, EXTENSION_ERROR_TYPE):
         _add_extension(error, EXTENSION_ERROR_TYPE, str(to_error_type(exc)))
 
+    error_type = _get_extension(error, EXTENSION_ERROR_TYPE)
     if error_type == ErrorType.INTERNAL_ERROR and not nwa_settings.DEBUG:
         error.message = "Internal Server Error"
 
