@@ -69,7 +69,7 @@ dev = [
 
 [tool.black]
 line-length = 120
-target-version = ["py39", "py310"]
+target-version = ["py311"]
 exclude = '''
 (
   /(
@@ -125,7 +125,7 @@ lint.ignore = [
 ]
 line-length = 120
 lint.select = ["B", "C", "D", "E", "F", "I", "N", "RET", "S", "T", "W"]
-target-version = "py39"
+target-version = "py311"
 
 [tool.ruff.lint.flake8-tidy-imports]
 ban-relative-imports = "all"
