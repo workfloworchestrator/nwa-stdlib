@@ -27,15 +27,13 @@ jobs:
         python -m pip install --upgrade pip
         pip install flit
         flit install --deps develop --symlink
-    - name: Ruff
-      run: ruff check .
-    - name: Black
-      run: black . --check
     - name: Mypy
       run: mypy .
     - name: License headers
       run: |
-        apache-license-check --copyright "2019-`date +%Y` SURF" oauth2_lib
+        apache-license-check --copyright "2019-`date +%Y` SURF" nwastdlib
+    - name: Run pre-commit hooks
+      uses: pre-commit/action@v3.0.1
     - name: Test with pytest
       run: pytest --cov-branch --cov=nwastdlib --cov-report=xml --ignore=tests --ignore=benchmarks
     - name: "Upload coverage to Codecov"
