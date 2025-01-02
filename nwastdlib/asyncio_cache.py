@@ -41,11 +41,11 @@ class DefaultSerializer:
 
     @staticmethod
     def deserialize(data: Any) -> Any:
-        return pickle.loads(data)  # noqa: S403
+        return pickle.loads(data)  # noqa: S301
 
     @staticmethod
     def serialize(data: bytes | bytearray | str) -> Any:
-        return pickle.dumps(data)  # noqa: S403
+        return pickle.dumps(data)
 
 
 def _deserialize(data: Any, serializer: SerializerProtocol) -> Any:
