@@ -19,7 +19,7 @@ import structlog
 logger = structlog.getLogger(__name__)
 
 
-def __getattr__(name: str) -> Union[str, None]:
+def __getattr__(name: str) -> str | None:
     """Return the GIT_COMMIT_HASH.
 
     Usage::

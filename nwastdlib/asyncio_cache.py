@@ -13,10 +13,11 @@
 #
 import hashlib
 import hmac
-import pickle  # noqa S403
+import pickle  # noqa: S403
 import sys
+from collections.abc import Callable
 from functools import wraps
-from typing import Any, Callable, Protocol, Union, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
 
 import structlog
 from redis.asyncio import Redis as AIORedis
@@ -40,11 +41,11 @@ class DefaultSerializer:
 
     @staticmethod
     def deserialize(data: Any) -> Any:
-        return pickle.loads(data)  # noqa S403
+        return pickle.loads(data)  # noqa: S403
 
     @staticmethod
-    def serialize(data: Union[bytes, bytearray, str]) -> Any:
-        return pickle.dumps(data)  # noqa S403
+    def serialize(data: bytes | bytearray | str) -> Any:
+        return pickle.dumps(data)  # noqa: S403
 
 
 def _deserialize(data: Any, serializer: SerializerProtocol) -> Any:
@@ -58,7 +59,7 @@ def _deserialize(data: Any, serializer: SerializerProtocol) -> Any:
     return data
 
 
-def get_hmac_checksum(secret: str, message: Union[bytes, bytearray, str]) -> str:
+def get_hmac_checksum(secret: str, message: bytes | bytearray | str) -> str:
     if isinstance(message, str):
         message = message.encode()
     h = hmac.new(secret.encode(), message, hashlib.sha512)
@@ -113,8 +114,8 @@ async def get_signed_cache_value(pool: AIORedis, secret: str, cache_key: str, se
 def cached_result(
     pool: AIORedis,
     prefix: str,
-    secret: Union[str, None],
-    key_name: Union[str, None] = None,
+    secret: str | None,
+    key_name: str | None = None,
     expiry_seconds: int = 120,
     serializer: SerializerProtocol = DefaultSerializer,
 ) -> Callable:

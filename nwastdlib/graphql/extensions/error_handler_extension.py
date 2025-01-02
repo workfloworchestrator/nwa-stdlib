@@ -14,7 +14,8 @@ from collections.abc import Collection, Generator, Iterable
 from contextvars import ContextVar
 from enum import StrEnum, auto
 from http import HTTPStatus
-from typing import Any, Callable
+from typing import Any
+from collections.abc import Callable
 
 import structlog
 from graphql import GraphQLError
