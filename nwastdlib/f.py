@@ -12,8 +12,8 @@
 #  limitations under the License.
 #
 
-from typing import Any, TypeVar
 from collections.abc import Callable
+from typing import Any, TypeVar
 
 α = TypeVar("α")
 β = TypeVar("β")

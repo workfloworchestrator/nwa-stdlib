@@ -16,7 +16,6 @@
 
 
 import traceback
-from typing import Union
 
 
 def show_ex(ex: Exception, stacklimit: int | None = None) -> str:

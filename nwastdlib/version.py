@@ -12,7 +12,6 @@
 # limitations under the License.
 
 from subprocess import check_output  # noqa: S404
-from typing import Union
 
 import structlog
 

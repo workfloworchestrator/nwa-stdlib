@@ -10,12 +10,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from collections.abc import Collection, Generator, Iterable
+from collections.abc import Callable, Collection, Generator, Iterable
 from contextvars import ContextVar
 from enum import StrEnum, auto
 from http import HTTPStatus
 from typing import Any
-from collections.abc import Callable
 
 import structlog
 from graphql import GraphQLError
