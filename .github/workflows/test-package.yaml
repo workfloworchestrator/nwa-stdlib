@@ -33,6 +33,9 @@ jobs:
       run: black . --check
     - name: Mypy
       run: mypy .
+    - name: License headers
+      run: |
+        apache-license-check --copyright "2019-`date +%Y` SURF" oauth2_lib
     - name: Test with pytest
       run: pytest --cov-branch --cov=nwastdlib --cov-report=xml --ignore=tests --ignore=benchmarks
     - name: "Upload coverage to Codecov"

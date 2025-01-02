@@ -47,6 +47,7 @@ Documentation = "https://workfloworchestrator.org/"
 [tool.flit.metadata.requires-extra]
 test = [
     "anyio",
+    "apache-license-check",
     "black",
     "fakeredis",
     "fastapi",
