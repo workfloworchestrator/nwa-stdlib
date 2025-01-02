@@ -13,7 +13,7 @@
 import asyncio
 import warnings
 from collections.abc import Awaitable, Callable, Iterable
-from typing import TypeVar, Union
+from typing import TypeVar
 
 A = TypeVar("A")
 R = TypeVar("R")
@@ -29,7 +29,7 @@ else:
         args: Iterable[A],
         limit: int = 5,
         return_exceptions: bool = False,
-    ) -> list[R]:
+    ) -> list[R | BaseException]:
         """Run function in thread for each args, using asyncio.gather() with limited concurrency.
 
         Example:
@@ -60,7 +60,7 @@ async def gather_nice(
     coros: Iterable[Awaitable[R]],
     limit: int = 5,
     return_exceptions: bool = False,
-) -> Iterable[R]:
+) -> Iterable[R | BaseException]:
     """Run coroutines in asyncio.gather() with limited concurrency.
 
     Example:

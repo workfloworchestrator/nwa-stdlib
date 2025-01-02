@@ -52,7 +52,7 @@ test = [
     "fakeredis",
     "fastapi",
     "httpx",
-    "mypy==1.6.1",
+    "mypy",
     "mypy_extensions",
     "pytest",
     "pytest-cov",
