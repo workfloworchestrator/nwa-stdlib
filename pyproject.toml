@@ -25,6 +25,7 @@ classifiers = [
     "Intended Audience :: Telecommunications Industry",
     "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.11",
 ]
@@ -38,7 +39,7 @@ requires = [
     "structlog>=22.1.0",
 ]
 description-file = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.11,<3.14"
 
 [tool.flit.metadata.urls]
 Documentation = "https://workfloworchestrator.org/"
@@ -46,11 +47,12 @@ Documentation = "https://workfloworchestrator.org/"
 [tool.flit.metadata.requires-extra]
 test = [
     "anyio",
+    "apache-license-check",
     "black",
     "fakeredis",
     "fastapi",
     "httpx",
-    "mypy==1.6.1",
+    "mypy",
     "mypy_extensions",
     "pytest",
     "pytest-cov",
@@ -67,7 +69,7 @@ dev = [
 
 [tool.black]
 line-length = 120
-target-version = ["py39", "py310"]
+target-version = ["py311"]
 exclude = '''
 (
   /(
@@ -123,7 +125,7 @@ lint.ignore = [
 ]
 line-length = 120
 lint.select = ["B", "C", "D", "E", "F", "I", "N", "RET", "S", "T", "W"]
-target-version = "py39"
+target-version = "py311"
 
 [tool.ruff.lint.flake8-tidy-imports]
 ban-relative-imports = "all"

@@ -1,4 +1,4 @@
-# Copyright 2019-2024 SURF.
+# Copyright 2019-2025 SURF.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -12,14 +12,13 @@
 # limitations under the License.
 
 from subprocess import check_output  # noqa: S404
-from typing import Union
 
 import structlog
 
 logger = structlog.getLogger(__name__)
 
 
-def __getattr__(name: str) -> Union[str, None]:
+def __getattr__(name: str) -> str | None:
     """Return the GIT_COMMIT_HASH.
 
     Usage::

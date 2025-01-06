@@ -1,4 +1,4 @@
-# Copyright 2019-2024 SURF.
+# Copyright 2019-2025 SURF.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -19,7 +19,7 @@ import operator
 from collections import abc
 from collections.abc import Iterable, Iterator, Sequence
 from functools import reduce, total_ordering
-from typing import AbstractSet, Any, ClassVar, Optional, Union, cast
+from typing import AbstractSet, Any, ClassVar, cast
 
 from pydantic import GetCoreSchemaHandler, GetJsonSchemaHandler
 from pydantic.json_schema import JsonSchemaValue
@@ -121,13 +121,11 @@ class VlanRanges(abc.Set):
 
     """
 
-    __pydantic_serializer__: ClassVar[Optional[SchemaSerializer]]  # workaround for a bug, see usage below
+    __pydantic_serializer__: ClassVar[SchemaSerializer | None]  # workaround for a bug, see usage below
 
     _vlan_ranges: tuple[range, ...]
 
-    def __init__(  # noqa: C901
-        self, val: Optional[Union[str, int, Iterable[int], Sequence[Sequence[int]]]] = None
-    ) -> None:
+    def __init__(self, val: str | int | Iterable[int] | Sequence[Sequence[int]] | None = None) -> None:  # noqa: C901
         # The idea is to bring all acceptable values to one canonical intermediate format: the `Sequence[Sequence[
         # int]]`. Where the inner sequence is either a one or two element sequence. The one element sequence
         # represents a single VLAN, the two element sequence represents a VLAN range.
@@ -226,7 +224,7 @@ class VlanRanges(abc.Set):
     def __hash__(self) -> int:
         return hash(self._vlan_ranges)
 
-    def __sub__(self, other: Union[int, AbstractSet[Any]]) -> VlanRanges:
+    def __sub__(self, other: int | AbstractSet[Any]) -> VlanRanges:
         if isinstance(other, int):
             new_set = set(self)
             new_set.remove(other)
@@ -285,7 +283,7 @@ class VlanRanges(abc.Set):
         return json_schema_resolved | schema_override
 
     @staticmethod
-    def _validate(input_value: Union[str, VlanRanges]) -> VlanRanges:
+    def _validate(input_value: str | VlanRanges) -> VlanRanges:
         if isinstance(input_value, VlanRanges):
             return input_value
         return VlanRanges(input_value)

@@ -1,19 +1,19 @@
-#  Copyright 2019-2024 SURF.
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
+# Copyright 2019-2025 SURF.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
 #
-#        http://www.apache.org/licenses/LICENSE-2.0
+#    http://www.apache.org/licenses/LICENSE-2.0
 #
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 import logging.config
 import os
-from typing import Any, Union
+from typing import Any
 
 import structlog
 
@@ -65,7 +65,7 @@ logconfig_dict = {
 }
 
 
-def initialise_logging(additional_loggers: Union[dict[str, dict[str, Any]], None] = None) -> None:
+def initialise_logging(additional_loggers: dict[str, dict[str, Any]] | None = None) -> None:
     """Initialise the StructLog logging setup.
 
     An example of the additional_loggers format:
