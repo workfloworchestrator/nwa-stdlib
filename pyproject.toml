@@ -35,7 +35,7 @@ requires = [
     "pydantic>=2.4.0",
     "pydantic_settings",
     "strawberry-graphql>=0.246.2",
-    "redis>=5.0, <5.1.0",
+    "redis>=5.0, <6.0",
     "structlog>=22.1.0",
 ]
 description-file = "README.md"
