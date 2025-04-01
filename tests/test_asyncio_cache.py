@@ -176,3 +176,47 @@ async def test_cache_decorator_with_json_serializer():
     # # A new call should still serve 0: as it is cached now
     result = await slow_function()
     assert result == original_value
+
+
+async def test_cache_decorator_with_revalidation_fn():
+    redis = FakeRedis()
+    value = 0
+
+    def revalidate_fn(*args, **kwargs):
+        return kwargs["revalidate_cache"]
+
+    @cached_result(redis, "test-suite", "SECRETNAME", "keyname", revalidate_fn=revalidate_fn)
+    async def slow_function(revalidate_cache: bool):
+        return value
+
+    result = await slow_function(revalidate_cache=False)
+    assert result == 0
+
+    # change the value so we can verify that the function was not called
+    value = 1
+
+    # A new call should still serve 0: as it is cached now
+    result = await slow_function(revalidate_cache=False)
+    assert result == 0
+
+
+async def test_cache_decorator_with_revalidation_fn_no_cache():
+    redis = FakeRedis()
+    value = 0
+
+    def revalidate_fn(*args, **kwargs):
+        return kwargs["revalidate_cache"]
+
+    @cached_result(redis, "test-suite", "SECRETNAME", "keyname", revalidate_fn=revalidate_fn)
+    async def slow_function(revalidate_cache: bool):
+        return value
+
+    result = await slow_function(revalidate_cache=True)
+    assert result == 0
+
+    # change the value so we can verify that the function was called
+    value = 1
+
+    # A new call should serve 1: as it is not cached now
+    result = await slow_function(revalidate_cache=True)
+    assert result == 1
