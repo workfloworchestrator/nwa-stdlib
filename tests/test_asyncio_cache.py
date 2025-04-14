@@ -1,11 +1,14 @@
 import json
 import sys
 from copy import copy
+from datetime import datetime
+from typing import Any, Optional, Union
+from uuid import UUID
 
 import pytest
 from fakeredis.aioredis import FakeRedis
 
-from nwastdlib.asyncio_cache import cached_result
+from nwastdlib.asyncio_cache import _generate_cache_key_suffix, cached_result
 
 
 @pytest.fixture(autouse=True)
@@ -220,3 +223,101 @@ async def test_cache_decorator_with_revalidation_fn_no_cache():
     # A new call should serve 1: as it is not cached now
     result = await slow_function(revalidate_cache=True)
     assert result == 1
+
+
+# Test the validation
+
+
+@pytest.mark.parametrize(
+    "type_",
+    [
+        Any,
+        tuple,
+        Union[str, int],
+    ],
+)
+def test_validate_signature_warn_unsafe(type_):
+    with pytest.warns(UserWarning, match="unsafe type"):
+
+        @cached_result(FakeRedis(), "test-suite", "SECRETNAME")
+        async def foo(param: type_):
+            return f"{param}-{param}"
+
+
+@pytest.mark.parametrize(
+    "type_",
+    [
+        int,
+        int | None,
+        Optional[int],
+    ],
+)
+def test_validate_signature_safe(recwarn, type_):
+    @cached_result(FakeRedis(), "test-suite", "SECRETNAME")
+    async def foo(param: type_):
+        return f"{param}-{param}"
+
+    assert not [w.message for w in recwarn]
+
+
+def test_type_error_on_function():
+    with pytest.raises(TypeError, match="foo: not a coroutine"):
+
+        @cached_result(FakeRedis(), "test-suite", "SECRETNAME")
+        def foo(param: str):
+            return f"{param}-{param}"
+
+
+def test_type_error_on_generatorfunction():
+    with pytest.raises(TypeError, match="foo: not a coroutine"):
+
+        @cached_result(FakeRedis(), "test-suite", "SECRETNAME")
+        def foo(param: str):
+            yield f"{param}-{param}"
+
+
+def test_type_error_on_asyncgeneratorfunction():
+    with pytest.raises(TypeError, match="foo: not a coroutine"):
+
+        @cached_result(FakeRedis(), "test-suite", "SECRETNAME")
+        async def foo(param: str):
+            yield f"{param}-{param}"
+
+
+# Test key generation
+
+version = f"{sys.version_info.major}.{sys.version_info.minor}"
+cache_prefix = "test"
+cache_key_start = f"{cache_prefix}:{version}"
+
+
+@pytest.mark.parametrize(
+    ("skip_first", "args", "kwargs", "expected_key"),
+    [
+        (True, (1, 2), {}, "((2,), frozenset())"),
+        (False, (1, 2), {}, "((1, 2), frozenset())"),
+        (False, (1, "a"), {}, "((1, 'a'), frozenset())"),
+        (False, (), {"foo": "bar"}, "((), frozenset({('foo', 'bar')}))"),
+        (False, (1.234567,), {}, "((1.234567,), frozenset())"),
+        (False, (datetime(year=2025, month=4, day=14),), {}, "((datetime.datetime(2025, 4, 14, 0, 0),), frozenset())"),
+        (
+            False,
+            (UUID("12345678-0000-1111-2222-0123456789ab"),),
+            {},
+            "((UUID('12345678-0000-1111-2222-0123456789ab'),), frozenset())",
+        ),
+    ],
+)
+def test_generate_cache_key_suffix(skip_first, args, kwargs, expected_key):
+    assert _generate_cache_key_suffix(skip_first=skip_first, args=args, kwargs=kwargs) == expected_key
+
+
+@pytest.mark.parametrize(
+    ("skip_first", "args", "kwargs", "expected_exception"),
+    [
+        (False, (), {}, ValueError),
+    ],
+)
+def test_generate_cache_key_errors(skip_first, args, kwargs, expected_exception):
+    with pytest.raises(expected_exception):
+        _generate_cache_key_suffix(skip_first=skip_first, args=args, kwargs=kwargs)
