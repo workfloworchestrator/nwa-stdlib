@@ -11,13 +11,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import datetime
 import hashlib
 import hmac
+import inspect
 import pickle  # noqa: S403
 import sys
+import types
+import typing
+import warnings
 from collections.abc import Callable
 from functools import wraps
-from typing import Any, Protocol, runtime_checkable
+from typing import Any, Protocol, get_args, get_origin, runtime_checkable
+from uuid import UUID
 
 import structlog
 from redis.asyncio import Redis as AIORedis
@@ -111,6 +117,80 @@ async def get_signed_cache_value(pool: AIORedis, secret: str, cache_key: str, se
     return _deserialize(pickled_value, serializer)
 
 
+def _generate_cache_key_suffix(*, skip_first: bool, args: tuple, kwargs: dict) -> str:
+    # Auto generate cache key suffix based on the arguments
+    # Note: this makes no attempt to handle non-hashable values like lists and sets or other complex objects
+    filtered_args = args[int(skip_first) :]
+    filtered_kwargs = frozenset(kwargs.items())
+    if not filtered_args and not filtered_kwargs:
+        raise ValueError("Cannot generate cache key without args/kwargs")
+    args_and_kwargs_string = (filtered_args, filtered_kwargs)
+    return str(args_and_kwargs_string)
+
+
+SAFE_CACHED_RESULT_TYPES = (
+    int,
+    str,
+    float,
+    datetime.datetime,
+    UUID,
+)
+
+
+def _unwrap_type(type_: Any) -> Any:
+    origin, args = get_origin(type_), get_args(type_)
+    # 'str'
+    if not origin:
+        return type_
+
+    # 'str | None' or 'Optional[str]'
+    if origin in (types.UnionType, typing.Union) and types.NoneType in args:
+        return args[0]
+
+    # For more advanced type handling, see https://github.com/workfloworchestrator/nwa-stdlib/issues/45
+    return type_
+
+
+def _format_warning(func: Callable, name: str, type_: Any) -> str:
+    safe_types = (t.__name__ for t in SAFE_CACHED_RESULT_TYPES)
+    return (
+        f"{cached_result.__name__}() applied to function {func.__qualname__} which has parameter '{name}' "
+        f"of unsafe type '{type_.__name__}'. "
+        f"This can lead to duplicate keys and thus cache misses. "
+        f"To resolve this, either set a static keyname or only use parameters of the type {safe_types}. "
+        f"If you understand the risks you can suppress/ignore this warning. "
+        f"For background and feedback see https://github.com/workfloworchestrator/nwa-stdlib/issues/45"
+    )
+
+
+def _validate_signature(func: Callable) -> bool:
+    """Validate the function's signature and return a bool whether to skip the first argument.
+
+    Raises warnings for potentially unsafe cache key arguments.
+    """
+    func_params = inspect.signature(func).parameters
+    is_nested_function = "." in func.__qualname__
+
+    skip_first_arg = False
+    for idx, (name, param) in enumerate(func_params.items()):
+        if idx == 0 and name == "self" and is_nested_function:
+            # This will falsely recognize a closure function with 'self'
+            # as first arg as a method. Nothing we can do about that..
+            skip_first_arg = True
+            continue
+
+        param_type = _unwrap_type(param.annotation)
+        if param_type not in SAFE_CACHED_RESULT_TYPES:
+            warnings.warn(_format_warning(func, name, param.annotation), stacklevel=2)
+    return skip_first_arg
+
+
+def _validate_coroutine(func: Callable) -> None:
+    """Validate that the callable is a coroutine."""
+    if not inspect.iscoroutinefunction(func):
+        raise TypeError(f"Can't apply {cached_result.__name__}() to {func.__name__}: not a coroutine")
+
+
 def cached_result(
     pool: AIORedis,
     prefix: str,
@@ -157,21 +237,23 @@ def cached_result(
         decorator function
 
     """
+    python_major, python_minor = sys.version_info[:2]
+    prefix_version = f"{prefix}:{python_major}.{python_minor}"
+    static_cache_key: str | None = f"{prefix_version}:{key_name}" if key_name else None
 
     def cache_decorator(func: Callable) -> Callable:
+        _validate_coroutine(func)
+        skip_first = _validate_signature(func)
+
         @wraps(func)
         async def func_wrapper(*args: tuple[Any], **kwargs: dict[str, Any]) -> Any:
             from_cache = (not revalidate_fn(*args, **kwargs)) if revalidate_fn else True
 
-            python_major, python_minor = sys.version_info[:2]
-            if key_name:
-                cache_key = f"{prefix}:{python_major}.{python_minor}:{key_name}"
+            if static_cache_key:
+                cache_key = static_cache_key
             else:
-                # Auto generate a cache key name based on function_name and a hash of the arguments
-                # Note: this makes no attempt to handle non-hashable values like lists and sets or other complex objects
-                args_and_kwargs_string = (args, frozenset(kwargs.items()))
-                cache_key = f"{prefix}:{python_major}.{python_minor}:{func.__name__}{args_and_kwargs_string}"
-                logger.debug("Autogenerated a cache key", cache_key=cache_key)
+                suffix = _generate_cache_key_suffix(skip_first=skip_first, args=args, kwargs=kwargs)
+                cache_key = f"{prefix_version}:{func.__name__}:{suffix}"
 
             if from_cache:
                 logger.debug("Cache called with wrapper func", func_name=func.__name__, cache_key=cache_key)
