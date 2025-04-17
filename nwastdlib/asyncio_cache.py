@@ -117,13 +117,13 @@ async def get_signed_cache_value(pool: AIORedis, secret: str, cache_key: str, se
     return _deserialize(pickled_value, serializer)
 
 
-def _generate_cache_key_suffix(*, skip_first: bool, args: tuple, kwargs: dict) -> str:
+def _generate_cache_key_suffix(*, skip_first: bool, args: tuple, kwargs: dict) -> str | None:
     # Auto generate cache key suffix based on the arguments
     # Note: this makes no attempt to handle non-hashable values like lists and sets or other complex objects
     filtered_args = args[int(skip_first) :]
     filtered_kwargs = frozenset(kwargs.items())
     if not filtered_args and not filtered_kwargs:
-        raise ValueError("Cannot generate cache key without args/kwargs")
+        return None
     args_and_kwargs_string = (filtered_args, filtered_kwargs)
     return str(args_and_kwargs_string)
 
@@ -244,6 +244,7 @@ def cached_result(
     def cache_decorator(func: Callable) -> Callable:
         _validate_coroutine(func)
         skip_first = _validate_signature(func)
+        prefix_version_func = f"{prefix_version}:{func.__qualname__}".lower()
 
         @wraps(func)
         async def func_wrapper(*args: tuple[Any], **kwargs: dict[str, Any]) -> Any:
@@ -251,9 +252,10 @@ def cached_result(
 
             if static_cache_key:
                 cache_key = static_cache_key
+            elif suffix := _generate_cache_key_suffix(skip_first=skip_first, args=args, kwargs=kwargs):
+                cache_key = f"{prefix_version_func}:{suffix}"
             else:
-                suffix = _generate_cache_key_suffix(skip_first=skip_first, args=args, kwargs=kwargs)
-                cache_key = f"{prefix_version}:{func.__name__}:{suffix}"
+                cache_key = prefix_version_func
 
             if from_cache:
                 logger.debug("Cache called with wrapper func", func_name=func.__name__, cache_key=cache_key)

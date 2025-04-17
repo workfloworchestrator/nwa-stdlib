@@ -306,18 +306,8 @@ cache_key_start = f"{cache_prefix}:{version}"
             {},
             "((UUID('12345678-0000-1111-2222-0123456789ab'),), frozenset())",
         ),
+        (False, (), {}, None),
     ],
 )
 def test_generate_cache_key_suffix(skip_first, args, kwargs, expected_key):
     assert _generate_cache_key_suffix(skip_first=skip_first, args=args, kwargs=kwargs) == expected_key
-
-
-@pytest.mark.parametrize(
-    ("skip_first", "args", "kwargs", "expected_exception"),
-    [
-        (False, (), {}, ValueError),
-    ],
-)
-def test_generate_cache_key_errors(skip_first, args, kwargs, expected_exception):
-    with pytest.raises(expected_exception):
-        _generate_cache_key_suffix(skip_first=skip_first, args=args, kwargs=kwargs)
