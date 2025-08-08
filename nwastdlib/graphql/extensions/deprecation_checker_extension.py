@@ -43,6 +43,16 @@ def get_root_path(path: Path) -> Path:
 
 
 def get_field_deprecation(info: GraphQLResolveInfo) -> str | None:
+    if not hasattr(info.context, "__field_deprecations_checked__"):
+        info.context.__field_deprecations_checked__ = set()
+
+    field_tuple = (info.parent_type.name, info.field_name)
+    if field_tuple in info.context.__field_deprecations_checked__:
+        # Prevent checking the same field twice, i.e. in lists
+        return None
+
+    info.context.__field_deprecations_checked__.add(field_tuple)
+
     field = info.parent_type.fields.get(info.field_name)
     if isinstance(field, GraphQLField):
         return field.deprecation_reason

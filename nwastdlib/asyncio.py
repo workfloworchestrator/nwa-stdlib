@@ -52,7 +52,7 @@ else:
             return func_args
 
         limiter = CapacityLimiter(limit)
-        tasks = [to_thread.run_sync(function, *make_args(arg), limiter=limiter) for arg in args]  # type: ignore
+        tasks = [to_thread.run_sync(function, *make_args(arg), limiter=limiter) for arg in args]
         return await asyncio.gather(*tasks, return_exceptions=return_exceptions)
 
 
