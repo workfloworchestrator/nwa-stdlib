@@ -25,7 +25,7 @@ from pydantic import GetCoreSchemaHandler, GetJsonSchemaHandler
 from pydantic.json_schema import JsonSchemaValue
 from pydantic_core import CoreSchema, SchemaSerializer, core_schema
 
-VLAN_RANGE_JSON_SCHEMA_REGEX = r"^(?:([1-9]|[1-9]\d{1,2}|[1-4]\d{3})(?:-(?:[1-9]|[1-9]\d{1,2}|[1-4]\d{3}))?)$"
+VLAN_RANGE_JSON_SCHEMA_REGEX = r"^(?:[1-9]\d{0,2}|[1-4]\d{3})(?:-(?:[1-9]\d{0,2}|[1-4]\d{3}))?(?:\s*,\s*(?:[1-9]\d{0,2}|[1-4]\d{3})(?:-(?:[1-9]\d{0,2}|[1-4]\d{3}))?)*$"
 
 
 def to_ranges(i: Iterable[int]) -> Iterable[range]:
