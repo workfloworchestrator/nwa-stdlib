@@ -317,13 +317,17 @@ def test_vlan_rejected_by_schema(vlan, vr_schema):
         jsonschema.validate({"vr": str(vlan)}, vr_schema)
 
 
-@pytest.mark.parametrize("vlanrange", ["1-1", "9-9", "49-59", "99-300", "999-1001", "3999-4999", "10,20,50-100", "10, 20, 50-100"])
+@pytest.mark.parametrize(
+    "vlanrange", ["1-1", "9-9", "49-59", "99-300", "999-1001", "3999-4999", "10,20,50-100", "10, 20, 50-100"]
+)
 def test_vlan_ranges_allowed_by_schema(vlanrange, vr_schema):
     """Test vlan ranges which should be allowed by the JSON Schema."""
     assert jsonschema.validate({"vr": vlanrange}, vr_schema) is None
 
 
-@pytest.mark.parametrize("vlanrange", ["-1", "-10-0", "0-1", "4999-5000", "5000-5002", "10,20,5000-5002", "10, 20, 5000-5002"])
+@pytest.mark.parametrize(
+    "vlanrange", ["-1", "-10-0", "0-1", "4999-5000", "5000-5002", "10,20,5000-5002", "10, 20, 5000-5002"]
+)
 def test_vlan_ranges_rejected_by_schema(vlanrange, vr_schema):
     """Test vlan ranges which should be rejected by the JSON Schema."""
     with pytest.raises(jsonschema.ValidationError):
