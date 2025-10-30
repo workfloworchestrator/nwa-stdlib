@@ -13,7 +13,7 @@
 #
 """The NWA-stdlib module."""
 
-__version__ = "1.10.4"
+__version__ = "1.10.5"
 
 from nwastdlib.f import const, identity
 
