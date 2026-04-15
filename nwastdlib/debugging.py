@@ -36,7 +36,7 @@ def start_debugger() -> None:
         pydevd_pycharm = __import__("pydevd_pycharm")
 
         port = nwa_settings.DEBUG_PYCHARM_PORT
-        pydevd_kwargs = {"host": "127.0.0.1", "port": port, "stdoutToServer": True, "stderrToServer": True}
+        pydevd_kwargs = {"host": "127.0.0.1", "port": port, "stdout_to_server": True, "stderr_to_server": True}
         logger.info("Connecting to pydevd server (choose 'Resume Program' in PyCharm)", pydevd_kwargs=pydevd_kwargs)
         pydevd_pycharm.settrace(**pydevd_kwargs)
         logger.info("Connected to pydevd server")
