@@ -75,7 +75,7 @@ def get_hmac_checksum(secret: str, message: bytes | bytearray | str) -> str:
 async def set_cache_value(
     pool: AIORedis, cache_key: str, value: Any, expiry_seconds: int, serializer: SerializerProtocol
 ) -> None:
-    await pool.setex(cache_key, expiry_seconds, serializer.serialize(value))
+    await pool.set(cache_key, serializer.serialize(value), ex=expiry_seconds)
 
 
 async def get_cache_value(pool: AIORedis, cache_key: str, serializer: SerializerProtocol) -> Any:
@@ -89,9 +89,8 @@ async def set_signed_cache_value(
     pickled_value = serializer.serialize(value)
     checksum = get_hmac_checksum(secret, pickled_value)
     pipeline = pool.pipeline()
-    pipeline.setex(cache_key, expiry_seconds, pickled_value).setex(
-        f"{cache_key}-checksum", expiry_seconds, checksum.encode()
-    )
+    pipeline.set(cache_key, pickled_value, ex=expiry_seconds)
+    pipeline.set(f"{cache_key}-checksum", checksum.encode(), ex=expiry_seconds)
     result_set_cache_value, result_set_cache_checksum = await pipeline.execute()
     if not result_set_cache_value or not result_set_cache_checksum:
         logger.warning(
