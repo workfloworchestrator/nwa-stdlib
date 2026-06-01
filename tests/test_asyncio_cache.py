@@ -111,7 +111,7 @@ async def test_cache_decorator_wrong_checksum():
     value = 1
 
     # patch the checksum value
-    await redis.setex(f"test-suite:{python_major}.{python_minor}:keyname-checksum", 120, "123456789")
+    await redis.set(f"test-suite:{python_major}.{python_minor}:keyname-checksum", "123456789", ex=120)
 
     # A new call should return 1: due to the checksum error the function is called again
     result = await slow_function()
@@ -135,7 +135,7 @@ async def test_cache_decorator_wrong_data():
     value = 1
 
     # patch the cache value
-    await redis.setex(f"test-suite:{python_major}.{python_minor}:keyname", 120, b"faked_data")
+    await redis.set(f"test-suite:{python_major}.{python_minor}:keyname", b"faked_data", ex=120)
 
     # A new call should return 1: due to the checksum error the function is called again
     result = await slow_function()
