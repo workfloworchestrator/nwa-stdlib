@@ -110,7 +110,7 @@ def _process(error: GraphQLError, to_error_type: Callable[[Exception | None], Er
 
     error_type = _get_extension(error, EXTENSION_ERROR_TYPE)
     if error_type == ErrorType.INTERNAL_ERROR and not nwa_settings.DEBUG:
-        logger.exception("Graphql Internal Server Error", error=error)
+        logger.exception("Graphql Internal Server Error", error=error, exc_info=exc)
         error.message = "Internal Server Error"
 
     return error
