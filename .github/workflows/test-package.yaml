@@ -58,7 +58,7 @@ jobs:
         # --no-sync: the non-locked resolutions deliberately deviate from uv.lock.
         run: uv run --no-sync pytest --cov-branch --cov=nwastdlib --cov-report=xml --ignore=benchmarks
       - name: "Upload coverage to Codecov"
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
