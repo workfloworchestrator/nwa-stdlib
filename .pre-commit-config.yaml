@@ -1,40 +1,53 @@
+default_language_version:
+  python: python3
 repos:
-  - repo: https://github.com/asottile/pyupgrade
-    rev: v3.21.2
-    hooks:
-      - id: pyupgrade
-        exclude: tests
-        args:
-         - --py311-plus
-         - --keep-runtime-typing
   - repo: https://github.com/psf/black
-    rev: 24.10.0
+    rev: 25.11.0
     hooks:
       - id: black
+
   - repo: https://github.com/asottile/blacken-docs
-    rev: 1.19.1
+    rev: 1.20.0
     hooks:
       - id: blacken-docs
-        additional_dependencies: [black==24.10.0]
+        additional_dependencies: [black==25.11.0]
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.11
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix, --show-fixes]
+
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       - id: trailing-whitespace
-        exclude: .bumpversion.cfg
       - id: end-of-file-fixer
       - id: check-docstring-first
       - id: check-json
       - id: check-yaml
-        exclude: (charts/*|.gitlab-ci.yml)
+        exclude: (charts/.*|\.gitlab-ci\.yml)
       - id: debug-statements
       - id: requirements-txt-fixer
       - id: detect-private-key
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    # Ruff version.
-    rev: v0.8.4
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    # Keep in lockstep with the mypy pin in pyproject.toml.
+    rev: v2.1.0
     hooks:
-      - id: ruff
-        args: [ --fix, --exit-non-zero-on-fix, --show-fixes ]
+      - id: mypy
+        additional_dependencies:
+          - anyio
+          - pydantic
+          - pydantic-settings
+          - strawberry-graphql
+          - structlog
+          - types-redis
+        args:
+          - --no-warn-unused-ignores
+          - --allow-untyped-decorators
+        exclude: (tests/.*|benchmarks/.*)
+
   - repo: https://github.com/pre-commit/pygrep-hooks
     rev: v1.10.0
     hooks:
@@ -42,7 +55,13 @@ repos:
       - id: python-use-type-annotations
       - id: python-check-mock-methods
       - id: rst-backticks
+
   - repo: https://github.com/shellcheck-py/shellcheck-py
-    rev: v0.10.0.1
+    rev: v0.11.0.1
     hooks:
       - id: shellcheck
+
+  - repo: https://github.com/astral-sh/uv-pre-commit
+    rev: 0.12.3
+    hooks:
+      - id: uv-lock

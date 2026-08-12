@@ -13,8 +13,10 @@
 #
 """The NWA-stdlib module."""
 
-__version__ = "1.12.1"
+from importlib.metadata import version
 
 from nwastdlib.f import const, identity
+
+__version__ = version("nwa-stdlib")
 
 __all__ = ["const", "identity"]
