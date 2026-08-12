@@ -8,17 +8,15 @@ jobs:
   build:
     runs-on: ubuntu-24.04
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python
-      uses: actions/setup-python@v5
+    - uses: actions/checkout@v6
+    - name: Install uv
+      uses: astral-sh/setup-uv@v9.0.0
       with:
-        python-version: '3.x'
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install flit
-    - name: Build
-      run: flit build
+        version: "0.12.3"
+        python-version: '3.13'
+    - name: Build package
+      # Prevent local tool.uv.sources entries from leaking into the artifact.
+      run: uv build --no-sources
     - name: Upload dist artifact
       uses: actions/upload-artifact@v4
       with:
