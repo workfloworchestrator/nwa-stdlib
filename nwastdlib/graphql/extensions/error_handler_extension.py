@@ -18,7 +18,6 @@ from typing import Any
 
 import structlog
 from graphql import GraphQLError
-from httpx import HTTPStatusError, Response
 from strawberry.extensions import SchemaExtension
 from strawberry.types import ExecutionContext, Info
 
@@ -53,23 +52,32 @@ class ErrorType(StrEnum):
     BAD_REQUEST = auto()
 
 
-def _is_http_error(exception: Exception, *statuses: HTTPStatus) -> bool:
-    match exception:
-        case HTTPStatusError(response=Response(status_code=s)) if s in statuses:
-            return True
+def _http_attr(exception: Exception | None, part: str, field: str) -> Any:
+    """Read `exception.<part>.<field>`, tolerating clients that raise on access.
 
-    return False
+    httpx's `.request` is a property that raises RuntimeError when unset, so plain getattr is unsafe.
+    """
+    try:
+        return getattr(getattr(exception, part, None), field, None)
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def _http_status_code(exception: Exception | None) -> int | None:
+    """Status code from clients exposing `.response.status_code` (httpx, httpx2, requests)."""
+    return _http_attr(exception, "response", "status_code")
 
 
 def default_to_error_type(exception: Exception | None) -> ErrorType:
-    match exception:
-        case PermissionError():
-            return ErrorType.NOT_AUTHORIZED
-        case Exception() if _is_http_error(exception, HTTPStatus.UNAUTHORIZED):
+    if isinstance(exception, PermissionError):
+        return ErrorType.NOT_AUTHORIZED
+
+    match _http_status_code(exception):
+        case HTTPStatus.UNAUTHORIZED:
             return ErrorType.NOT_AUTHENTICATED
-        case Exception() if _is_http_error(exception, HTTPStatus.FORBIDDEN):
+        case HTTPStatus.FORBIDDEN:
             return ErrorType.NOT_AUTHORIZED
-        case Exception() if _is_http_error(exception, HTTPStatus.NOT_FOUND):
+        case HTTPStatus.NOT_FOUND:
             return ErrorType.NOT_FOUND
         case _:
             return ErrorType.INTERNAL_ERROR
@@ -103,8 +111,8 @@ def _get_extension(error: GraphQLError, key: str) -> Any | None:
 
 def _process(error: GraphQLError, to_error_type: Callable[[Exception | None], ErrorType]) -> GraphQLError:
     exc = error.original_error
-    if isinstance(exc, HTTPStatusError):
-        _add_extension(error, EXTENSION_HTTP_STATUS_CODE, {f"{exc.request.url}": exc.response.status_code})
+    if (status_code := _http_status_code(exc)) is not None and (url := _http_attr(exc, "request", "url")) is not None:
+        _add_extension(error, EXTENSION_HTTP_STATUS_CODE, {f"{url}": status_code})
     if not _has_extension(error, EXTENSION_ERROR_TYPE):
         _add_extension(error, EXTENSION_ERROR_TYPE, str(to_error_type(exc)))
 
