@@ -1,6 +1,6 @@
 [project]
 name = "nwa-stdlib"
-version = "1.12.1"
+version = "1.12.2"
 description = "Network Automation Standard Library."
 readme = "README.md"
 license = "Apache-2.0"
