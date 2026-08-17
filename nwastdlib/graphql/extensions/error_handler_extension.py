@@ -59,7 +59,7 @@ def _http_attr(exception: Exception | None, part: str, field: str) -> Any:
     """
     try:
         return getattr(getattr(exception, part, None), field, None)
-    except Exception:  # noqa: BLE001
+    except RuntimeError:
         return None
 
 
