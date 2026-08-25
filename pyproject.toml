@@ -60,7 +60,7 @@ test = [
     "httpx>=0.27.2",
     "jsonschema>=4.23.0",
     # Pinned, and kept in lockstep with the mirrors-mypy rev in .pre-commit-config.yaml.
-    "mypy==2.1.0",
+    "mypy==2.3.1",
     "mypy-extensions>=1.0.0",
     "pytest>=8.3.0",
     "pytest-asyncio>=0.24.0",
