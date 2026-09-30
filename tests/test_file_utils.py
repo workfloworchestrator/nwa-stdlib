@@ -1,4 +1,3 @@
-from collections.abc import Awaitable, Callable
 from pathlib import Path
 
 import pytest
@@ -9,24 +8,9 @@ from nwastdlib.file_utils import (
     PathOutsideRootError,
     SafeName,
     resolve_within_root,
-    resolve_within_root_async,
 )
 
-Resolver = Callable[[Path, Path], Awaitable[Path]]
 
-
-async def _sync_resolver(root_dir: Path, name: Path) -> Path:
-    return resolve_within_root(root_dir, name)
-
-
-#: Both variants share one containment check, so every case below is run against both of them.
-RESOLVERS = [
-    pytest.param(_sync_resolver, id="sync"),
-    pytest.param(resolve_within_root_async, id="async"),
-]
-
-
-@pytest.mark.parametrize("resolver", RESOLVERS)
 @pytest.mark.parametrize(
     "name",
     [
@@ -38,9 +22,9 @@ RESOLVERS = [
         pytest.param("/nonexistent-a1b2c3/nope", id="absolute-path-that-does-not-exist"),
     ],
 )
-async def test_name_resolving_outside_root_is_rejected(resolver: Resolver, name: str, tmp_path: Path) -> None:
+def test_name_resolving_outside_root_is_rejected(name: str, tmp_path: Path) -> None:
     with pytest.raises(PathOutsideRootError) as exc:
-        await resolver(tmp_path, Path(name))
+        resolve_within_root(tmp_path, Path(name))
 
     assert exc.value.name == Path(name)
     # Only the caller-supplied name is echoed, never the resolved server-side path
@@ -51,7 +35,6 @@ def test_path_outside_root_error_is_a_value_error() -> None:
     assert issubclass(PathOutsideRootError, ValueError)
 
 
-@pytest.mark.parametrize("resolver", RESOLVERS)
 @pytest.mark.parametrize(
     "name",
     [
@@ -62,13 +45,12 @@ def test_path_outside_root_error_is_a_value_error() -> None:
         pytest.param("does-not-exist.md", id="non-existing-file"),
     ],
 )
-async def test_ordinary_names_are_accepted(resolver: Resolver, name: str, tmp_path: Path) -> None:
-    assert await resolver(tmp_path, Path(name)) == (tmp_path.resolve() / name).resolve()
+def test_ordinary_names_are_accepted(name: str, tmp_path: Path) -> None:
+    assert resolve_within_root(tmp_path, Path(name)) == (tmp_path.resolve() / name).resolve()
 
 
-@pytest.mark.parametrize("resolver", RESOLVERS)
-async def test_root_itself_is_accepted(resolver: Resolver, tmp_path: Path) -> None:
-    assert await resolver(tmp_path, Path(".")) == tmp_path.resolve()
+def test_root_itself_is_accepted(tmp_path: Path) -> None:
+    assert resolve_within_root(tmp_path, Path(".")) == tmp_path.resolve()
 
 
 @pytest.mark.parametrize("name", ["deploy.yaml", Path("deploy.yaml")])
@@ -76,8 +58,7 @@ def test_accepts_str_and_path(name: str | Path, tmp_path: Path) -> None:
     assert resolve_within_root(str(tmp_path), name) == tmp_path.resolve() / "deploy.yaml"
 
 
-@pytest.mark.parametrize("resolver", RESOLVERS)
-async def test_symlink_pointing_out_of_root_is_rejected(resolver: Resolver, tmp_path: Path) -> None:
+def test_symlink_pointing_out_of_root_is_rejected(tmp_path: Path) -> None:
     root = tmp_path / "root"
     root.mkdir()
     outside = tmp_path / "outside.sh"
@@ -85,11 +66,10 @@ async def test_symlink_pointing_out_of_root_is_rejected(resolver: Resolver, tmp_
     (root / "innocent.sh").symlink_to(outside)
 
     with pytest.raises(PathOutsideRootError):
-        await resolver(root, Path("innocent.sh"))
+        resolve_within_root(root, Path("innocent.sh"))
 
 
-@pytest.mark.parametrize("resolver", RESOLVERS)
-async def test_symlinked_root_still_accepts_contained_name(resolver: Resolver, tmp_path: Path) -> None:
+def test_symlinked_root_still_accepts_contained_name(tmp_path: Path) -> None:
     """A root directory that is itself a symlink must not reject names that genuinely sit inside it.
 
     Containment is decided between two resolved paths. Comparing a resolved candidate against an unresolved
@@ -102,7 +82,7 @@ async def test_symlinked_root_still_accepts_contained_name(resolver: Resolver, t
     linked_root = tmp_path / "linked"
     linked_root.symlink_to(real_root, target_is_directory=True)
 
-    assert await resolver(linked_root, Path("hello.sh")) == real_root.resolve() / "hello.sh"
+    assert resolve_within_root(linked_root, Path("hello.sh")) == real_root.resolve() / "hello.sh"
 
 
 safe_name_adapter = TypeAdapter(SafeName)

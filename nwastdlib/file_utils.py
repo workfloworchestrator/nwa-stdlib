@@ -18,7 +18,6 @@ import re
 from pathlib import Path
 from typing import Annotated
 
-import anyio
 from pydantic import BeforeValidator, Field
 
 #: Characters a caller-supplied file name may consist of. Such a name is meant to be used as a filesystem path,
@@ -68,24 +67,6 @@ def resolve_within_root(root_dir: str | os.PathLike[str], name: str | os.PathLik
     """
     root = Path(root_dir).resolve()
     return _check_contained(root, (root / name).resolve(), name)
-
-
-async def resolve_within_root_async(root_dir: str | os.PathLike[str], name: str | os.PathLike[str]) -> Path:
-    """Async variant of `resolve_within_root` that does not block the event loop while resolving.
-
-    Args:
-        root_dir: The configured directory that `name` has to stay inside of.
-        name: The caller-supplied name to resolve against `root_dir`.
-
-    Returns:
-        The resolved path, guaranteed to lie inside `root_dir`.
-
-    Raises:
-        PathOutsideRootError: If the resolved path lies outside `root_dir`.
-
-    """
-    root = Path(await anyio.Path(root_dir).resolve())
-    return _check_contained(root, Path(await anyio.Path(root / name).resolve()), name)
 
 
 def _reject_unsafe_name(value: str | os.PathLike[str]) -> str | os.PathLike[str]:
