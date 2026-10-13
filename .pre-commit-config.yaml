@@ -31,18 +31,16 @@ repos:
       - id: requirements-txt-fixer
       - id: detect-private-key
 
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    # Keep in lockstep with the mypy pin in pyproject.toml.
-    rev: v2.1.0
+  # This hook uses the `mypy` executable installed in your local environment
+  - repo: local
     hooks:
       - id: mypy
-        additional_dependencies:
-          - anyio
-          - pydantic
-          - pydantic-settings
-          - strawberry-graphql
-          - structlog
-          - types-redis
+        name: mypy
+        language: system
+        entry: "uv run mypy"
+        types: [python]
+        require_serial: true
+        verbose: true
         args:
           - --no-warn-unused-ignores
           - --allow-untyped-decorators
