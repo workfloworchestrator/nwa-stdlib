@@ -7,25 +7,63 @@
   "labels": ["kind/dependencies"],
   "packageRules": [
     {
-      "matchManagers": ["uv"]
-    },
-    {
-      "description": "Label GitHub Actions bumps so they land in the CI/Build release-notes section",
-      "matchManagers": ["github-actions"],
-      "labels": ["kind/ci"]
-    },
-    {
+      "description": "[disable] requires-python is managed by hand together with the CI test matrix",
       "matchPackageNames": ["python"],
       "rangeStrategy": "widen",
       "enabled": false
     },
     {
-      "description": "Development-only dependencies never reach users of this library; keep their bumps out of the release notes",
+      "description": "[labels] Label GitHub Actions bumps so they land in the CI/Build release-notes",
+      "matchManagers": ["github-actions"],
+      "labels": ["kind/ci"]
+    },
+    {
+      "description": "[labels] Ensure that dependency-groups (test, dev, docs) stay out of release-notes",
       "matchManagers": ["pep621"],
       "matchDepTypes": ["dependency-groups"],
       "addLabels": ["dev-dependencies"]
+    },
+    {
+      "description": "[automerge] Merge CI bumps once CI passes, including stability check",
+      "matchManagers": ["github-actions", "pre-commit"],
+      "automerge": true
+    },
+    {
+      "description": "[automerge] Merge dependency-groups (test, dev, docs) bumps once CI passes",
+      "matchManagers": ["pep621"],
+      "matchDepTypes": ["dependency-groups"],
+      "automerge": true
+    },
+    {
+      "description": "[automerge] Merge lockfile updates once CI passes, excluding stability check",
+      "matchUpdateTypes": ["lockFileMaintenance"],
+      "automerge": true,
+      "minimumReleaseAge": null
+    },
+    {
+      "description": "[group] Batch all uv related changes into one weekly PR (Saturday and Sunday night)",
+      "groupName": "uv",
+      "matchPackageNames": ["astral-sh/uv", "astral-sh/setup-uv", "astral-sh/uv-pre-commit"],
+      "schedule": ["* 22-23 * * 6,0", "* 0-5 * * 0,1"]
+    },
+    {
+      "description": "[group] Action digest bumps batched into one weekly PR (Saturday and Sunday night)",
+      "groupName": "GitHub Actions digests",
+      "matchManagers": ["github-actions"],
+      "matchUpdateTypes": ["digest", "pinDigest"],
+      "schedule": ["* 22-23 * * 6,0", "* 0-5 * * 0,1"]
+    },
+    {
+      "description": "[schedule] Propose dependency-groups (test, dev, docs) bumps weekly (Saturday and Sunday night)",
+      "matchManagers": ["pep621"],
+      "matchDepTypes": ["dependency-groups"],
+      "schedule": ["* 22-23 * * 6,0", "* 0-5 * * 0,1"]
     }
   ],
+  "platformAutomerge": false,
+  "pre-commit": {
+    "enabled": true
+  },
   "minimumReleaseAge": "3 days",
   "vulnerabilityAlerts": {
     "enabled": false
@@ -37,8 +75,14 @@
     "schedule": ["before 3am on Tuesday"]
   },
   "schedule": [
-    "* 1-5 * * *"
+    "* 22-23 * * *",
+    "* 0-5 * * *"
   ],
+  "automergeSchedule": [
+    "* 22-23 * * *",
+    "* 0-5 * * *"
+  ],
+  "commitHourlyLimit": 4,
   "timezone": "Europe/Amsterdam",
   "updateNotScheduled": false
 }
