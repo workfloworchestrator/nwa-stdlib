@@ -190,13 +190,11 @@ async def test_error_handler_extension_with_transport_error():
 
     # when
 
-    result = await schema.execute(
-        query="""
+    result = await schema.execute(query="""
     query TestQuery {
         someQuery
     }
-    """
-    )
+    """)
 
     # then
 
@@ -237,13 +235,11 @@ async def test_error_handler_extension_when_request_is_unreadable():
 
     # when
 
-    result = await schema.execute(
-        query="""
+    result = await schema.execute(query="""
     query TestQuery {
         someQuery
     }
-    """
-    )
+    """)
 
     # then
 

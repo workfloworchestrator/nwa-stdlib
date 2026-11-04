@@ -14,7 +14,6 @@
 
 """Module containing functions to deal with `Exception`s."""
 
-
 import traceback
 
 
