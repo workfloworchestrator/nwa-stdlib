@@ -1435,7 +1435,7 @@ wheels = [
 
 [[package]]
 name = "strawberry-graphql"
-version = "0.339.1"
+version = "0.339.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "cross-web" },
@@ -1444,9 +1444,9 @@ dependencies = [
     { name = "python-dateutil" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/17/75/78fda2622fcfc5bd3d028f540ab9d6e3838016b78549c0572a7cda442603/strawberry_graphql-0.339.1.tar.gz", hash = "sha256:16e8ac770dcbd6946b5725845e9b8b8c68aa3f811766627bda3902b00c928e23", size = 295649, upload-time = "2026-10-31T22:58:47.158Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/f6/74/40090b2cf1cdc4f497912f9e45c032d1d5e840bc4ab47e915140955cdffd/strawberry_graphql-0.339.2.tar.gz", hash = "sha256:32f438bf39e3934aaaccf2043fc4b6170e700be4ad50b6985337b1209127d90c", size = 295857, upload-time = "2026-11-05T16:59:39.65Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/2e/4e/e5dabb425560f3b1dafd5c48f878f720c955e8d7eaeb0dc0366344dbd648/strawberry_graphql-0.339.1-py3-none-any.whl", hash = "sha256:574b28acf609cc8ee150c47e290a7bf5aaf1274aa7c52242fca00aec2e1a8146", size = 391448, upload-time = "2026-10-31T22:58:44.858Z" },
+    { url = "https://files.pythonhosted.org/packages/f2/09/92c7adb88ba380d1022856fe3f3fa66eeda05ed2a5fbe82510cf82769ba0/strawberry_graphql-0.339.2-py3-none-any.whl", hash = "sha256:85cd89bc8f5d57951dc734d778e392bc9249792586d8310abd32e0d0e7aef2b3", size = 391635, upload-time = "2026-11-05T16:59:38.303Z" },
 ]
 
 [[package]]
